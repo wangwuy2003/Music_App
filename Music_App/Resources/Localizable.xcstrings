@@ -1,0 +1,18 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Hello, world!" : {
+
+    },
+    "Library...." : {
+
+    },
+    "Profile...." : {
+
+    },
+    "Search...." : {
+
+    }
+  },
+  "version" : "1.0"
+}
