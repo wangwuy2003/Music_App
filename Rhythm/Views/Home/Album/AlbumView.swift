@@ -6,22 +6,29 @@
 //
 
 import SwiftUI
+import SwiftfulRouting
 
 struct AlbumView: View {
+    @Environment(\.router) var router
+    
     var albums: [Album] = Album.sampleData
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach(albums) { album in
-                AlbumSectionView(album: album)
+                AlbumSectionView(album: album) {
+                    router.showScreen(.push) { _ in
+                        PlaylistView()
+                    }
+                }
             }
         }
     }
 }
 
 struct AlbumSectionView: View {
-    @State private var scrollPosition: Int? = nil
     let album: Album
+    var onTap: (() -> Void)? = nil
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -43,6 +50,9 @@ struct AlbumSectionView: View {
                             .scrollTransition { content, phase in
                                 content
                                     .opacity(phase.isIdentity ? 1 : 0.6)
+                            }
+                            .onTapGesture {
+                                onTap?()
                             }
                     }
                 }
