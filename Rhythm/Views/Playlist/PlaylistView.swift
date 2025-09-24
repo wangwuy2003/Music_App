@@ -9,6 +9,8 @@ import SwiftUI
 import SwiftfulRouting
 
 struct PlaylistView: View {
+    @Environment(\.router) var router
+    
     let tracks: [Track] = Track.sample
     
     var body: some View {
@@ -25,6 +27,11 @@ struct PlaylistView: View {
                     TrackRowView(track: track)
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
+                        .onTapGesture {
+                            router.showScreen(.push) { _ in                           MusicView()
+                                    .navigationBarBackButtonHidden()
+                            }
+                        }
                 }
             }
             .listStyle(.inset)
