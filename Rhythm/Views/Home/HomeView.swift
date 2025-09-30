@@ -9,6 +9,8 @@ import SwiftUI
 import SwiftfulRouting
 
 struct HomeView: View {
+    @StateObject private var homeVM = HomeViewModel()
+    
     var body: some View {
         RouterView { _ in
             ZStack {
