@@ -9,7 +9,9 @@ import SwiftUI
 import SwiftfulRouting
 
 struct HomeView: View {
-    @StateObject private var homeVM = HomeViewModel()
+    @State private var isExpanded = false
+    
+    @StateObject private var playerVM = PlayerViewModel()
     
     var body: some View {
         RouterView { _ in
@@ -27,6 +29,7 @@ struct HomeView: View {
             }
             .navigationTitle(.localized("Trending"))
         }
+        .environmentObject(playerVM)
     }
 }
 

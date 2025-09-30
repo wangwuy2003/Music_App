@@ -11,6 +11,8 @@ import SwiftfulRouting
 struct PlaylistView: View {
     @Environment(\.router) var router
     
+    @EnvironmentObject var playerVM: PlayerViewModel
+    
     let tracks: [Track] = Track.sample
     
     var body: some View {
@@ -28,8 +30,8 @@ struct PlaylistView: View {
                         .listRowBackground(Color.clear)
                         .listRowSeparator(.hidden)
                         .onTapGesture {
-                            router.showScreen(.push) { _ in                           MusicView()
-                                    .navigationBarBackButtonHidden()
+                            router.showScreen(.push) { _ in
+                                PlayerMusicView(isExpanded: $playerVM.isExpanded)
                             }
                         }
                 }
