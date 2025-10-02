@@ -7,8 +7,10 @@
 
 import Foundation
 import Combine
+import SwiftfulRouting
 
 class HomeViewModel: ObservableObject {
+//    let router: AnyRouter
     let homeUseCase = UseCaseProvider.makeHomeUseCase()
     
     @Published var trendingSections: [CollectionSectionModel]?
@@ -16,6 +18,10 @@ class HomeViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     
     private var cancellables = Set<AnyCancellable>()
+    
+//    init(router: AnyRouter) {
+//        self.router = router
+//    }
 
     func fetchData() {
         isLoading = true

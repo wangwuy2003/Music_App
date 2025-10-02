@@ -22,6 +22,7 @@ class HomeUseCase {
                 }
             }
         }
+        .subscribe(on: DispatchQueue.global(qos: .userInitiated))
         .eraseToAnyPublisher()
     }
 }

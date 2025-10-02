@@ -7,11 +7,14 @@
 
 import SwiftUI
 import SwiftfulRouting
+import Combine
 
 struct HomeView: View {
+    @Environment(\.router) var router
     @State private var isExpanded = false
-    
     @StateObject private var playerVM = PlayerViewModel()
+    @EnvironmentObject var homeVM: HomeViewModel
+
     
     var body: some View {
         RouterView { _ in
@@ -19,17 +22,36 @@ struct HomeView: View {
                 LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]), startPoint: .top, endPoint: .bottom)
                     .ignoresSafeArea()
                 
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
-                        genreRow
-                        
-                        AlbumView()
+                Spacer(minLength: 10)
+                
+                VStack(alignment: .leading, spacing: 10) {
+                    titleView
+                    
+                    ScrollView(showsIndicators: true) {
+                        VStack(spacing: 24) {
+                            genreRow
+                            
+                            AlbumView(sections: homeVM.trendingSections ?? [])
+                        }
                     }
                 }
             }
-            .navigationTitle(.localized("Trending"))
+            .toolbar(.hidden)
+            .onAppear {
+                homeVM.fetchData()
+            }
+            .environmentObject(playerVM)
         }
-        .environmentObject(playerVM)
+    }
+    
+    private var titleView: some View {
+        HStack {
+            Text(.localized("Trending"))
+                .font(.largeTitle)
+                .bold()
+            Spacer()
+        }
+        .padding(.horizontal)
     }
 }
 
@@ -63,8 +85,4 @@ extension HomeView {
         }
         .frame(maxWidth: .infinity)
     }
-}
-
-#Preview {
-    HomeView()
 }

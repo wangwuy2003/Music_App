@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftfulRouting
 
 @main
 struct RhythmApp: App {
@@ -23,7 +24,7 @@ struct RhythmApp: App {
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .preferredColorScheme(.dark)
             }
-           
+            .environmentObject(HomeViewModel())
         }
     }
 }

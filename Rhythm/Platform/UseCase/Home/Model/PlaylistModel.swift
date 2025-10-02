@@ -5,14 +5,13 @@
 //  Created by Apple on 29/9/25.
 //
 
-struct PlaylistModel: Codable {
+struct PlaylistModel: Codable, Hashable {
     let id: Int
     let title: String
     let artworkURL: String?
     let trackCount: Int
     let likesCount: Int
     let duration: Int
-    
     
     private enum CodingKeys: String, CodingKey {
         case id
