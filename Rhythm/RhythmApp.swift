@@ -12,19 +12,9 @@ import SwiftfulRouting
 struct RhythmApp: App {
     var body: some Scene {
         WindowGroup {
-            ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .ignoresSafeArea()
-                
-                TabbarView()
-                    .transition(.move(edge: .top).combined(with: .opacity))
-                    .preferredColorScheme(.dark)
+            RouterView { router in
+                RootContainer(router: router)
             }
-            .environmentObject(HomeViewModel())
         }
     }
 }

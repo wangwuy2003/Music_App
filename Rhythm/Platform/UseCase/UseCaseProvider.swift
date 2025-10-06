@@ -9,4 +9,8 @@ class UseCaseProvider {
     static func makeHomeUseCase() -> HomeUseCase {
         return HomeUseCase()
     }
+    
+    static func makePlaylistUseCase() -> PlaylistUseCase {
+        return PlaylistUseCase()
+    }
 }

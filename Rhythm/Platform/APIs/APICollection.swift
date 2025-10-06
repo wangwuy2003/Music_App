@@ -20,8 +20,8 @@ class APICollection: APIClient {
     var appLocale: String
 
     init(
-        clientId: String = "0wlyyut4CpbvbdpJVkjVQExyIYX27qGO",
-        limit: Int = 10,
+        clientId: String = Constant.clientId,
+        limit: Int = 0,
         offset: Int = 0,
         linkedPartitioning: Int = 1,
         appVersion: String = "1753870647",

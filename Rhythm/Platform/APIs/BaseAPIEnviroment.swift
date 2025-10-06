@@ -6,21 +6,21 @@
 //
 
 import Foundation
-class BaseAPIEnviroment: APIEnvironment {
+
+struct BaseAPIEnviroment: APIEnvironment {
     var baseURL: String {
         return "https://api-v2.soundcloud.com"
     }
     
     var timeout: TimeInterval {
-        return 10
+        return 60
     }
     
-    var headers: [String : String] {
-        return [:]
+    var headers: [String: String] {
+        return ["Content-Type": "application/json"]
     }
     
     var apiKey: String {
         return ""
     }
-    
 }

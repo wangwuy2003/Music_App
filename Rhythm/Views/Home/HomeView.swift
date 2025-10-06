@@ -14,34 +14,33 @@ struct HomeView: View {
     @State private var isExpanded = false
     @StateObject private var playerVM = PlayerViewModel()
     @EnvironmentObject var homeVM: HomeViewModel
-
     
     var body: some View {
-        RouterView { _ in
-            ZStack {
-                LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]), startPoint: .top, endPoint: .bottom)
-                    .ignoresSafeArea()
+        ZStack {
+            LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]), startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+            
+            if homeVM.isLoading {
+                ProgressView().tint(.white)
+            }
+            
+            ScrollView(showsIndicators: false) {
+                titleView
                 
-                Spacer(minLength: 10)
-                
-                VStack(alignment: .leading, spacing: 10) {
-                    titleView
+                VStack(spacing: 24) {
+                    genreRow
                     
-                    ScrollView(showsIndicators: true) {
-                        VStack(spacing: 24) {
-                            genreRow
-                            
-                            AlbumView(sections: homeVM.trendingSections ?? [])
-                        }
-                    }
+                    AlbumView(sections: homeVM.trendingSections ?? [])
                 }
             }
-            .toolbar(.hidden)
-            .onAppear {
+        }
+        .toolbar(.hidden)
+        .task {                          
+            if homeVM.trendingSections == nil {
                 homeVM.fetchData()
             }
-            .environmentObject(playerVM)
         }
+        .environmentObject(playerVM)
     }
     
     private var titleView: some View {
@@ -54,6 +53,7 @@ struct HomeView: View {
         .padding(.horizontal)
     }
 }
+
 
 extension HomeView {
     private var genreRow: some View {
@@ -69,7 +69,6 @@ extension HomeView {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 12) {
-                    
                     ForEach(MusicGenres.allCases) { genre in
                         Text(genre.name)
                             .font(.callout)

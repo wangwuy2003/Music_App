@@ -1,10 +1,3 @@
-//
-//  TabbarView.swift
-//  Music_App
-//
-//  Created by Apple on 23/9/25.
-//
-
 import SwiftUI
 
 struct TabbarView: View {
@@ -12,11 +5,11 @@ struct TabbarView: View {
     
     var body: some View {
         TabView(selection: $selectedTab) {
-            ForEach(TabEnum.defaultTabs, id: \.hashValue) { tab in
+            ForEach(TabEnum.defaultTabs, id: \.self) { tab in
                 TabEnum.view(for: tab)
-                    .tabItem {
+                    .tabItem({
                         Image(systemName: tab.image)
-                    }
+                    })
                     .tag(tab)
             }
         }

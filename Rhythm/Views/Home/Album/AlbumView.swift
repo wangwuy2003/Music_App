@@ -11,18 +11,17 @@ import SDWebImageSwiftUI
 
 struct AlbumView: View {
     @Environment(\.router) var router
+    @EnvironmentObject var homeVM: HomeViewModel
     
     //    var albums: [Album] = Album.sampleData
     
     let sections: [CollectionSectionModel]
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 15) {
             ForEach(sections, id: \.urn) { section in
-                AlbumSectionView(section: section) {
-                    router.showScreen(.push) { _ in
-                        PlaylistView()
-                    }
+                AlbumSectionView(section: section) { playlistId in
+                    homeVM.openPlaylist(playlistId: playlistId)
                 }
             }
         }
@@ -31,7 +30,7 @@ struct AlbumView: View {
 
 struct AlbumSectionView: View {
     let section: CollectionSectionModel
-    var onTap: (() -> Void)? = nil
+    var onTap: ((Int) -> Void)? = nil
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -45,7 +44,7 @@ struct AlbumSectionView: View {
                     ForEach(section.items.collection, id: \.id) { playlist in
                         PlaylistArtworkView(urlString: playlist.artworkURL)
                             .padding(10)
-                            .onTapGesture { onTap?() }
+                            .onTapGesture { onTap?(playlist.id) }
                     }
                 }
             }
@@ -72,7 +71,7 @@ struct PlaylistArtworkView: View {
         } else {
             ZStack {
                 Color.gray.opacity(0.1)
-                Image(systemName: "photo").foregroundColor(.gray)
+                Image(.image4)
             }
             .frame(width: 149, height: 169)
             .clipShape(.rect(cornerRadius: 13))

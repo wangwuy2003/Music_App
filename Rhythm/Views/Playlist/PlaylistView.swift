@@ -12,37 +12,41 @@ struct PlaylistView: View {
     @Environment(\.router) var router
     
     @EnvironmentObject var playerVM: PlayerViewModel
+    @StateObject private var playlistVM = PlaylistViewModel()
     
     let tracks: [Track] = Track.sample
+    let playlistId: Int
     
     var body: some View {
         ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
+            LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]),
+                           startPoint: .top, endPoint: .bottom)
             .ignoresSafeArea()
             
-            List {
-                ForEach(tracks) { track in
-                    TrackRowView(track: track)
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        .onTapGesture {
-                            router.showScreen(.push) { _ in
-                                PlayerMusicView(isExpanded: $playerVM.isExpanded)
-                            }
-                        }
+            if playlistVM.isLoading {
+                ProgressView().tint(.white)
+            } else if let msg = playlistVM.errorMessage {
+                Text(msg).foregroundColor(.red).padding()
+            } else {
+                List {
+                    ForEach(playlistVM.tracks) { track in
+                        TrackRowView(track: track)
+                            .listRowBackground(Color.clear)
+                            .listRowSeparator(.hidden)
+                    }
                 }
+                .listStyle(.inset)
+                .scrollContentBackground(.hidden)
             }
-            .listStyle(.inset)
-            .scrollContentBackground(.hidden)
         }
-        .navigationTitle(.localized("Playlist Name"))
+        .navigationTitle(playlistVM.playlist?.title ?? "Unknown title")
+        .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            playlistVM.fetchTracks(playlistId: playlistId)
+        }
     }
 }
 
 #Preview {
-    PlaylistView()
+    PlaylistView(playlistId: 1231311)
 }

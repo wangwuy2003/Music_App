@@ -9,8 +9,9 @@ import Foundation
 import Combine
 import SwiftfulRouting
 
+@MainActor
 class HomeViewModel: ObservableObject {
-//    let router: AnyRouter
+    let router: AnyRouter
     let homeUseCase = UseCaseProvider.makeHomeUseCase()
     
     @Published var trendingSections: [CollectionSectionModel]?
@@ -19,9 +20,9 @@ class HomeViewModel: ObservableObject {
     
     private var cancellables = Set<AnyCancellable>()
     
-//    init(router: AnyRouter) {
-//        self.router = router
-//    }
+    init(router: AnyRouter) {
+        self.router = router
+    }
 
     func fetchData() {
         isLoading = true
@@ -45,5 +46,12 @@ class HomeViewModel: ObservableObject {
                 print(sections)
             }
             .store(in: &cancellables)
+    }
+    
+    
+    func openPlaylist(playlistId: Int) {
+        router.showScreen(.push) { _ in
+            PlaylistView(playlistId: playlistId)
+        }
     }
 }
