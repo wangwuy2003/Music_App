@@ -36,9 +36,7 @@ struct HomeView: View {
         }
         .toolbar(.hidden)
         .task {                          
-            if homeVM.trendingSections == nil {
-                homeVM.fetchData()
-            }
+            await homeVM.fetchData()
         }
         .environmentObject(playerVM)
     }

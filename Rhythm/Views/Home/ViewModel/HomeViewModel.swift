@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import Combine
 import SwiftfulRouting
 
 @MainActor
@@ -18,34 +17,30 @@ class HomeViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isLoading: Bool = false
     
-    private var cancellables = Set<AnyCancellable>()
-    
     init(router: AnyRouter) {
         self.router = router
     }
 
-    func fetchData() {
+    func fetchData() async {
+        guard !isLoading else {
+            return
+        }
+        
         isLoading = true
         errorMessage = nil
         
-        homeUseCase.fetchTrendingSections()
-            .receive(on: DispatchQueue.main)
-            .handleEvents(receiveCompletion: { [weak self] _ in
-                self?.isLoading = false
-            })
-            .sink { [weak self] completion in
-                switch completion {
-                case .failure(let error):
-                    self?.errorMessage = error.localizedDescription
-                    print("API Error: \(error.localizedDescription)")
-                case .finished:
-                    break
-                }
-            } receiveValue: { [weak self] sections in
-                self?.trendingSections = sections
-                print(sections)
-            }
-            .store(in: &cancellables)
+        defer {
+            isLoading = false
+        }
+        
+        do {
+            let sections = try await homeUseCase.fetchTrendingSections()
+            trendingSections = sections
+            print("✅ Yolo Loaded \(sections.count) sections")
+        } catch {
+            errorMessage = error.localizedDescription
+            print("❌ Yolo API Error:", error.localizedDescription)
+        }
     }
     
     

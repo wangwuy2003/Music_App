@@ -12,7 +12,7 @@ import SwiftfulRouting
 struct RhythmApp: App {
     var body: some Scene {
         WindowGroup {
-            RouterView { router in
+            RouterView(addNavigationStack: false, addModuleSupport: false   ) { router in
                 RootContainer(router: router)
             }
         }

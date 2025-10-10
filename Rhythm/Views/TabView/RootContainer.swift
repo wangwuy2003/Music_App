@@ -29,7 +29,7 @@ struct RootContainer: View {
                 .transition(.move(edge: .top).combined(with: .opacity))
                 .preferredColorScheme(.dark)
         }
-        .environmentObject(homeVM) // 👈 truyền VM ổn định xuống toàn bộ cây view
+        .environmentObject(homeVM)
         .preferredColorScheme(.dark)
     }
 }

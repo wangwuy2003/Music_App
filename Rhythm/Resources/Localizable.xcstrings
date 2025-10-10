@@ -1,6 +1,12 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@ followers" : {
+
+    },
+    "%lld tracks" : {
+
+    },
     "Album - Aura" : {
 
     },
@@ -14,9 +20,6 @@
 
     },
     "Profile...." : {
-
-    },
-    "Search...." : {
 
     },
     "Vaina Loca - Osuna" : {

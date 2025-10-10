@@ -33,6 +33,14 @@ struct PlaylistView: View {
                         TrackRowView(track: track)
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
+                            .onAppear {
+                                let isLast = (track.id == playlistVM.tracks.last?.id)
+                                let canLoad = playlistVM.hasMore && !playlistVM.isLoadingMore
+                                
+                                if isLast && canLoad {
+                                    Task { await playlistVM.loadMoreMissing(count: 5) }
+                                }
+                            }
                     }
                 }
                 .listStyle(.inset)
@@ -41,8 +49,8 @@ struct PlaylistView: View {
         }
         .navigationTitle(playlistVM.playlist?.title ?? "Unknown title")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear {
-            playlistVM.fetchTracks(playlistId: playlistId)
+        .task {
+            await playlistVM.fetchTracks(playlistId: playlistId)
         }
     }
 }

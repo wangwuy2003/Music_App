@@ -21,7 +21,7 @@ class APICollection: APIClient {
 
     init(
         clientId: String = Constant.clientId,
-        limit: Int = 0,
+        limit: Int = 20,
         offset: Int = 0,
         linkedPartitioning: Int = 1,
         appVersion: String = "1753870647",

@@ -6,27 +6,24 @@
 //
 
 import Foundation
-import Combine
 
 protocol PlaylistUseCaseProtocol {
-    func fetchTracksFromPlaylist(playlistId: Int) -> AnyPublisher<PlaylistTracksModel, Error>
+    func fetchTracksFromPlaylist(playlistId: Int) async throws -> PlaylistTracksModel
 }
 
 class PlaylistUseCase: PlaylistUseCaseProtocol {
-    func fetchTracksFromPlaylist(playlistId: Int) -> AnyPublisher<PlaylistTracksModel, any Error> {
+    func fetchTracksFromPlaylist(playlistId: Int) async throws -> PlaylistTracksModel {
         let client = APIPlaylist(playlistId: playlistId)
-         
-        return Future<PlaylistTracksModel, Error> { promise in
+        
+        return try await withCheckedThrowingContinuation { continuation in
             client.execute { result in
                 switch result {
-                case .success(let value):
-                    promise(.success(value))
+                case .success(let playlist):
+                    continuation.resume(returning: playlist)
                 case .failure(let error):
-                    promise(.failure(error))
+                    continuation.resume(throwing: error)
                 }
             }
         }
-        .subscribe(on: DispatchQueue.global(qos: .userInitiated))
-        .eraseToAnyPublisher()
     }
 }

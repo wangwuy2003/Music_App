@@ -13,4 +13,8 @@ class UseCaseProvider {
     static func makePlaylistUseCase() -> PlaylistUseCase {
         return PlaylistUseCase()
     }
+    
+    static func makeTrackUseCase() -> TrackUseCase {
+        return TrackUseCase()
+    }
 }
