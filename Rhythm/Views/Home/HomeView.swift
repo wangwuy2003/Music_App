@@ -7,7 +7,6 @@
 
 import SwiftUI
 import SwiftfulRouting
-import Combine
 
 struct HomeView: View {
     @Environment(\.router) var router
@@ -34,7 +33,6 @@ struct HomeView: View {
                 }
             }
         }
-        .toolbar(.hidden)
         .task {                          
             await homeVM.fetchData()
         }
@@ -52,11 +50,9 @@ struct HomeView: View {
     }
 }
 
-
 extension HomeView {
     private var genreRow: some View {
         VStack {
-            
             HStack {
                 Text(.localized("Music genres"))
                     .font(.headline)

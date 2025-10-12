@@ -43,7 +43,6 @@ class HomeViewModel: ObservableObject {
         }
     }
     
-    
     func openPlaylist(playlistId: Int) {
         router.showScreen(.push) { _ in
             PlaylistView(playlistId: playlistId)

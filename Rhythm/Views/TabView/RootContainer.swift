@@ -18,18 +18,7 @@ struct RootContainer: View {
     }
 
     var body: some View {
-        ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]),
-                startPoint: .top, endPoint: .bottom
-            )
-            .ignoresSafeArea()
-
-            TabbarView()
-                .transition(.move(edge: .top).combined(with: .opacity))
-                .preferredColorScheme(.dark)
-        }
-        .environmentObject(homeVM)
-        .preferredColorScheme(.dark)
+        HomeView()
+            .environmentObject(homeVM)
     }
 }

@@ -6,8 +6,11 @@
 //
 
 import SwiftUI
+import SwiftfulRouting
 
 struct LibraryView: View {
+    @Environment(\.router) var router
+    
     @State private var playlists: [PlaylistItem] = [
         .init(title: "Playlist name", songs: 10, thumb: "coverImage"),
         .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
@@ -42,7 +45,19 @@ struct LibraryView: View {
     
     private var buttonAddNewPlaylist: some View {
         Button {
-            
+            router.showModal(
+                transition: .opacity,
+                animation: .smooth(duration: 0.3),
+                alignment: .center
+                ,
+                backgroundColor: Color.black.opacity(0.5),
+                dismissOnBackgroundTap: true,
+                ignoreSafeArea: true,
+                destination: {
+                    AddPlaylistView()
+                        .frame(width: 265, height: 170)
+                }
+            )
         } label: {
             HStack(spacing: 20) {
                 Image(systemName: "plus")

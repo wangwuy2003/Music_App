@@ -21,6 +21,10 @@ struct AlbumView: View {
         VStack(alignment: .leading, spacing: 15) {
             ForEach(sections, id: \.urn) { section in
                 AlbumSectionView(section: section) { playlistId in
+//                    router.showScreen(.push) {_ in 
+//                        PlaylistView(playlistId: playlistId)
+//                    }
+                
                     homeVM.openPlaylist(playlistId: playlistId)
                 }
             }
@@ -44,6 +48,7 @@ struct AlbumSectionView: View {
                     ForEach(section.items.collection, id: \.id) { playlist in
                         PlaylistArtworkView(urlString: playlist.artworkURL)
                             .padding(10)
+                            .contentShape(Rectangle())
                             .onTapGesture { onTap?(playlist.id) }
                     }
                 }

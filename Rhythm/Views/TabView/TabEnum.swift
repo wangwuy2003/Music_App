@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+import SwiftfulRouting
 
 enum TabEnum: String, CaseIterable, Hashable {
     case home
@@ -33,9 +33,9 @@ enum TabEnum: String, CaseIterable, Hashable {
     }
     
     @ViewBuilder
-    static func view(for tab: TabEnum) -> some View {
-        switch tab {
-        case .home:             HomeView()
+    func view(router: AnyRouter) -> some View {
+        switch self {
+        case .home:             RootContainer(router: router)
         case .search:           SearchView()
         case .library:          LibraryView()
         case .profile:          ProfileView()
