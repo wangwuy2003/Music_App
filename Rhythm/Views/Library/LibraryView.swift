@@ -48,8 +48,7 @@ struct LibraryView: View {
             router.showModal(
                 transition: .opacity,
                 animation: .smooth(duration: 0.3),
-                alignment: .center
-                ,
+                alignment: .center,
                 backgroundColor: Color.black.opacity(0.5),
                 dismissOnBackgroundTap: true,
                 ignoreSafeArea: true,

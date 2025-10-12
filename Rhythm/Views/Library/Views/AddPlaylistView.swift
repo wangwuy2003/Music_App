@@ -9,8 +9,10 @@ import SwiftUI
 import SwiftfulRouting
 
 struct AddPlaylistView: View {
-    @State var textFieldText: String = ""
     @Environment(\.router) var router
+    
+    @State private var textFieldText: String = ""
+    @FocusState private var isTFFocused: Bool
     
     var body: some View {
         ZStack {
@@ -30,13 +32,17 @@ struct AddPlaylistView: View {
         }
         .clipShape(.rect(cornerRadius: 10))
         .shadow(color: Color.hex1F1922, radius: 10, x: 0, y: 0)
+        .offset(y: isTFFocused ? -80 : 0)
+        .animation(.smooth, value: isTFFocused)
     }
 }
 
+// MARK: subviews
 extension AddPlaylistView {
     private var textFieldSection: some View {
         VStack(spacing: 6) {
             TextField(.localized("Give your playlist a title"), text: $textFieldText)
+                .focused($isTFFocused)
                 .autocorrectionDisabled()
                 .textInputAutocapitalization(.words)
             
@@ -45,11 +51,21 @@ extension AddPlaylistView {
         }
         .foregroundStyle(.hex8A9A9D)
         .padding()
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                isTFFocused = true
+            }
+        }
     }
     
     private var buttonSection: some View {
         HStack(spacing: 60) {
             Button {
+                isTFFocused = false
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    router.dismissModal()
+                }
                 router.dismissModal()
             } label: {
                 Text(.localized("Cancel"))
