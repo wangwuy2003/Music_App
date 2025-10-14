@@ -50,11 +50,10 @@ struct LibraryView: View {
                 animation: .smooth(duration: 0.3),
                 alignment: .center,
                 backgroundColor: Color.black.opacity(0.5),
-                dismissOnBackgroundTap: true,
+                dismissOnBackgroundTap: false,
                 ignoreSafeArea: true,
                 destination: {
                     AddPlaylistView()
-                        .frame(width: 265, height: 170)
                 }
             )
         } label: {

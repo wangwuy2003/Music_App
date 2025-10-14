@@ -16,24 +16,46 @@ struct AddPlaylistView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]), startPoint: .top, endPoint: .bottom)
+            Color.clear
                 .ignoresSafeArea()
+                .contentShape(Rectangle()) // Đảm bảo toàn bộ vùng trống có thể nhận tap
+                .onTapGesture {
+                    // Khi nhấn vào đây, chạy logic ẩn bàn phím và modal
+                    dismissView()
+                }
             
-            VStack {
-                Text(.localized("New Playlist"))
-                    .foregroundStyle(.white)
-                    .font(.system(size: 20, weight: .bold))
+            ZStack {
+                LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]), startPoint: .top, endPoint: .bottom)
+                    .ignoresSafeArea()
                 
-                textFieldSection
-                
-                buttonSection
-                
+                VStack {
+                    Text(.localized("New Playlist"))
+                        .foregroundStyle(.white)
+                        .font(.system(size: 20, weight: .bold))
+                    
+                    textFieldSection
+                    
+                    buttonSection
+                    
+                }
             }
+            .clipShape(.rect(cornerRadius: 10))
+            .shadow(color: Color.hex1F1922, radius: 10, x: 0, y: 0)
+            .frame(width: 265, height: 170)
+            .offset(y: isTFFocused ? -80 : 0)
+            .animation(.smooth, value: isTFFocused)
+            .onDisappear {
+                isTFFocused = false
+            }
+
         }
-        .clipShape(.rect(cornerRadius: 10))
-        .shadow(color: Color.hex1F1922, radius: 10, x: 0, y: 0)
-        .offset(y: isTFFocused ? -80 : 0)
-        .animation(.smooth, value: isTFFocused)
+    }
+    
+    private func dismissView() {
+        isTFFocused = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            router.dismissModal()
+        }
     }
 }
 
@@ -61,12 +83,7 @@ extension AddPlaylistView {
     private var buttonSection: some View {
         HStack(spacing: 60) {
             Button {
-                isTFFocused = false
-                
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    router.dismissModal()
-                }
-                router.dismissModal()
+                dismissView()
             } label: {
                 Text(.localized("Cancel"))
                     .foregroundStyle(.white)
@@ -86,7 +103,9 @@ extension AddPlaylistView {
             }
             
             Button {
+                //logic
                 
+                dismissView()
             } label: {
                 Text(.localized("Create"))
                     .foregroundStyle(.white)
