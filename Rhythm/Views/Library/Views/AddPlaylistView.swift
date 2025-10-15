@@ -18,9 +18,8 @@ struct AddPlaylistView: View {
         ZStack {
             Color.clear
                 .ignoresSafeArea()
-                .contentShape(Rectangle()) // Đảm bảo toàn bộ vùng trống có thể nhận tap
+                .contentShape(Rectangle())
                 .onTapGesture {
-                    // Khi nhấn vào đây, chạy logic ẩn bàn phím và modal
                     dismissView()
                 }
             
@@ -47,7 +46,7 @@ struct AddPlaylistView: View {
             .onDisappear {
                 isTFFocused = false
             }
-
+            
         }
     }
     
@@ -82,46 +81,75 @@ extension AddPlaylistView {
     
     private var buttonSection: some View {
         HStack(spacing: 60) {
-            Button {
-                dismissView()
-            } label: {
-                Text(.localized("Cancel"))
-                    .foregroundStyle(.white)
-                    .font(.system(size: 12, weight: .bold))
-                    .padding(.vertical, 7)
-                    .padding(.horizontal, 15)
-                    .background(
-                        Capsule().fill(Color.hex2C2F30)
-                    )
-                    .shadow(color: .white.opacity(0.15), radius: 10, x: 0, y: 0)
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
-                            .blur(radius: 10)
-                    )
-                
+            cancelButton
+            createButton
+        }
+    }
+    
+    private var cancelButton: some View {
+        Button {
+            dismissView()
+        } label: {
+            Text(.localized("Cancel"))
+                .foregroundStyle(.white)
+                .font(.system(size: 12, weight: .bold))
+                .padding(.vertical, 7)
+                .padding(.horizontal, 15)
+                .background(
+                    Capsule().fill(Color.hex2C2F30)
+                )
+                .shadow(color: .white.opacity(0.15), radius: 10, x: 0, y: 0)
+                .overlay(
+                    Capsule()
+                        .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+                        .blur(radius: 10)
+                )
+            
+        }
+    }
+    
+    private var createButton: some View {
+        Button {
+            //logic
+            guard !textFieldText.trimmingCharacters(in: .whitespaces).isEmpty else {
+                print("Yolo Playlist name is empty.")
+                return
             }
             
-            Button {
-                //logic
+            do {
+                try StorageManager.shared.createPlaylistDirectory(name: textFieldText)
                 
                 dismissView()
-            } label: {
-                Text(.localized("Create"))
-                    .foregroundStyle(.white)
-                    .font(.system(size: 12, weight: .bold))
-                    .padding(.vertical, 7)
-                    .padding(.horizontal, 15)
-                    .background(
-                        Capsule().fill(Color.accentColor)
-                    )
-                    .shadow(color: .accentColor, radius: 10, x: 0, y: 0)
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
-                            .blur(radius: 10)
-                    )
-            }            
+            } catch let error as StorageError {
+                switch error {
+                case .directoryCreationFailed(let reason):
+                    print("❌ Error: Could not create playlist. Reason: \(reason)")
+                case .couldNotAccessDocumentsDirectory:
+                    print("❌ Error: Could not access app's documents directory.")
+                default:
+                    print("❌ An unexpected storage error occurred: \(error)")
+                }
+                // Ở đây bạn có thể hiển thị một Alert cho người dùng
+                
+            } catch {
+                print("❌ An unexpected error occurred: \(error.localizedDescription)")
+            }
+            
+        } label: {
+            Text(.localized("Create"))
+                .foregroundStyle(.white)
+                .font(.system(size: 12, weight: .bold))
+                .padding(.vertical, 7)
+                .padding(.horizontal, 15)
+                .background(
+                    Capsule().fill(Color.accentColor)
+                )
+                .shadow(color: .accentColor, radius: 10, x: 0, y: 0)
+                .overlay(
+                    Capsule()
+                        .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
+                        .blur(radius: 10)
+                )
         }
     }
 }
