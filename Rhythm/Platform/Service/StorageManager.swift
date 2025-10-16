@@ -18,6 +18,13 @@ class StorageManager {
         createPlaylistsRootDirectory()
     }
     
+    // MARK: - Get all playlists
+    func fetchAllPlaylists() throws -> [PlaylistItem] {
+        guard let playlitsURL = getPlaylistsRootURL() else {
+            throw StorageError.fetchingFailed(reason: "failed")
+        }
+    }
+    
     // MARK: - Create playlist
     func createPlaylistDirectory(name: String) throws {
         guard let playlistsURL = getPlaylistsRootURL() else {
@@ -112,4 +119,5 @@ enum StorageError: Error {
     case directoryRenameFailed(reason: String)
     case directoryNotFound
     case couldNotAccessDocumentsDirectory
+    case fetchingFailed(reason: String)
 }
