@@ -14,6 +14,8 @@ struct AddPlaylistView: View {
     @State private var textFieldText: String = ""
     @FocusState private var isTFFocused: Bool
     
+    var onPlaylistAdded: (() -> Void)?
+    
     var body: some View {
         ZStack {
             Color.clear
@@ -119,6 +121,8 @@ extension AddPlaylistView {
             do {
                 try StorageManager.shared.createPlaylistDirectory(name: textFieldText)
                 
+                onPlaylistAdded?()
+                
                 dismissView()
             } catch let error as StorageError {
                 switch error {
@@ -151,6 +155,7 @@ extension AddPlaylistView {
                         .blur(radius: 10)
                 )
         }
+        .disabled(textFieldText.trimmingCharacters(in: .whitespaces).isEmpty)
     }
 }
 

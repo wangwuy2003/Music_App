@@ -24,8 +24,6 @@ struct HomeView: View {
             }
             
             ScrollView(showsIndicators: false) {
-                titleView
-                
                 VStack(spacing: 24) {
                     genreRow
                     
@@ -33,7 +31,15 @@ struct HomeView: View {
                 }
             }
         }
-        .task {                          
+        .toolbar(content: {
+            ToolbarItem(placement: .topBarLeading) {
+                Text(.localized("Trending"))
+                    .foregroundStyle(.white)
+                    .font(.largeTitle)
+                    .bold()
+            }
+        })
+        .task {
             await homeVM.fetchData()
         }
         .environmentObject(playerVM)

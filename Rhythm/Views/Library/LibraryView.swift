@@ -11,18 +11,20 @@ import SwiftfulRouting
 struct LibraryView: View {
     @Environment(\.router) var router
     
-    @State private var playlists: [PlaylistItem] = [
-        .init(title: "Playlist name", songs: 10, thumb: "coverImage"),
-        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-    ]
+//    @State private var playlists: [PlaylistItem] = [
+//        .init(title: "Playlist name", songs: 10, thumb: "coverImage"),
+//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
+//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
+//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
+//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
+//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
+//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
+//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
+//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
+//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
+//    ]
+    
+    @State private var playlists: [PlaylistItem] = []
     
     var body: some View {
         ZStack {
@@ -32,17 +34,45 @@ struct LibraryView: View {
             ScrollView(showsIndicators: false) {
                 buttonAddNewPlaylist
                 
-                VStack(alignment: .leading) {
-                    ForEach(playlists) { item in
-                        PlaylistRow(item: item)
-                            .frame(maxWidth: .infinity)
+                if playlists.isEmpty {
+                    Text(.localized("No playlists yet. Add one to get started!"))
+                        .foregroundStyle(.gray)
+                        .padding(.top, 50)
+                } else {
+                    VStack(alignment: .leading) {
+                        ForEach(playlists) { item in
+                            PlaylistRow(item: item)
+                                .frame(maxWidth: .infinity)
+                        }
                     }
+                    .padding(.horizontal)
                 }
             }
-            .navigationTitle(.localized("Playlist"))
         }
+        .toolbar(content: {
+            ToolbarItem(placement: .topBarLeading) {
+                Text(.localized("Playlist"))
+                    .foregroundStyle(.white)
+                    .font(.largeTitle)
+                    .bold()
+            }
+        })
+        .onAppear(perform: loadPlaylists)
     }
     
+    private func loadPlaylists() {
+        do {
+            self.playlists = try StorageManager.shared.fetchAllPlaylists()
+            print("✅ Successfully loaded \(playlists.count) playlists.")
+        } catch {
+            print("❌ Error loading playlists: \(error.localizedDescription)")
+            self.playlists = []
+        }
+    }
+}
+
+// MARK: - subviews
+extension LibraryView {
     private var buttonAddNewPlaylist: some View {
         Button {
             router.showModal(
@@ -50,10 +80,11 @@ struct LibraryView: View {
                 animation: .smooth(duration: 0.3),
                 alignment: .center,
                 backgroundColor: Color.black.opacity(0.5),
+                backgroundEffect: BackgroundEffect(effect: UIBlurEffect(style: .systemMaterialDark), intensity: 0.1),
                 dismissOnBackgroundTap: false,
                 ignoreSafeArea: true,
                 destination: {
-                    AddPlaylistView()
+                    AddPlaylistView(onPlaylistAdded: self.loadPlaylists)
                 }
             )
         } label: {

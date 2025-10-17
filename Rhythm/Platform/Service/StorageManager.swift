@@ -20,8 +20,20 @@ class StorageManager {
     
     // MARK: - Get all playlists
     func fetchAllPlaylists() throws -> [PlaylistItem] {
-        guard let playlitsURL = getPlaylistsRootURL() else {
-            throw StorageError.fetchingFailed(reason: "failed")
+        guard let playlistsURL = getPlaylistsRootURL() else {
+            throw StorageError.couldNotAccessDocumentsDirectory
+        }
+        
+        do {
+            let directoryContents = try fileManager.contentsOfDirectory(at: playlistsURL, includingPropertiesForKeys: nil, options: .skipsHiddenFiles)
+            
+            let playlists: [PlaylistItem] = directoryContents.map { url in
+                let title = url.lastPathComponent
+                return PlaylistItem(title: title, songs: 0, thumb: "coverImage")
+            }
+            return playlists
+        } catch {
+            throw StorageError.fetchingFailed(reason: error.localizedDescription)
         }
     }
     
