@@ -31,22 +31,30 @@ struct LibraryView: View {
             LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]), startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
             
-            ScrollView(showsIndicators: false) {
+            VStack {
                 buttonAddNewPlaylist
                 
-                if playlists.isEmpty {
-                    Text(.localized("No playlists yet. Add one to get started!"))
-                        .foregroundStyle(.gray)
-                        .padding(.top, 50)
-                } else {
-                    VStack(alignment: .leading) {
-                        ForEach(playlists) { item in
-                            PlaylistRow(item: item)
-                                .frame(maxWidth: .infinity)
+                if !playlists.isEmpty {
+                    List {
+                        ForEach(playlists) { playlist in
+                            PlaylistRow(item: playlist)
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
                         }
                     }
-                    .padding(.horizontal)
+                    .listStyle(.plain)
                 }
+                
+                Spacer()
+            }
+            
+            if playlists.isEmpty {
+                ContentUnavailableView(
+                    .localized("No playlist"),
+                    systemImage: "play.square.stack.fill",
+                    description: Text(.localized("Add one to get started!"))
+                )
+                .transition(AnyTransition.opacity.animation(.easeInOut))
             }
         }
         .toolbar(content: {

@@ -17,6 +17,9 @@ struct PlaylistItem: Identifiable, Hashable {
 struct PlaylistRow: View {
     let item: PlaylistItem
     
+    var onRename: (() -> Void)?
+    var onDelete: (() -> Void)?
+    
     var body: some View {
         HStack(spacing: 6) {
             Image(item.thumb ?? "coverImage")
@@ -35,6 +38,18 @@ struct PlaylistRow: View {
             }
             
             Spacer()
+            
+            Menu {
+                
+            } label: {
+                Image(systemName: "ellipsis")
+                    .foregroundStyle(.white)
+                    .font(.title2)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+                    .rotationEffect(Angle(degrees: 90))
+            }
+
         }
     }
 }
