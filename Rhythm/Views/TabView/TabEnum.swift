@@ -42,7 +42,7 @@ enum TabEnum: String, CaseIterable, Hashable {
         case .search:           SearchView()
         case .library:          LibraryView()
         case .profile:          ProfileView()
-        case .player:           PlayerMusicView(isExpanded: .constant(true))
+        case .player:           PlayerMusicView(isExpanded: .constant(true), selectedMusic: .constant(nil))
         }
     }
     

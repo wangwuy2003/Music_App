@@ -17,7 +17,7 @@ struct TrackModel: Codable, Identifiable {
     let description: String?
     let downloadCount: Int?
     let downloadable: Bool?
-    let duration: Int?
+    let duration: Int
     let favoritingsCount: Int?
     let genre: String?
     let id: Int
