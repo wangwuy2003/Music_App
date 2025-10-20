@@ -40,6 +40,17 @@ struct PlaylistRow: View {
             Spacer()
             
             Menu {
+                Button {
+                    onRename?()
+                } label: {
+                    Label("Rename", systemImage: "pencil")
+                }
+                
+                Button(role: .destructive) {
+                    onDelete?() 
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                }
                 
             } label: {
                 Image(systemName: "ellipsis")
@@ -52,6 +63,9 @@ struct PlaylistRow: View {
 
         }
     }
+}
+
+extension PlaylistRow {
 }
 
 #Preview {

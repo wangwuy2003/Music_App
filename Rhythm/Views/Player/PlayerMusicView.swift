@@ -84,7 +84,7 @@ extension PlayerMusicView {
                 Button {
                     withAnimation { isExpanded = false }
                 } label: {
-                    Image(systemName: "arrow.down")
+                    Image(systemName: "heart")
                         .foregroundStyle(.white)
                 }
             }
