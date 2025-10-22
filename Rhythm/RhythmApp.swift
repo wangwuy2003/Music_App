@@ -12,14 +12,7 @@ import SwiftfulRouting
 struct RhythmApp: App {
     var body: some Scene {
         WindowGroup {
-//            RouterView(addNavigationStack: false, addModuleSupport: true   ) { _ in
-//                RootView {
-//                    TabbarView()
-//                        .preferredColorScheme(.dark)
-//                }
-//            }
-            
-            RootView {
+            RouterView(addNavigationStack: false, addModuleSupport: true) { _ in
                 TabbarView()
                     .preferredColorScheme(.dark)
             }

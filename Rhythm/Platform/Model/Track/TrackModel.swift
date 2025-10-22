@@ -17,7 +17,7 @@ struct TrackModel: Codable, Identifiable {
     let description: String?
     let downloadCount: Int?
     let downloadable: Bool?
-    let duration: Int
+    let duration: Int?
     let favoritingsCount: Int?
     let genre: String?
     let id: Int
@@ -118,5 +118,62 @@ struct Format: Codable {
     
     enum CodingKeys: String, CodingKey {
         case `protocol` = "protocol"
+    }
+}
+
+struct StreamResponse: Codable {
+    let url: String
+}
+
+extension TrackModel {
+    static var mock: TrackModel {
+        TrackModel(
+            title: "Mock Song Title",
+            artworkUrl: "https://i.scdn.co/image/ab67616d0000b273ee2a5c7cb064b8a2f5d8d5e3",
+            bpm: 120,
+            commentCount: 42,
+            commentable: true,
+            createdAt: "2025-10-22T10:00:00Z",
+            description: "A sample song for preview and testing the player view.",
+            downloadCount: 1000,
+            downloadable: false,
+            duration: 240_000, // milliseconds
+            favoritingsCount: 500,
+            genre: "Pop",
+            id: 1,
+            isrc: "USRC17607839",
+            keySignature: "C Major",
+            kind: "track",
+            labelName: "Mock Records",
+            license: "all-rights-reserved",
+            permalinkUrl: "https://soundcloud.com/mock-user/mock-track",
+            playbackCount: 15000,
+            purchaseTitle: "Buy Mock Song",
+            purchaseUrl: "https://example.com/buy",
+            release: "Mock Album",
+            releaseDay: 22,
+            releaseMonth: 10,
+            releaseYear: 2025,
+            sharing: "public",
+            streamUrl: "https://example.com/mockstream.mp3",
+            streamable: true,
+            tagList: "mock, pop, test",
+            uri: "https://api.soundcloud.com/tracks/1",
+            user: nil,
+            userFavorite: false,
+            userPlaybackCount: 0,
+            waveformUrl: "https://example.com/mockwave.png",
+            availableCountryCodes: "US,UK",
+            access: "playable",
+            downloadUrl: nil,
+            repostsCount: 25,
+            secretUri: nil,
+            media: Media(transcodings: [
+                Transcoding(
+                    url: "https://api.soundcloud.com/tracks/1/stream",
+                    format: Format(protocol: "progressive")
+                )
+            ])
+        )
     }
 }

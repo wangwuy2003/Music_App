@@ -12,6 +12,7 @@ struct HomeView: View {
     @Environment(\.router) var router
     @State private var isExpanded = false
     @EnvironmentObject var homeVM: HomeViewModel
+    @EnvironmentObject var mediaPlayerState: MediaPlayerState
     
     var body: some View {
         ZStack {

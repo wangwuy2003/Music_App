@@ -50,7 +50,7 @@ class PlaylistViewModel: ObservableObject {
             self.hasMore = !self.pendingIDs.isEmpty
             
             if hasMore {
-                await loadMoreMissing(count: 5)
+                await loadMoreMissing(count: 20)
             }
             
             print("🎧 Yolo Playlist loaded: \(playlist.title), \(playlist.tracks.count) tracks")

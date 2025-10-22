@@ -7,8 +7,11 @@
 
 import SwiftUI
 import SDWebImageSwiftUI
+import SwiftfulRouting
 
 struct TrackRowView: View {
+    @EnvironmentObject var mediaPlayerState: MediaPlayerState
+    @Environment(\.router) var router
     let track: TrackModel
     
     var body: some View {
@@ -61,6 +64,13 @@ struct TrackRowView: View {
             }
             .frame(minWidth: 72, alignment: .trailing)
         }
+        .onTapGesture {
+            mediaPlayerState.play(track: track)
+            router.showScreen(.sheet) {_ in 
+                PlayerMusicView()
+                    .environmentObject(mediaPlayerState)
+            }
+        }
     }
     
     // MARK: - Format Duration
@@ -74,14 +84,14 @@ struct TrackRowView: View {
     
     // MARK: - Format Play Count
     private func formatPlayCount(_ count: Int?) -> String {
-            guard let count = count else { return "0" }
-            switch count {
-            case 1_000_000...:
-                return String(format: "%.1fM", Double(count) / 1_000_000)
-            case 1_000...:
-                return String(format: "%.1fK", Double(count) / 1_000)
-            default:
-                return "\(count)"
-            }
+        guard let count = count else { return "0" }
+        switch count {
+        case 1_000_000...:
+            return String(format: "%.1fM", Double(count) / 1_000_000)
+        case 1_000...:
+            return String(format: "%.1fK", Double(count) / 1_000)
+        default:
+            return "\(count)"
         }
+    }
 }
