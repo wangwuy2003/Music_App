@@ -1,9 +1,12 @@
 import SwiftUI
 import SwiftfulRouting
+import LNPopupUI
 
 struct TabbarView: View {
     @State private var selectedTab: TabEnum = .home
+    @State private var showMiniPlayer: Bool = true
     @StateObject private var playerVM = PlayerViewModel()
+    @State var currentSong: RandomTitleSong = .init(id: 1, title: "helfawe", subtitle: "fjaweiofjaewio")
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -16,41 +19,30 @@ struct TabbarView: View {
             }
         }
         .environmentObject(playerVM)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            PlayerMusicView(
-                isExpanded: Binding(
-                    get: { playerVM.isExpanded },
-                    set: { playerVM.isExpanded = $0 }
-                ),
-                selectedMusic: Binding(
-                    get: { playerVM.selectedTrack },
-                    set: { playerVM.selectedTrack = $0 }
-                )
-            )
-            .environmentObject(playerVM)
-            .padding(.horizontal, 12)
-            .padding(.bottom, 6)
-            .background(.clear)
-        }
-        .sheet(isPresented: $playerVM.isExpanded) {
-            NavigationStack {
-                PlayerMusicView(isExpanded: true, selectedMusic: playerVM.selectedTrack)
-                    .environmentObject(playerVM)
-                    .toolbar {
-                        ToolbarItem(placement: .topBarLeading) {
-                            Button { playerVM.isExpanded = false } label: {
-                                Image(systemName: "xmark").bold()
-                            }
-                        }
-                    }
-            }
-            .presentationDetents([.large])
-            .presentationDragIndicator(.visible)
-        }
+//        .onChange(of: currentSong) { newValue in
+//            playerVM.isBarPresented = newValue != nil
+//        }
+//        .onChange(of: playerVM.isPopupOpen) { newValue in
+//            if newValue == false {
+//                currentSong = nil
+//            }
+//        }
+//        .popup(
+//            isBarPresented: $playerVM.isBarPresented,
+//            isPopupOpen: $playerVM.isPopupOpen
+//        ) {
+//            if let currentSong = currentSong {
+//                PlayerMusicView(song: currentSong)
+//                    .environmentObject(playerVM)
+//                    .ignoresSafeArea()
+//            }
+//        }
     }
 }
 
 #Preview {
-    TabbarView()
+    RootView {
+        TabbarView()
+    }
 }
 

@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		18A356862E826B260058AC49 /* SwiftfulRouting in Frameworks */ = {isa = PBXBuildFile; productRef = 18A356852E826B260058AC49 /* SwiftfulRouting */; };
 		18C91F122E8EB9E70025EBFC /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 18C91F112E8EB9E70025EBFC /* SDWebImageSwiftUI */; };
+		811F671E2EA899CB00C7D10C /* LoremIpsum in Frameworks */ = {isa = PBXBuildFile; productRef = 811F671D2EA899CB00C7D10C /* LoremIpsum */; };
+		811F67212EA8BD6500C7D10C /* LNPopupUI in Frameworks */ = {isa = PBXBuildFile; productRef = 811F67202EA8BD6500C7D10C /* LNPopupUI */; };
+		811F67242EA8C1D800C7D10C /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 811F67232EA8C1D800C7D10C /* SwiftUIIntrospect */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,7 +44,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				811F671E2EA899CB00C7D10C /* LoremIpsum in Frameworks */,
+				811F67212EA8BD6500C7D10C /* LNPopupUI in Frameworks */,
 				18C91F122E8EB9E70025EBFC /* SDWebImageSwiftUI in Frameworks */,
+				811F67242EA8C1D800C7D10C /* SwiftUIIntrospect in Frameworks */,
 				18A356862E826B260058AC49 /* SwiftfulRouting in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -87,6 +93,9 @@
 			packageProductDependencies = (
 				18A356852E826B260058AC49 /* SwiftfulRouting */,
 				18C91F112E8EB9E70025EBFC /* SDWebImageSwiftUI */,
+				811F671D2EA899CB00C7D10C /* LoremIpsum */,
+				811F67202EA8BD6500C7D10C /* LNPopupUI */,
+				811F67232EA8C1D800C7D10C /* SwiftUIIntrospect */,
 			);
 			productName = Music_App;
 			productReference = 18A350992E825D160058AC49 /* Rhythm.app */;
@@ -119,6 +128,9 @@
 			packageReferences = (
 				18A356842E826B260058AC49 /* XCRemoteSwiftPackageReference "SwiftfulRouting" */,
 				18C91F102E8EB9E70025EBFC /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
+				811F671C2EA899CB00C7D10C /* XCRemoteSwiftPackageReference "LoremIpsum" */,
+				811F671F2EA8BD6500C7D10C /* XCRemoteSwiftPackageReference "LNPopupUI" */,
+				811F67222EA8C1D800C7D10C /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 18A3509A2E825D160058AC49 /* Products */;
@@ -380,6 +392,30 @@
 				minimumVersion = 3.1.3;
 			};
 		};
+		811F671C2EA899CB00C7D10C /* XCRemoteSwiftPackageReference "LoremIpsum" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LeoNatan/LoremIpsum";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+		811F671F2EA8BD6500C7D10C /* XCRemoteSwiftPackageReference "LNPopupUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LeoNatan/LNPopupUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.5.7;
+			};
+		};
+		811F67222EA8C1D800C7D10C /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/swiftui-introspect";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 26.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -392,6 +428,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 18C91F102E8EB9E70025EBFC /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
 			productName = SDWebImageSwiftUI;
+		};
+		811F671D2EA899CB00C7D10C /* LoremIpsum */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 811F671C2EA899CB00C7D10C /* XCRemoteSwiftPackageReference "LoremIpsum" */;
+			productName = LoremIpsum;
+		};
+		811F67202EA8BD6500C7D10C /* LNPopupUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 811F671F2EA8BD6500C7D10C /* XCRemoteSwiftPackageReference "LNPopupUI" */;
+			productName = LNPopupUI;
+		};
+		811F67232EA8C1D800C7D10C /* SwiftUIIntrospect */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 811F67222EA8C1D800C7D10C /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
+			productName = SwiftUIIntrospect;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

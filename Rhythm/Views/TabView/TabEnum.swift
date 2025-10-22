@@ -13,7 +13,6 @@ enum TabEnum: String, CaseIterable, Hashable {
     case search
     case library
     case profile
-    case player
     
     var title: String {
         switch self {
@@ -21,7 +20,6 @@ enum TabEnum: String, CaseIterable, Hashable {
         case .search:       return .localized("Search")
         case .library:      return .localized("Library")
         case .profile:      return .localized("Profile")
-        case .player:       return .localized("Player")
         }
     }
     
@@ -31,7 +29,6 @@ enum TabEnum: String, CaseIterable, Hashable {
         case .search:       return "magnifyingglass"
         case .library:      return "music.note"
         case .profile:      return "person.fill"
-        case .player:       return "music.note"
         }
     }
     
@@ -42,7 +39,6 @@ enum TabEnum: String, CaseIterable, Hashable {
         case .search:           SearchView()
         case .library:          LibraryView()
         case .profile:          ProfileView()
-        case .player:           PlayerMusicView(isExpanded: .constant(true), selectedMusic: .constant(nil))
         }
     }
     
@@ -52,7 +48,6 @@ enum TabEnum: String, CaseIterable, Hashable {
             .search,
             .library,
             .profile,
-            .player
         ]
     }
 }

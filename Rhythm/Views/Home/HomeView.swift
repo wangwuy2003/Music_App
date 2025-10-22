@@ -11,7 +11,6 @@ import SwiftfulRouting
 struct HomeView: View {
     @Environment(\.router) var router
     @State private var isExpanded = false
-    @EnvironmentObject var playerVM: PlayerViewModel
     @EnvironmentObject var homeVM: HomeViewModel
     
     var body: some View {
@@ -42,7 +41,6 @@ struct HomeView: View {
         .task {
             await homeVM.fetchData()
         }
-        .environmentObject(playerVM)
     }
     
     private var titleView: some View {
