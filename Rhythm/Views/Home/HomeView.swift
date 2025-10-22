@@ -11,7 +11,7 @@ import SwiftfulRouting
 struct HomeView: View {
     @Environment(\.router) var router
     @State private var isExpanded = false
-    @StateObject private var playerVM = PlayerViewModel()
+    @EnvironmentObject var playerVM: PlayerViewModel
     @EnvironmentObject var homeVM: HomeViewModel
     
     var body: some View {

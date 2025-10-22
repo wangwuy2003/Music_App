@@ -8,5 +8,6 @@
 import SwiftUI
 
 class PlayerViewModel: ObservableObject {
-    @Published var isExpanded: Bool = true
+    @Published var isExpanded: Bool = false
+    @Published var selectedTrack: TrackModel? = nil
 }
