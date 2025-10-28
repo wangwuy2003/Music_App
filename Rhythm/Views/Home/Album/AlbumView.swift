@@ -12,7 +12,6 @@ import SDWebImageSwiftUI
 struct AlbumView: View {
     @Environment(\.router) var router
     @EnvironmentObject var homeVM: HomeViewModel
-    @EnvironmentObject var mediaPlayerState: MediaPlayerState
     
     //    var albums: [Album] = Album.sampleData
     

@@ -31,6 +31,8 @@ struct LibraryView: View {
             backgroundView
             
             VStack {
+                titleView
+                
                 buttonAddNewPlaylist
                 
                 if !playlists.isEmpty {
@@ -44,14 +46,14 @@ struct LibraryView: View {
                 emptyStateView
             }
         }
-        .toolbar(content: {
-            ToolbarItem(placement: .topBarLeading) {
-                Text(.localized("Playlist"))
-                    .foregroundStyle(.white)
-                    .font(.largeTitle)
-                    .bold()
-            }
-        })
+//        .toolbar(content: {
+//            ToolbarItem(placement: .topBarLeading) {
+//                Text(.localized("Playlist"))
+//                    .foregroundStyle(.white)
+//                    .font(.largeTitle)
+//                    .bold()
+//            }
+//        })
         .onAppear(perform: loadPlaylists)
     }
     
@@ -111,6 +113,16 @@ struct LibraryView: View {
 
 // MARK: - subviews
 extension LibraryView {
+    private var titleView: some View {
+        HStack {
+            Text(.localized("Playlist"))
+                .font(.largeTitle)
+                .bold()
+            Spacer()
+        }
+        .padding(.horizontal)
+    }
+    
     private var backgroundView: some View {
         LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]), startPoint: .top, endPoint: .bottom)
             .ignoresSafeArea()

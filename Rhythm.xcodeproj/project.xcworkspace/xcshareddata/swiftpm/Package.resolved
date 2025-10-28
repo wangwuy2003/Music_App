@@ -1,6 +1,33 @@
 {
-  "originHash" : "a979250e4032aa5f3fa6774bafe67edf9f1ab47ff419db52c2da58215d373109",
+  "originHash" : "3cda6393bb47286894cee2b244bf37371698db918aa5b4162079ab29c7c4bbca",
   "pins" : [
+    {
+      "identity" : "lnpopupcontroller",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LeoNatan/LNPopupController.git",
+      "state" : {
+        "revision" : "ef8657cfaeaa83322b35541efc5df0029036835e",
+        "version" : "4.3.5"
+      }
+    },
+    {
+      "identity" : "lnpopupui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LeoNatan/LNPopupUI.git",
+      "state" : {
+        "revision" : "1d44156e1acc5e218770ee8df93faa42ae9175c9",
+        "version" : "2.6.0"
+      }
+    },
+    {
+      "identity" : "lnswiftuiutils",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/LeoNatan/LNSwiftUIUtils.git",
+      "state" : {
+        "revision" : "6681938f1f2c591736a912789ea80451200d1484",
+        "version" : "1.1.4"
+      }
+    },
     {
       "identity" : "loremipsum",
       "kind" : "remoteSourceControl",

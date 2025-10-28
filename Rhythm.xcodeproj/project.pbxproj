@@ -11,7 +11,23 @@
 		18C91F122E8EB9E70025EBFC /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 18C91F112E8EB9E70025EBFC /* SDWebImageSwiftUI */; };
 		811F671E2EA899CB00C7D10C /* LoremIpsum in Frameworks */ = {isa = PBXBuildFile; productRef = 811F671D2EA899CB00C7D10C /* LoremIpsum */; };
 		811F67242EA8C1D800C7D10C /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 811F67232EA8C1D800C7D10C /* SwiftUIIntrospect */; };
+		819427132EB0863C00CBBCD6 /* LNPopupUI in Frameworks */ = {isa = PBXBuildFile; productRef = 819427122EB0863C00CBBCD6 /* LNPopupUI */; };
+		819427162EB0B3B700CBBCD6 /* LNPopupUI in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 819427122EB0863C00CBBCD6 /* LNPopupUI */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		819427172EB0B3B700CBBCD6 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				819427162EB0B3B700CBBCD6 /* LNPopupUI in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		18A350992E825D160058AC49 /* Rhythm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rhythm.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -43,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				819427132EB0863C00CBBCD6 /* LNPopupUI in Frameworks */,
 				811F671E2EA899CB00C7D10C /* LoremIpsum in Frameworks */,
 				18C91F122E8EB9E70025EBFC /* SDWebImageSwiftUI in Frameworks */,
 				811F67242EA8C1D800C7D10C /* SwiftUIIntrospect in Frameworks */,
@@ -79,6 +96,7 @@
 				18A350952E825D160058AC49 /* Sources */,
 				18A350962E825D160058AC49 /* Frameworks */,
 				18A350972E825D160058AC49 /* Resources */,
+				819427172EB0B3B700CBBCD6 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -93,6 +111,7 @@
 				18C91F112E8EB9E70025EBFC /* SDWebImageSwiftUI */,
 				811F671D2EA899CB00C7D10C /* LoremIpsum */,
 				811F67232EA8C1D800C7D10C /* SwiftUIIntrospect */,
+				819427122EB0863C00CBBCD6 /* LNPopupUI */,
 			);
 			productName = Music_App;
 			productReference = 18A350992E825D160058AC49 /* Rhythm.app */;
@@ -127,6 +146,7 @@
 				18C91F102E8EB9E70025EBFC /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */,
 				811F671C2EA899CB00C7D10C /* XCRemoteSwiftPackageReference "LoremIpsum" */,
 				811F67222EA8C1D800C7D10C /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
+				819427112EB0863C00CBBCD6 /* XCRemoteSwiftPackageReference "LNPopupUI" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 18A3509A2E825D160058AC49 /* Products */;
@@ -404,6 +424,14 @@
 				minimumVersion = 26.0.0;
 			};
 		};
+		819427112EB0863C00CBBCD6 /* XCRemoteSwiftPackageReference "LNPopupUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/LeoNatan/LNPopupUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.6.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -426,6 +454,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 811F67222EA8C1D800C7D10C /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
 			productName = SwiftUIIntrospect;
+		};
+		819427122EB0863C00CBBCD6 /* LNPopupUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 819427112EB0863C00CBBCD6 /* XCRemoteSwiftPackageReference "LNPopupUI" */;
+			productName = LNPopupUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

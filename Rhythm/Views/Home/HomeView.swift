@@ -12,7 +12,6 @@ struct HomeView: View {
     @Environment(\.router) var router
     @State private var isExpanded = false
     @EnvironmentObject var homeVM: HomeViewModel
-    @EnvironmentObject var mediaPlayerState: MediaPlayerState
     
     var body: some View {
         ZStack {
@@ -24,6 +23,8 @@ struct HomeView: View {
             }
             
             ScrollView(showsIndicators: false) {
+                titleView
+                
                 VStack(spacing: 24) {
                     genreRow
                     
@@ -31,14 +32,14 @@ struct HomeView: View {
                 }
             }
         }
-        .toolbar(content: {
-            ToolbarItem(placement: .topBarLeading) {
-                Text(.localized("Trending"))
-                    .foregroundStyle(.white)
-                    .font(.largeTitle)
-                    .bold()
-            }
-        })
+//        .toolbar(content: {
+//            ToolbarItem(placement: .topBarLeading) {
+//                Text(.localized("Trending"))
+//                    .foregroundStyle(.white)
+//                    .font(.largeTitle)
+//                    .bold()
+//            }
+//        })
         .task {
             await homeVM.fetchData()
         }

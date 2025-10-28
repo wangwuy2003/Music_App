@@ -10,7 +10,7 @@ import SDWebImageSwiftUI
 import SwiftfulRouting
 
 struct TrackRowView: View {
-    @EnvironmentObject var mediaPlayerState: MediaPlayerState
+    @EnvironmentObject var playerVM: PlayerViewModel
     @Environment(\.router) var router
     let track: TrackModel
     
@@ -65,18 +65,21 @@ struct TrackRowView: View {
             .frame(minWidth: 72, alignment: .trailing)
         }
         .onTapGesture {
-            mediaPlayerState.play(track: track)
-            router.showScreen(.sheet) {_ in 
-                PlayerMusicView()
-                    .environmentObject(mediaPlayerState)
-            }
+            playSelectedTrack()
         }
+    }
+}
+
+extension TrackRowView {
+    func playSelectedTrack() {
+        playerVM.play(track: track)
+        print("Yolo: \(track.id)")
     }
     
     // MARK: - Format Duration
     private func formatDuration(_ duration: Int?) -> String {
         guard let duration = duration else { return "--:--" }
-        let totalSeconds = duration / 1000  // API trả về miligiây
+        let totalSeconds = duration / 1000
         let minutes = totalSeconds / 60
         let seconds = totalSeconds % 60
         return String(format: "%d:%02d", minutes, seconds)

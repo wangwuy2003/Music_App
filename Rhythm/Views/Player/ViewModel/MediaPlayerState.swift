@@ -18,15 +18,13 @@ final class MediaPlayerState: ObservableObject {
                 try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
                 try AVAudioSession.sharedInstance().setActive(true)
                 
-                guard let transcoding = track.media?.transcodings.first(where: { $0.format.protocol == "progressive" }) else {
+                guard let transcoding = track.media?.transcodings.first(where: { $0.format.protocol == "hls" }) else {
                     print("⚠️ Không tìm thấy stream progressive.")
                     return
                 }
                 
-                // Gọi API để lấy URL phát thực tế
                 let streamURL = try await audioPlayer.fetchStreamURL(from: transcoding.url)
                 
-                // Load và phát nhạc
                 await MainActor.run {
                     audioPlayer.loadAudio(from: streamURL.absoluteString)
                     audioPlayer.play()

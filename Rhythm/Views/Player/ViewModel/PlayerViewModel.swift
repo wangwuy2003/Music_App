@@ -6,22 +6,80 @@
 //
 
 import SwiftUI
+import AVFoundation
+import Combine
 
-class PlayerViewModel: ObservableObject {
+@MainActor
+final class PlayerViewModel: ObservableObject {
+    @Published var isBarPresented = false
+    @Published var isPopupOpen = false
+    @Published var currentTrack: TrackModel?
+    @Published var popupArtwork: Image = Image(systemName: "music.note")
+    @Published var audioPlayer = AudioPlayer()
     
-    @Published var isBarPresented: Bool = true   // hiện mini bar
-    @Published var isPopupOpen: Bool = false      // mở full player
+    private var cancellables = Set<AnyCancellable>()
 
-    @Published var title: String = "Not Playing"
-    @Published var subtitle: String = ""
-    @Published var artwork: String? = nil
-    @Published var progress: Double = 0           // 0...1
+    var title: String { currentTrack?.title ?? "Not Playing" }
+    var subtitle: String { currentTrack?.user?.full_name ?? "" }
+    var artwork: String? { currentTrack?.artworkUrl }
+    
+    init() {
+        audioPlayer.objectWillChange
+            .sink { [weak self] _ in
+                // Khi audioPlayer thay đổi, báo cho PlayerViewModel
+                // (và bất kỳ View nào đang theo dõi nó) cũng thay đổi
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
+    }
 
-    func start(track: Track) {
-        title = track.title
-        subtitle = track.artist
-        artwork = track.cover
+    // MARK: - Play track
+    func play(track: TrackModel) {
+        currentTrack = track
         isBarPresented = true
-        // isPopupOpen = true  // nếu muốn mở full ngay
+        loadPopupArtwork()
+
+        Task {
+            do {
+                try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+                try AVAudioSession.sharedInstance().setActive(true)
+
+                guard let transcoding = track.media?.transcodings.first(where: { $0.format.protocol == "hls" }) else {
+                    print("⚠️ Không tìm thấy stream HLS.")
+                    return
+                }
+
+                let streamURL = try await audioPlayer.fetchStreamURL(from: transcoding.url)
+                audioPlayer.loadAudio(from: streamURL.absoluteString)
+            } catch {
+                print("🚫 Lỗi phát nhạc:", error.localizedDescription)
+            }
+        }
+    }
+
+    func togglePlayback() {
+        audioPlayer.togglePlayback()
+    }
+
+    // MARK: - Artwork
+    func loadPopupArtwork() {
+        guard let artwork = artwork,
+              let url = URL(string: artwork) else {
+            popupArtwork = Image(systemName: "music.note")
+            return
+        }
+
+        Task.detached {
+            do {
+                let (data, _) = try await URLSession.shared.data(from: url)
+                if let uiImage = UIImage(data: data) {
+                    await MainActor.run {
+                        self.popupArtwork = Image(uiImage: uiImage)
+                    }
+                }
+            } catch {
+                print("⚠️ Không thể tải ảnh popup:", error.localizedDescription)
+            }
+        }
     }
 }

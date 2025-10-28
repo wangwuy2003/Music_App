@@ -1,16 +1,16 @@
 import SwiftUI
 import SwiftfulRouting
+import LNPopupUI
 
 struct TabbarView: View {
     @State private var selectedTab: TabEnum = .home
-    @State private var showMiniPlayer: Bool = true
+    @State private var showMiniPlayer: Bool = false
     @StateObject private var playerVM = PlayerViewModel()
-    @StateObject private var mediaPlayerState = MediaPlayerState()
     
-    init() {
-        UITabBar.appearance().backgroundColor = UIColor.black
-        UITabBar.appearance().unselectedItemTintColor = UIColor.gray
-    }
+//    init() {
+//        UITabBar.appearance().backgroundColor = UIColor.black
+//        UITabBar.appearance().unselectedItemTintColor = UIColor.gray
+//    }
     
     var body: some View {
         ZStack {
@@ -18,42 +18,24 @@ struct TabbarView: View {
                 ForEach(TabEnum.defaultTabs, id: \.self) { tab in
                     RouterView(addNavigationStack: true, addModuleSupport: false) { router in
                         tab.view(router: router)
-                            .environmentObject(mediaPlayerState)
+                            .environmentObject(playerVM)
                     }
                     .tabItem { Image(systemName: tab.image) }
                     .tag(tab)
                 }
             }
             .environmentObject(playerVM)
-            .environmentObject(mediaPlayerState)
-            
-            if mediaPlayerState.isMediaPlayerShown {
-                VStack {
-                    PlayerMusicView()
-                        .frame(height: mediaPlayerState.isMediaPlayerExpanded ? nil : 60)
-                        .cornerRadius(mediaPlayerState.isMediaPlayerExpanded ? 40 : 15)
-                        .padding(.horizontal, mediaPlayerState.isMediaPlayerExpanded ? 0 : 5)
-                        .padding(.bottom, mediaPlayerState.isMediaPlayerExpanded ? -20 : 40)
-                        .padding(.top, mediaPlayerState.isMediaPlayerExpanded ? 60 : 40)
-                        .onTapGesture {
-                            withAnimation(.spring()) {
-                                mediaPlayerState.isMediaPlayerExpanded.toggle()
-                            }
-                        }
-                        .environmentObject(mediaPlayerState)
-                }
-                .frame(maxHeight: .infinity, alignment: mediaPlayerState.isMediaPlayerExpanded ? .top : .bottom)
-                .padding(.bottom)
-                .ignoresSafeArea(edges: mediaPlayerState.isMediaPlayerExpanded ? .all : .top)
+            .popup(isBarPresented: $playerVM.isBarPresented, isPopupOpen: $playerVM.isPopupOpen) {
+                PlayerView()
+                    .environmentObject(playerVM)
             }
+            .popupBarShineEnabled(true)
+            .popupBarProgressViewStyle(.bottom)
         }
-        
     }
 }
 
 #Preview {
-    RootView {
-        TabbarView()
-    }
+    TabbarView()
 }
 
