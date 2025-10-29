@@ -1,48 +1,45 @@
 //
-//  APICollection.swift
+//  APIGetTopTracks.swift
 //  Rhythm
 //
-//  Created by Apple on 29/9/25.
+//  Created by MacMini A6 on 29/10/25.
 //
 
 import Foundation
-class APICollection: APIClient {
-    
-    typealias Model = FeedResponse
+
+class APIGetTopTracks: APIClient {
+    typealias Model = JamendoResponse<JamendoTrack>
 
     var enviroment: any APIEnvironment { BaseAPIEnviroment() }
+    var path: String { "/tracks" }
+    var method: HTTPMethod { .get }
+    var encoding: ParameterEncoding { .url }
 
+    // 2. Các tham số đầu vào
     var clientId: String
     var limit: Int
     var format: String
-    var type: String
+    var order: String
 
     init(
         clientId: String = Constant.clientId1,
         limit: Int = 10,
         format: String = "json",
-        type: String = "playlist"
+        order: String = "popularity_week"
     ) {
         self.clientId = clientId
         self.limit = limit
         self.format = format
-        self.type = type
+        self.order = order
     }
     
-    var path: String {
-        return "/feeds"
-    }
-
+    // 3. Danh sách params cho URL
     var params: [String: Any] {
         return [
             "client_id": clientId,
             "limit": limit,
-            "format": format
+            "format": format,
+            "order": order
         ]
     }
-
-    var encoding: ParameterEncoding {
-        return .url
-    }
-    var method: HTTPMethod { .get }
 }

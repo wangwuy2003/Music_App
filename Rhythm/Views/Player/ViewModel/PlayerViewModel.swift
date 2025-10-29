@@ -13,7 +13,7 @@ import Combine
 final class PlayerViewModel: ObservableObject {
     @Published var isBarPresented = false
     @Published var isPopupOpen = false
-    @Published var currentTrack: TrackModel?
+    @Published var currentTrack: JamendoTrack?
     @Published var popupArtwork: Image = Image(systemName: "music.note")
 
     @Published var currentTime: Double = 0
@@ -25,9 +25,9 @@ final class PlayerViewModel: ObservableObject {
     private var timeObserverToken: Any?
     private var cancellables = Set<AnyCancellable>()
     
-    var title: String { currentTrack?.title ?? "Not Playing" }
-    var subtitle: String { currentTrack?.user?.full_name ?? "" }
-    var artwork: String? { currentTrack?.artworkUrl }
+    var title: String { currentTrack?.name ?? "Not Playing" }
+    var subtitle: String { currentTrack?.artistName ?? "Unknown Artist" }
+    var artwork: String? { currentTrack?.image }
 
     deinit {
         if let token = timeObserverToken {
@@ -35,7 +35,7 @@ final class PlayerViewModel: ObservableObject {
         }
     }
     
-    func play(track: TrackModel) {
+    func play(track: JamendoTrack) {
         player?.pause()
         if let token = timeObserverToken {
             player?.removeTimeObserver(token)
@@ -58,13 +58,7 @@ final class PlayerViewModel: ObservableObject {
                 try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
                 try AVAudioSession.sharedInstance().setActive(true)
 
-                guard let transcoding = track.media?.transcodings.first(where: { $0.format.protocol == "hls" }) else {
-                    print("⚠️ Không tìm thấy stream HLS.")
-                    return
-                }
-
-                let streamURL = try await fetchStreamURL(from: transcoding.url)
-                loadAudio(from: streamURL.absoluteString)
+                loadAudio(from: track.audio ?? "")
             } catch {
                 print("🚫 Lỗi phát nhạc:", error.localizedDescription)
             }
@@ -144,18 +138,5 @@ final class PlayerViewModel: ObservableObject {
             guard let self = self else { return }
             self.currentTime = time.seconds
         }
-    }
-    
-    func fetchStreamURL(from transcodingURL: String) async throws -> URL {
-        let clientID = Constant.clientId
-        let apiURL = URL(string: "\(transcodingURL)?client_id=\(clientID)")!
-        
-        let (data, _) = try await URLSession.shared.data(from: apiURL)
-        
-        let response = try JSONDecoder().decode(StreamResponse.self, from: data)
-        guard let streamURL = URL(string: response.url) else {
-            throw URLError(.badURL)
-        }
-        return streamURL
     }
 }
