@@ -9,7 +9,7 @@
 import Foundation
 
 class APIGetPlaylistTracks: APIClient {
-    typealias Model = JamendoResponse<JamendoTrack>
+    typealias Model = JamendoPlaylistTracksResponse
 
     var enviroment: any APIEnvironment { BaseAPIEnviroment() }
     var path: String { "/playlists/tracks" }
@@ -18,33 +18,19 @@ class APIGetPlaylistTracks: APIClient {
 
     var clientId: String
     var playlistId: String
-    var limit: Int?
     
     init(
         clientId: String = Constant.clientId1,
-        playlistId: String,
-        limit: Int? = nil
+        playlistId: String
     ) {
         self.clientId = clientId
         self.playlistId = playlistId
-        self.limit = limit
     }
     
     var params: [String: Any] {
-//        return [
-//            "client_id": clientId,
-//            "format": format,
-//            "id": playlistId 
-//        ]
-        var p: [String: Any] = [
+        return [
             "client_id": clientId,
-            "id": playlistId
+            "id": playlistId 
         ]
-        
-        if let limit = limit { 
-            p["limit"] = limit
-        }
-        
-        return p
     }
 }

@@ -12,14 +12,10 @@ struct JamendoTrack: Codable, Identifiable, Hashable {
     let albumId: String?
     let duration: Int?
     let artistName: String?
-    let playlistadddate: String?
-    let position: Int?
-    let licenseCcurl: String?
     let albumImage: String?
     let image: String?
     let audio: String?
     let audioDownload: String?
-    let audioDownloadAllowed: Bool?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -27,13 +23,29 @@ struct JamendoTrack: Codable, Identifiable, Hashable {
         case albumId = "album_id"
         case duration
         case artistName = "artist_name"
-        case playlistadddate
-        case position
-        case licenseCcurl = "license_ccurl"
         case albumImage = "album_image"
         case image
         case audio
         case audioDownload = "audiodownload"
-        case audioDownloadAllowed = "audiodownload_allowed"
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        albumId = try? container.decode(String.self, forKey: .albumId)
+        artistName = try? container.decode(String.self, forKey: .artistName)
+        albumImage = try? container.decode(String.self, forKey: .albumImage)
+        image = try? container.decode(String.self, forKey: .image)
+        audio = try? container.decode(String.self, forKey: .audio)
+        audioDownload = try? container.decode(String.self, forKey: .audioDownload)
+        
+        if let durationString = try? container.decode(String.self, forKey: .duration),
+           let durationValue = Int(durationString) {
+            duration = durationValue
+        } else {
+            duration = try? container.decode(Int.self, forKey: .duration)
+        }
     }
 }
+

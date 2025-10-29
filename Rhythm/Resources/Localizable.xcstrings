@@ -1,16 +1,13 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
-    "" : {
-
-    },
     "%@ followers" : {
 
     },
     "%lld tracks" : {
 
     },
-    "Calm Down" : {
+    "⚠️ %@" : {
 
     },
     "Delete" : {
@@ -19,7 +16,7 @@
     "Error" : {
 
     },
-    "Playlist" : {
+    "No tracks found in this playlist." : {
 
     },
     "Profile...." : {
@@ -29,6 +26,12 @@
 
     },
     "Retry" : {
+
+    },
+    "Unknown" : {
+
+    },
+    "Unknown Artist" : {
 
     }
   },

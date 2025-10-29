@@ -25,8 +25,8 @@ final class PlayerViewModel: ObservableObject {
     private var timeObserverToken: Any?
     private var cancellables = Set<AnyCancellable>()
     
-    var title: String { currentTrack?.name ?? "Not Playing" }
-    var subtitle: String { currentTrack?.artistName ?? "Unknown Artist" }
+    var title: String { currentTrack?.name ?? "Unknown Name" }
+    var subtitle: String {currentTrack?.artistName ?? "Unknown Artist" }
     var artwork: String? { currentTrack?.image }
 
     deinit {

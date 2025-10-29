@@ -15,6 +15,7 @@ struct HomeView: View {
     @Environment(\.router) var router
     @EnvironmentObject var homeVM: HomeViewModel
     
+    
     var body: some View {
         ZStack {
             LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]), startPoint: .top, endPoint: .bottom)
@@ -24,35 +25,39 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 25) {
                     titleView
                     
-                    HorizontalSectionView(
-                        title: "Top Albums",
-                        items: homeVM.topAlbums
-                    ) { album in
-                        AlbumSquareView(album: album)
-                            .onTapGesture {
-                                homeVM.openAlbumDetail(album: album)
-                                print("Tapped album: \(album.name), \(album.id)")
-                            }
+                    if !homeVM.topAlbums.isEmpty {
+                        HorizontalSectionView(
+                            title: "Top Albums",
+                            items: homeVM.topAlbums
+                        ) { album in
+                            AlbumSquareView(album: album)
+                                .onTapGesture {
+                                    homeVM.openAlbumDetail(album: album)
+                                }
+                        }
                     }
                     
-                    HorizontalSectionView(
-                        title: "Top Tracks",
-                        items: homeVM.topTracks
-                    ) { track in
-                        TrackSquareView(track: track)
+                    if !homeVM.topTracks.isEmpty {
+                        HorizontalSectionView(
+                            title: "Top Tracks",
+                            items: homeVM.topTracks
+                        ) { track in
+                            TrackSquareView(track: track)
+                        }
                     }
                     
-                    HorizontalSectionView(
-                        title: "Popular Playlists",
-                        items: homeVM.popularPlaylists
-                    ) { playlist in
-                        PlaylistSquareView(playlist: playlist) // Dùng view mới
-                            .onTapGesture {
-                                // Gọi hàm điều hướng mới
-//                                homeVM.openHydratedPlaylist(playlist: playlist)
-                            }
+                    if !homeVM.popularPlaylists.isEmpty {
+                        HorizontalSectionView(
+                            title: "Popular Playlists",
+                            items: homeVM.popularPlaylists
+                        ) { playlist in
+                            PlaylistSquareView(playlist: playlist)
+                                .onTapGesture {
+                                    homeVM.openPlaylistDetail(playlist: playlist)
+                                }
+                        }
                     }
-                  
+                    
                     Spacer()
                 }
                 .padding(.top, 10)

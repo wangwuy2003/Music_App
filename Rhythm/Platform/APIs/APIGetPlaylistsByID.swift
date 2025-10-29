@@ -9,7 +9,7 @@
 import Foundation
 
 class APIGetPlaylistsByID: APIClient {
-    typealias Model = JamendoResponse<JamendoPlaylist>
+    typealias Model = JamendoPlaylistDetailResponse
 
     var enviroment: any APIEnvironment { BaseAPIEnviroment() }
     var path: String { "/playlists" }

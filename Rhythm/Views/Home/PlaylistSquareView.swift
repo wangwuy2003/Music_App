@@ -8,12 +8,12 @@ import SwiftUI
 import SDWebImageSwiftUI
 
 struct PlaylistSquareView: View {
-    let playlist: HydratedPlaylist // Nhận model mới
+    let playlist: JamendoPlaylistDetail
     private let squareSize: CGFloat = 150
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            WebImage(url: URL(string: playlist.coverImage ?? ""))
+            WebImage(url: URL(string: playlist.coverImageFromTrack ?? ""))
                 .resizable()
                 .indicator(.activity)
                 .scaledToFill()
@@ -22,12 +22,12 @@ struct PlaylistSquareView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
                 .shadow(radius: 5)
             
-            Text(playlist.name)
+            Text(playlist.name ?? "Playlist")
                 .font(.headline)
                 .lineLimit(1)
                 .foregroundStyle(.white)
             
-            Text("Playlist")
+            Text(playlist.userName ?? "Jamendo")
                 .font(.subheadline)
                 .foregroundStyle(.white.opacity(0.7))
                 .lineLimit(1)

@@ -120,7 +120,7 @@ struct TrackRowView: View {
                     .lineLimit(1)
                     .foregroundStyle(.white)
                 
-                Text(track.artistName ?? "Unknown")
+                Text("Unknown")
                     .font(.subheadline)
                     .lineLimit(1)
                     .foregroundStyle(.white.opacity(0.7))
@@ -128,7 +128,7 @@ struct TrackRowView: View {
             
             Spacer()
             
-            Text(formatDuration(track.duration ?? 0))
+            Text(formatDuration(track.duration ?? 00))
                 .font(.subheadline)
                 .foregroundStyle(.white.opacity(0.7))
         }
