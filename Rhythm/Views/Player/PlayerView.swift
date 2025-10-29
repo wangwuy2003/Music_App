@@ -18,7 +18,7 @@ struct PlayerView: View {
     var body: some View {
         GeometryReader { geometry in
             let maxArtworkWidth = geometry.size.width - 40
-            let currentArtworkWidth = maxArtworkWidth * (playerVM.audioPlayer.isPlaying ? 1.0 : 0.85)
+            let currentArtworkWidth = maxArtworkWidth * (playerVM.isPlaying ? 1.0 : 0.85)
             
             VStack(spacing: 28) {
                 ZStack {
@@ -31,7 +31,7 @@ struct PlayerView: View {
 //                            .padding([.leading, .trailing], 20)
 //                            .padding([.top], geometry.size.height * 60 / 896.0)
                             .frame(width: currentArtworkWidth)
-                            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: playerVM.audioPlayer.isPlaying)
+                            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: playerVM.isPlaying)
                             .popupTransitionTarget()
                     }
                 }
@@ -50,28 +50,28 @@ struct PlayerView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 // MARK: Progress
-                if playerVM.audioPlayer.duration > 0 {
+                if playerVM.duration > 0 {
                     VStack(spacing: 6) {
                         Slider(
-                            value: $playerVM.audioPlayer.currentTime,
-                            in: 0...playerVM.audioPlayer.duration,
+                            value: $playerVM.currentTime,
+                            in: 0...playerVM.duration,
                             onEditingChanged: { editing in
                                 isSliderEditing = editing
                                 if editing {
-                                    playerVM.audioPlayer.pause()
+                                    playerVM.pause()
                                 } else {
-                                    playerVM.audioPlayer.seek(to: playerVM.audioPlayer.currentTime)
-                                    playerVM.audioPlayer.play()
+                                    playerVM.seek(to: playerVM.currentTime)
+                                    playerVM.play()
                                 }
                             }
                         )
                         .tint(.purple)
 
                         HStack {
-                            Text(formatTime(playerVM.audioPlayer.currentTime))
+                            Text(formatTime(playerVM.currentTime))
                                 .font(.caption).foregroundColor(.gray)
                             Spacer()
-                            Text(formatTime(playerVM.audioPlayer.duration))
+                            Text(formatTime(playerVM.duration))
                                 .font(.caption).foregroundColor(.gray)
                         }
                     }
@@ -91,10 +91,10 @@ struct PlayerView: View {
                     Button {
                         playerVM.togglePlayback()
                     } label: {
-                        Image(systemName: playerVM.audioPlayer.isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                        Image(systemName: playerVM.isPlaying ? "pause.circle.fill" : "play.circle.fill")
                             .font(.system(size: 60))
                     }
-                    .animation(.easeInOut(duration: 0.25), value: playerVM.audioPlayer.isPlaying)
+                    .animation(.easeInOut(duration: 0.25), value: playerVM.isPlaying)
 
                     Spacer()
                     Button {
@@ -140,8 +140,8 @@ struct PlayerView: View {
         .popupTitle(playerVM.title)
         .popupImage(playerVM.popupArtwork)
         .popupProgress(Float(
-            playerVM.audioPlayer.duration > 0
-            ? playerVM.audioPlayer.currentTime / playerVM.audioPlayer.duration
+            playerVM.duration > 0
+            ? playerVM.currentTime / playerVM.duration
             : 0
         ))
         .popupBarItems {
@@ -149,7 +149,7 @@ struct PlayerView: View {
                 Button {
                     playerVM.togglePlayback()
                 } label: {
-                    Image(systemName: playerVM.audioPlayer.isPlaying ? "pause.fill" : "play.fill")
+                    Image(systemName: playerVM.isPlaying ? "pause.fill" : "play.fill")
                         .font(.title3)
                 }
                 
@@ -167,7 +167,7 @@ struct PlayerView: View {
                 Button {
                     playerVM.togglePlayback()
                 } label: {
-                    Image(systemName: playerVM.audioPlayer.isPlaying ? "pause.fill" : "play.fill")
+                    Image(systemName: playerVM.isPlaying ? "pause.fill" : "play.fill")
                         .font(.title3)
                 }
                 .padding(.horizontal, 10)

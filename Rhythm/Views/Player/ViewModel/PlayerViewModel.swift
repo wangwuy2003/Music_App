@@ -15,28 +15,42 @@ final class PlayerViewModel: ObservableObject {
     @Published var isPopupOpen = false
     @Published var currentTrack: TrackModel?
     @Published var popupArtwork: Image = Image(systemName: "music.note")
-    @Published var audioPlayer = AudioPlayer()
-    
-    private var cancellables = Set<AnyCancellable>()
 
+    @Published var currentTime: Double = 0
+    @Published var duration: Double = 0
+    @Published var isPlaying: Bool = false
+    @Published var isReady: Bool = false
+    
+    private var player: AVPlayer?
+    private var timeObserverToken: Any?
+    private var cancellables = Set<AnyCancellable>()
+    
     var title: String { currentTrack?.title ?? "Not Playing" }
     var subtitle: String { currentTrack?.user?.full_name ?? "" }
     var artwork: String? { currentTrack?.artworkUrl }
-    
-    init() {
-        audioPlayer.objectWillChange
-            .sink { [weak self] _ in
-                // Khi audioPlayer thay đổi, báo cho PlayerViewModel
-                // (và bất kỳ View nào đang theo dõi nó) cũng thay đổi
-                self?.objectWillChange.send()
-            }
-            .store(in: &cancellables)
-    }
 
-    // MARK: - Play track
+    deinit {
+        if let token = timeObserverToken {
+            player?.removeTimeObserver(token)
+        }
+    }
+    
     func play(track: TrackModel) {
+        player?.pause()
+        if let token = timeObserverToken {
+            player?.removeTimeObserver(token)
+            timeObserverToken = nil
+        }
+        player = nil
+        cancellables.removeAll()
+        
         currentTrack = track
         isBarPresented = true
+        isReady = false
+        currentTime = 0
+        duration = 0
+        isPlaying = false
+        
         loadPopupArtwork()
 
         Task {
@@ -49,21 +63,16 @@ final class PlayerViewModel: ObservableObject {
                     return
                 }
 
-                let streamURL = try await audioPlayer.fetchStreamURL(from: transcoding.url)
-                audioPlayer.loadAudio(from: streamURL.absoluteString)
+                let streamURL = try await fetchStreamURL(from: transcoding.url)
+                loadAudio(from: streamURL.absoluteString)
             } catch {
                 print("🚫 Lỗi phát nhạc:", error.localizedDescription)
             }
         }
     }
 
-    func togglePlayback() {
-        audioPlayer.togglePlayback()
-    }
-
-    // MARK: - Artwork
     func loadPopupArtwork() {
-        guard let artwork = artwork,
+        guard let artwork = artwork, !artwork.isEmpty,
               let url = URL(string: artwork) else {
             popupArtwork = Image(systemName: "music.note")
             return
@@ -81,5 +90,72 @@ final class PlayerViewModel: ObservableObject {
                 print("⚠️ Không thể tải ảnh popup:", error.localizedDescription)
             }
         }
+    }
+
+    // ===============================================
+    // MARK: - Player Controls
+    // ===============================================
+
+    func loadAudio(from urlString: String) {
+        guard let url = URL(string: urlString) else { return }
+        
+        let playerItem = AVPlayerItem(url: url)
+        player = AVPlayer(playerItem: playerItem)
+
+        playerItem.publisher(for: \.status)
+            .sink { [weak self] status in
+                guard let self = self else { return }
+                if status == .readyToPlay {
+                    self.duration = playerItem.asset.duration.seconds
+                    self.isReady = true
+                    self.play()
+                }
+            }
+            .store(in: &cancellables)
+
+        addTimeObserver()
+    }
+
+    func play() {
+        player?.play()
+        isPlaying = true
+    }
+
+    func pause() {
+        player?.pause()
+        isPlaying = false
+    }
+
+    func togglePlayback() {
+        if isPlaying {
+            pause()
+        } else {
+            play()
+        }
+    }
+
+    func seek(to time: Double) {
+        player?.seek(to: CMTime(seconds: time, preferredTimescale: 1))
+    }
+
+    private func addTimeObserver() {
+        let interval = CMTime(seconds: 0.25, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+        timeObserverToken = player?.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+            guard let self = self else { return }
+            self.currentTime = time.seconds
+        }
+    }
+    
+    func fetchStreamURL(from transcodingURL: String) async throws -> URL {
+        let clientID = Constant.clientId
+        let apiURL = URL(string: "\(transcodingURL)?client_id=\(clientID)")!
+        
+        let (data, _) = try await URLSession.shared.data(from: apiURL)
+        
+        let response = try JSONDecoder().decode(StreamResponse.self, from: data)
+        guard let streamURL = URL(string: response.url) else {
+            throw URLError(.badURL)
+        }
+        return streamURL
     }
 }

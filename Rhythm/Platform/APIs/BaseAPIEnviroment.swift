@@ -9,7 +9,7 @@ import Foundation
 
 struct BaseAPIEnviroment: APIEnvironment {
     var baseURL: String {
-        return "https://api-v2.soundcloud.com"
+        return Constant.baseURL
     }
     
     var timeout: TimeInterval {

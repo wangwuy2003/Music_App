@@ -16,16 +16,16 @@
     "Delete" : {
 
     },
-    "Không có bài hát nào đang phát" : {
-
-    },
-    "Loading..." : {
+    "Error" : {
 
     },
     "Profile...." : {
 
     },
     "Rename" : {
+
+    },
+    "Retry" : {
 
     }
   },
