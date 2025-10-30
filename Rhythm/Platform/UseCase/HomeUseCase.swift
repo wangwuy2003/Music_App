@@ -10,11 +10,9 @@ import Foundation
 class HomeUseCase {
     // MARK: - Fetch Top Albums
     func fetchTopAlbums() async throws -> [JamendoAlbum] {
-        // 1. Dùng client APIGetTopAlbums
         let client = APIGetTopAlbums()
         
         do {
-            // 2. Dùng withCheckedThrowingContinuation để bọc hàm execute
             let response = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<JamendoResponse<JamendoAlbum>, Error>) in
                 client.execute { result in
                     switch result {
@@ -25,11 +23,9 @@ class HomeUseCase {
                     }
                 }
             }
-            // 3. Trả về mảng .results
             return response.results
             
         } catch let decoding as DecodingError {
-            // Log chi tiết (giống hệt code của bạn)
             switch decoding {
             case .keyNotFound(let key, let ctx):
                 print("❌ keyNotFound:", key.stringValue, "context:", ctx.debugDescription)
@@ -72,11 +68,9 @@ class HomeUseCase {
     
     // MARK: - Fetch Top Tracks
     func fetchTopTracks() async throws -> [JamendoTrack] {
-        // 1. Dùng client APIGetTopTracks
         let client = APIGetTopTracks()
         
         do {
-            // 2. Dùng withCheckedThrowingContinuation
             let response = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<JamendoResponse<JamendoTrack>, Error>) in
                 client.execute { result in
                     switch result {
@@ -87,19 +81,8 @@ class HomeUseCase {
                     }
                 }
             }
-            // 3. Trả về mảng .results
             return response.results
             
-        } catch let decoding as DecodingError {
-            // Log chi tiết
-            switch decoding {
-            case .keyNotFound(let key, let ctx):
-                print("❌ keyNotFound:", key.stringValue, "context:", ctx.debugDescription)
-                // ... (thêm các case khác như trên)
-            default:
-                print("❌ unknown DecodingError:", decoding)
-            }
-            throw decoding
         } catch {
             print("❌ API error fetchTopTracks:", error.localizedDescription)
             throw error

@@ -8,9 +8,6 @@
 import SwiftUI
 import SwiftfulRouting
 
-import SwiftUI
-import SwiftfulRouting
-
 struct HomeView: View {
     @Environment(\.router) var router
     @EnvironmentObject var homeVM: HomeViewModel

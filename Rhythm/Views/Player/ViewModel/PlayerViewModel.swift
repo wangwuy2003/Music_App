@@ -21,6 +21,9 @@ final class PlayerViewModel: ObservableObject {
     @Published var isPlaying: Bool = false
     @Published var isReady: Bool = false
     
+    @Published var currentQueue: [JamendoTrack] = []
+    @Published var currentIndex: Int = 0
+    
     private var player: AVPlayer?
     private var timeObserverToken: Any?
     private var cancellables = Set<AnyCancellable>()
@@ -33,9 +36,20 @@ final class PlayerViewModel: ObservableObject {
         if let token = timeObserverToken {
             player?.removeTimeObserver(token)
         }
+        
+        cancellables.forEach { $0.cancel() }
+        NotificationCenter.default.removeObserver(self)
     }
     
-    func play(track: JamendoTrack) {
+    func startPlayback(from tracks: [JamendoTrack], startingAt index: Int) {
+        guard index >= 0 && index < tracks.count else { return }
+                
+        self.currentQueue = tracks
+        self.currentIndex = index
+        self.play(track: tracks[index])
+    }
+    
+    private func play(track: JamendoTrack) {
         player?.pause()
         if let token = timeObserverToken {
             player?.removeTimeObserver(token)
@@ -58,7 +72,13 @@ final class PlayerViewModel: ObservableObject {
                 try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
                 try AVAudioSession.sharedInstance().setActive(true)
 
-                loadAudio(from: track.audio ?? "")
+                guard let audioURLString = track.audio else {
+                    print("🚫 Lỗi: Track này không có link audio.")
+                    self.playNext()
+                    return
+                }
+
+                loadAudio(from: audioURLString)
             } catch {
                 print("🚫 Lỗi phát nhạc:", error.localizedDescription)
             }
@@ -95,6 +115,13 @@ final class PlayerViewModel: ObservableObject {
         
         let playerItem = AVPlayerItem(url: url)
         player = AVPlayer(playerItem: playerItem)
+        
+        NotificationCenter.default.publisher(for: AVPlayerItem.didPlayToEndTimeNotification, object: playerItem)
+            .sink { [weak self] _ in
+                print("🎶 Bài hát kết thúc, tự động chuyển bài...")
+                self?.playNext()
+            }
+            .store(in: &cancellables)
 
         playerItem.publisher(for: \.status)
             .sink { [weak self] status in
@@ -138,5 +165,45 @@ final class PlayerViewModel: ObservableObject {
             guard let self = self else { return }
             self.currentTime = time.seconds
         }
+    }
+    
+    func playNext() {
+        guard !currentQueue.isEmpty else {
+            return
+        }
+        
+        let nextIndex = currentIndex + 1
+        
+        guard nextIndex < currentQueue.count else {
+            player?.pause()
+            seek(to: 0)
+            isPlaying = false
+            print("🏁 Hết hàng đợi.")
+            return
+        }
+        
+        self.currentIndex = nextIndex
+        self.play(track: currentQueue[currentIndex])
+    }
+    
+    func playPrevious() {
+        guard !currentQueue.isEmpty else { return }
+        
+        if currentTime > 3 {
+            seek(to: 0)
+            play()
+            return
+        }
+        
+        let prevIndex = currentIndex - 1
+        
+        guard prevIndex >= 0 else {
+            seek(to: 0)
+            play()
+            return
+        }
+        
+        self.currentIndex = prevIndex
+        self.play(track: currentQueue[currentIndex])
     }
 }

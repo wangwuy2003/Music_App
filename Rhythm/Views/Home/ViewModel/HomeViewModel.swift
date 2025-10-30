@@ -61,13 +61,6 @@ class HomeViewModel: ObservableObject {
         }
     }
     
-//    func openPlaylistDetail(playlist: JamendoPlaylistDetail) {
-//        print("Tapped playlist: \(playlist.name ?? "ID \(playlist.id)")")
-//        
-//        router.showScreen(.push) { _ in
-//            PlaylistTracksView(playlistDetail: playlist)
-//        }
-//    }
     func openPlaylistDetail(playlist: JamendoPlaylistDetail) {
         print("Tapped playlist: \(playlist.name ?? "ID \(playlist.id)")")
         

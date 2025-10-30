@@ -135,9 +135,6 @@ struct TrackRowView: View {
 //        .padding(.horizontal)
         .padding(.vertical, 4)
         .contentShape(Rectangle())
-        .onTapGesture {
-            playerVM.play(track: track)
-        }
     }
     
     // Helper format thời gian

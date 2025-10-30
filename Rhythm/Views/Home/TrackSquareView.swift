@@ -43,8 +43,8 @@ struct TrackSquareView: View {
                 .lineLimit(1)
         }
         .frame(width: squareSize)
-        .onTapGesture {
-            playerVM.play(track: track)
-        }
+//        .onTapGesture {
+//            playerVM.play(track: track)
+//        }
     }
 }
