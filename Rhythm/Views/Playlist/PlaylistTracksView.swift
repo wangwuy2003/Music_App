@@ -56,7 +56,6 @@ struct PlaylistTracksView: View {
                     .foregroundStyle(.white.opacity(0.7))
             }
         }
-        .navigationTitle(playlistName)
         .navigationBarTitleDisplayMode(.inline)
         .task {
             await vm.fetchTracks(forPlaylistID: playlistId)
