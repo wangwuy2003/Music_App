@@ -6,68 +6,61 @@
 //
 
 import SwiftUI
-
-struct PlaylistItem: Identifiable, Hashable {
-    let id = UUID()
-    var title: String
-    var songs: Int
-    var thumb: String?
-}
+import SwiftData
 
 struct PlaylistRow: View {
-    let item: PlaylistItem
-    
-    var onRename: (() -> Void)?
+    let playlist: Playlist
     var onDelete: (() -> Void)?
     
     var body: some View {
-        HStack(spacing: 6) {
-            Image(item.thumb ?? "coverImage")
-                .resizable()
-                .frame(width: 80, height: 80)
-                .clipShape(.rect(cornerRadius: 4))
+        HStack(alignment: .center, spacing: 12) {
+            if let data = playlist.imageData, let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 60, height: 60)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+            } else {
+                ZStack {
+                    Color.gray.opacity(0.3)
+                    Image(systemName: "music.note.list")
+                        .font(.system(size: 24))
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+                .frame(width: 60, height: 60)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
             
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.title)
+            VStack(alignment: .leading, spacing: 4) {
+                Text(playlist.name)
+                    .font(.headline)
                     .foregroundStyle(.white)
-                    .font(.system(size: 18, weight: .bold))
-                
-                Text("\(item.songs)" + " " + "songs")
-                    .foregroundStyle(.secondary)
-                    .font(.system(size: 16))
+                    .lineLimit(1)
             }
             
             Spacer()
             
             Menu {
                 Button {
-                    onRename?()
                 } label: {
                     Label("Rename", systemImage: "pencil")
                 }
                 
                 Button(role: .destructive) {
-                    onDelete?() 
+                    onDelete?()
                 } label: {
                     Label("Delete", systemImage: "trash")
                 }
-                
             } label: {
                 Image(systemName: "ellipsis")
-                    .foregroundStyle(.white)
-                    .font(.title2)
-                    .frame(width: 44, height: 44)
-                    .contentShape(Rectangle())
-                    .rotationEffect(Angle(degrees: 90))
+                    .foregroundColor(.gray)
+                    .padding(8)
             }
-
         }
     }
 }
 
-extension PlaylistRow {
-}
-
 #Preview {
-    PlaylistRow(item: PlaylistItem(title: "Playlis name", songs: 10, thumb: "coverImage"))
+    LibraryView()
+        .modelContainer(for: [Playlist.self, SavedTrack.self])
 }

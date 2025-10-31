@@ -37,7 +37,7 @@ enum TabEnum: String, CaseIterable, Hashable {
         switch self {
         case .home:             RootContainer(router: router)
         case .search:           SearchView()
-        case .library:          LibraryView()
+        case .library:          LibraryContainer(router: router)
         case .profile:          ProfileView()
         }
     }

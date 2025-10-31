@@ -7,24 +7,14 @@
 
 import SwiftUI
 import SwiftfulRouting
+import SwiftData
 
 struct LibraryView: View {
-    @Environment(\.router) var router
+    @Environment(\.modelContext) var modelContext
+    @EnvironmentObject var libraryVM: LibraryViewModel
     
-//    @State private var playlists: [PlaylistItem] = [
-//        .init(title: "Playlist name", songs: 10, thumb: "coverImage"),
-//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-//        .init(title: "Playlist name", songs: 0,  thumb: "coverImage"),
-//    ]
-    
-    @State private var playlists: [PlaylistItem] = []
+    @Query private var playlists: [Playlist]
+    @State private var isShowingAddSheet: Bool = false
     
     var body: some View {
         ZStack {
@@ -32,86 +22,29 @@ struct LibraryView: View {
             
             VStack {
                 titleView
-                
                 buttonAddNewPlaylist
                 
-                if !playlists.isEmpty {
+                if playlists.isEmpty {
+                    emptyStateView
+                } else {
                     playlistListView
                 }
                 
                 Spacer()
             }
-            
-            if playlists.isEmpty {
-                emptyStateView
-            }
         }
-//        .toolbar(content: {
-//            ToolbarItem(placement: .topBarLeading) {
-//                Text(.localized("Playlist"))
-//                    .foregroundStyle(.white)
-//                    .font(.largeTitle)
-//                    .bold()
-//            }
-//        })
-        .onAppear(perform: loadPlaylists)
-    }
-    
-    private func loadPlaylists() {
-        do {
-            self.playlists = try StorageManager.shared.fetchAllPlaylists()
-            print("✅ Successfully loaded \(playlists.count) playlists.")
-        } catch {
-            print("❌ Error loading playlists: \(error.localizedDescription)")
-            self.playlists = []
+        .sheet(isPresented: $isShowingAddSheet) {
+            AddPlaylistView()
+                .presentationCornerRadius(25)
+                .presentationDetents([.large])
         }
-    }
-    
-    private func deletePlaylist(_ playlist: PlaylistItem) {
-        do {
-            try StorageManager.shared.deletetPlaylistDirectory(name: playlist.title)
-            print("✅ Successfully deleted playlist: \(playlist.title)")
-            loadPlaylists()
-        } catch {
-            print("❌ Error deleting playlist: \(error.localizedDescription)")
-            router.showAlert(.alert,
-                             title: .localized("Error"),
-                             subtitle: .localized("Could not delete playlist: \(error.localizedDescription)"))
-        }
-    }
-    
-    private func showRenameModal(for playlist: PlaylistItem) {
-        router.showModal(
-            transition: .opacity,
-            animation: .smooth(duration: 0.3),
-            alignment: .center,
-            backgroundColor: Color.black.opacity(0.5),
-            backgroundEffect: BackgroundEffect(effect: UIBlurEffect(style: .systemMaterialDark), intensity: 0.1),
-            dismissOnBackgroundTap: false,
-            ignoreSafeArea: true,
-            destination: {
-                RenamePlaylistView(playlist: playlist, onPlaylistRenamed: self.loadPlaylists)
-            }
-        )
-    }
-    
-    private func showDeleteConfirmation(for playlist: PlaylistItem) {
-        router.showAlert(
-            .alert,
-            title: "Delete \(playlist.title)?",
-            subtitle: "This action cannot be undone.") {
-                Button(.localized("Cancel"), role: .cancel) {
-                    router.dismissAlert()
-                }
-                
-                Button(.localized("Delete"), role: .destructive) {
-                    deletePlaylist(playlist)
-                }
+        .onAppear {
+            // Gắn modelContext vào ViewModel
+            libraryVM.attachModelContext(modelContext)
         }
     }
 }
 
-// MARK: - subviews
 extension LibraryView {
     private var titleView: some View {
         HStack {
@@ -124,24 +57,17 @@ extension LibraryView {
     }
     
     private var backgroundView: some View {
-        LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]), startPoint: .top, endPoint: .bottom)
-            .ignoresSafeArea()
+        LinearGradient(
+            gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]),
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .ignoresSafeArea()
     }
     
     private var buttonAddNewPlaylist: some View {
         Button {
-            router.showModal(
-                transition: .opacity,
-                animation: .smooth(duration: 0.3),
-                alignment: .center,
-                backgroundColor: Color.black.opacity(0.5),
-                backgroundEffect: BackgroundEffect(effect: UIBlurEffect(style: .systemMaterialDark), intensity: 0.1),
-                dismissOnBackgroundTap: false,
-                ignoreSafeArea: true,
-                destination: {
-                    AddPlaylistView(onPlaylistAdded: self.loadPlaylists)
-                }
-            )
+            isShowingAddSheet = true
         } label: {
             HStack(spacing: 20) {
                 Image(systemName: "plus")
@@ -150,7 +76,13 @@ extension LibraryView {
                     .frame(width: 20, height: 20)
                     .background(
                         Circle()
-                            .foregroundStyle(LinearGradient(colors: [.hexCBB7FF, .hex764ED9], startPoint: .top, endPoint: .bottom))
+                            .foregroundStyle(
+                                LinearGradient(
+                                    colors: [.hexCBB7FF, .hex764ED9],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+                            )
                             .frame(width: 40, height: 40)
                     )
                 
@@ -165,20 +97,23 @@ extension LibraryView {
     private var playlistListView: some View {
         List {
             ForEach(playlists) { playlist in
-                PlaylistRow(
-                    item: playlist,
-                    onRename: {
-                        showRenameModal(for: playlist)
-                    },
-                    onDelete: {
-                        showDeleteConfirmation(for: playlist)
-                    }
-                )
+                PlaylistRow(playlist: playlist)
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
+                    .contextMenu {
+                        Button(role: .destructive) {
+                            libraryVM.confirmDeletePlaylist(playlist)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
+                    }
+                    .onTapGesture {
+                        libraryVM.openPlaylistDetail(playlist)
+                    }
             }
         }
         .listStyle(.plain)
+        .scrollContentBackground(.hidden)
     }
     
     private var emptyStateView: some View {
@@ -189,8 +124,4 @@ extension LibraryView {
         )
         .transition(AnyTransition.opacity.animation(.easeInOut))
     }
-}
-
-#Preview {
-    LibraryView()
 }

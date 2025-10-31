@@ -7,158 +7,188 @@
 
 import SwiftUI
 import SwiftfulRouting
+import PhotosUI
+import AVFoundation
 
 struct AddPlaylistView: View {
     @Environment(\.router) var router
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.modelContext) var modelContext
     
-    @State private var textFieldText: String = ""
-    @FocusState private var isTFFocused: Bool
+    @State private var name: String = ""
+    @State private var description: String = ""
     
-    var onPlaylistAdded: (() -> Void)?
+    @State private var showCamera = false
+    @State private var showPhotoPicker = false
+    @State private var showFileImporter = false
+    
+    @State private var selectedPhotoItem: PhotosPickerItem?
+    @State private var selectedImageData: Data?
+    
+    @FocusState private var isNameFocused: Bool
     
     var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                Spacer(minLength: 10)
+                
+                photoPickerSection
+                
+                TextField("Playlist Title", text: $name)
+                    .fontWeight(.semibold)
+                    .multilineTextAlignment(.center)
+                    .focused($isNameFocused)
+                    .padding(.top, 20)
+                
+                Divider()
+                    .padding(.horizontal, 40)
+                
+                Spacer()
+                Spacer()
+                Spacer()
+                Spacer()
+                Spacer()
+                Spacer()
+            }
+            .frame(maxHeight: .infinity, alignment: .top)
+            .padding(.top, 40)
+            .navigationTitle("New Playlist")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
+                }
+                
+                ToolbarItem(placement: .confirmationAction) {
+                    Button {
+                        savePlaylist()
+                    } label: {
+                        Image(systemName: "checkmark")
+                    }
+                    .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
+                }
+            }
+            .onAppear {
+                isNameFocused = true
+            }
+            .photosPicker(isPresented: $showPhotoPicker, selection: $selectedPhotoItem, matching: .images)
+            .fileImporter(isPresented: $showFileImporter, allowedContentTypes: [.image]) { result in
+                switch result {
+                case .success(let url):
+                    if let data = try? Data(contentsOf: url) {
+                        selectedImageData = data
+                    }
+                case .failure(let error):
+                    print("❌ Lỗi chọn file: \(error)")
+                }
+            }
+            
+            .sheet(isPresented: $showCamera) {
+                ImagePickerView(imageData: $selectedImageData)
+            }
+            
+            .onChange(of: selectedPhotoItem) { _, newItem in
+                if let newItem {
+                    Task {
+                        if let data = try? await newItem.loadTransferable(type: Data.self) {
+                            selectedImageData = data
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private var photoPickerSection: some View {
         ZStack {
-            Color.clear
-                .ignoresSafeArea()
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    dismissView()
-                }
-            
-            ZStack {
-                LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]), startPoint: .top, endPoint: .bottom)
-                    .ignoresSafeArea()
-                
-                VStack {
-                    Text(.localized("New Playlist"))
-                        .foregroundStyle(.white)
-                        .font(.system(size: 20, weight: .bold))
-                    
-                    textFieldSection
-                    
-                    buttonSection
-                    
-                }
-            }
-            .clipShape(.rect(cornerRadius: 10))
-            .shadow(color: Color.hex1F1922, radius: 10, x: 0, y: 0)
-            .frame(width: 265, height: 170)
-            .offset(y: isTFFocused ? -80 : 0)
-            .animation(.smooth, value: isTFFocused)
-            .onDisappear {
-                isTFFocused = false
+            if let data = selectedImageData, let uiImage = UIImage(data: data) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 150, height: 150)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipped()
+            } else {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.gray.opacity(0.15))
+                    .frame(width: 150, height: 150)
             }
             
-        }
-    }
-    
-    private func dismissView() {
-        isTFFocused = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            router.dismissModal()
-        }
-    }
-}
+            Menu {
+                Button {
+                    checkCameraPermission { granted in
+                        if granted {
+                            showCamera = true
+                        } else {
+                            print("❌ Người dùng chưa cấp quyền camera.")
+                        }
+                    }
+                } label: {
+                    Label(.localized("Take Camera"), systemImage: "camera")
+                }
 
-// MARK: subviews
-extension AddPlaylistView {
-    private var textFieldSection: some View {
-        VStack(spacing: 6) {
-            TextField(.localized("Give your playlist a title"), text: $textFieldText)
-                .focused($isTFFocused)
-                .autocorrectionDisabled()
-                .textInputAutocapitalization(.words)
-            
-            
-            Divider()
-        }
-        .foregroundStyle(.hex8A9A9D)
-        .padding()
-        .onAppear {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                isTFFocused = true
-            }
-        }
-    }
-    
-    private var buttonSection: some View {
-        HStack(spacing: 60) {
-            cancelButton
-            createButton
-        }
-    }
-    
-    private var cancelButton: some View {
-        Button {
-            dismissView()
-        } label: {
-            Text(.localized("Cancel"))
-                .foregroundStyle(.white)
-                .font(.system(size: 12, weight: .bold))
-                .padding(.vertical, 7)
-                .padding(.horizontal, 15)
-                .background(
-                    Capsule().fill(Color.hex2C2F30)
-                )
-                .shadow(color: .white.opacity(0.15), radius: 10, x: 0, y: 0)
-                .overlay(
-                    Capsule()
-                        .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
-                        .blur(radius: 10)
-                )
-            
-        }
-    }
-    
-    private var createButton: some View {
-        Button {
-            //logic
-            guard !textFieldText.trimmingCharacters(in: .whitespaces).isEmpty else {
-                print("Yolo Playlist name is empty.")
-                return
-            }
-            
-            do {
-                try StorageManager.shared.createPlaylistDirectory(name: textFieldText)
-                
-                onPlaylistAdded?()
-                
-                dismissView()
-            } catch let error as StorageError {
-                switch error {
-                case .directoryCreationFailed(let reason):
-                    print("❌ Error: Could not create playlist. Reason: \(reason)")
-                case .couldNotAccessDocumentsDirectory:
-                    print("❌ Error: Could not access app's documents directory.")
-                default:
-                    print("❌ An unexpected storage error occurred: \(error)")
+                Button {
+                    showPhotoPicker = true
+                } label: {
+                    Label(.localized("Import from Photos"), systemImage: "photo")
                 }
-                // Ở đây bạn có thể hiển thị một Alert cho người dùng
-                
-            } catch {
-                print("❌ An unexpected error occurred: \(error.localizedDescription)")
-            }
-            
-        } label: {
-            Text(.localized("Create"))
-                .foregroundStyle(.white)
-                .font(.system(size: 12, weight: .bold))
-                .padding(.vertical, 7)
-                .padding(.horizontal, 15)
-                .background(
-                    Capsule().fill(Color.accentColor)
-                )
-                .shadow(color: .accentColor, radius: 10, x: 0, y: 0)
-                .overlay(
-                    Capsule()
-                        .stroke(Color.white.opacity(0.1), lineWidth: 0.5)
-                        .blur(radius: 10)
-                )
-        }
-        .disabled(textFieldText.trimmingCharacters(in: .whitespaces).isEmpty)
-    }
-}
 
-#Preview {
-    AddPlaylistView()
+                Button {
+                    showFileImporter = true
+                } label: {
+                    Label(.localized("Import from Files"), systemImage: "folder")
+                }
+            } label: {
+                Image(systemName: "camera.fill")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(.white)
+                    .padding(16)
+                    .background(Circle().fill(Color.red))
+                    .menuStyle(.button)
+                    .shadow(radius: 5)
+            }
+        }
+    }
+    
+    private func savePlaylist() {
+        let trimmedName = name.trimmingCharacters(in: .whitespaces)
+        guard !trimmedName.isEmpty else { return }
+        
+        let trimmedDesc = description.trimmingCharacters(in: .whitespaces)
+        
+        let newPlaylist = Playlist(
+            name: trimmedName,
+            playlistDescription: trimmedDesc,
+            imageData: selectedImageData
+        )
+        
+        modelContext.insert(newPlaylist)
+        
+        do {
+            try modelContext.save()
+            print("✅ Playlist đã được lưu!")
+            dismiss()
+        } catch {
+            print("❌ Lỗi lưu playlist: \(error.localizedDescription)")
+        }
+    }
+    
+    func checkCameraPermission(completion: @escaping (Bool) -> Void) {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            completion(true)
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                DispatchQueue.main.async {
+                    completion(granted)
+                }
+            }
+        default:
+            completion(false)
+        }
+    }
 }

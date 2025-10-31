@@ -10,22 +10,43 @@
     "⚠️ %@" : {
 
     },
+    "Add to Playlist" : {
+
+    },
+    "Cancel" : {
+
+    },
     "Delete" : {
 
     },
     "Error" : {
 
     },
+    "New Playlist" : {
+
+    },
     "No tracks found in this playlist." : {
 
     },
+    "Play" : {
+
+    },
+    "Playlist Title" : {
+
+    },
     "Profile...." : {
+
+    },
+    "Random" : {
 
     },
     "Rename" : {
 
     },
     "Retry" : {
+
+    },
+    "This playlist has no tracks yet." : {
 
     },
     "Unknown" : {

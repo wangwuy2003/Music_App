@@ -12,7 +12,6 @@ struct HomeView: View {
     @Environment(\.router) var router
     @EnvironmentObject var homeVM: HomeViewModel
     
-    
     var body: some View {
         ZStack {
             LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]), startPoint: .top, endPoint: .bottom)

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftfulRouting
+import SwiftData
 
 @main
 struct RhythmApp: App {
@@ -17,5 +18,6 @@ struct RhythmApp: App {
                     .preferredColorScheme(.dark)
             }
         }
+        .modelContainer(for: [Playlist.self, SavedTrack.self])
     }
 }

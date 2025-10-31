@@ -47,5 +47,27 @@ struct JamendoTrack: Codable, Identifiable, Hashable {
             duration = try? container.decode(Int.self, forKey: .duration)
         }
     }
+    
+    init(
+        id: String,
+        name: String,
+        albumId: String? = nil,
+        duration: Int? = nil,
+        artistName: String? = nil,
+        albumImage: String? = nil,
+        image: String? = nil,
+        audio: String? = nil,
+        audioDownload: String? = nil
+    ) {
+        self.id = id
+        self.name = name
+        self.albumId = albumId
+        self.duration = duration
+        self.artistName = artistName
+        self.albumImage = albumImage
+        self.image = image
+        self.audio = audio
+        self.audioDownload = audioDownload
+    }
 }
 

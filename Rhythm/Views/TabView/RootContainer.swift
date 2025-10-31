@@ -22,3 +22,22 @@ struct RootContainer: View {
             .environmentObject(homeVM)
     }
 }
+
+struct LibraryContainer: View {
+    let router: AnyRouter
+    
+    @StateObject private var libraryVM: LibraryViewModel
+
+    init(router: AnyRouter) {
+        self.router = router
+        _libraryVM = StateObject(wrappedValue: LibraryViewModel(router: router))
+    }
+    
+    var body: some View {
+        RouterView(addNavigationStack: true, addModuleSupport: false) { innerRouter in
+                    LibraryView()
+                        .environmentObject(libraryVM)
+                        .environment(\.router, innerRouter) // Gắn router con
+                }
+    }
+}
