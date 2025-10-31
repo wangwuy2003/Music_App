@@ -132,6 +132,7 @@ struct PlaylistHeaderView: View {
                 }
             }
             .padding(.top, 8)
+            .buttonStyle(.borderless)
         }
         .padding()
         .frame(maxWidth: .infinity)

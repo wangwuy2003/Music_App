@@ -12,6 +12,18 @@ struct TabbarView: View {
 //        UITabBar.appearance().unselectedItemTintColor = UIColor.gray
 //    }
     
+    init() {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor.black
+        
+        // Màu icon
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+        UITabBar.appearance().unselectedItemTintColor = UIColor.gray
+        UITabBar.appearance().tintColor = UIColor.accent
+    }
+    
     var body: some View {
         ZStack {
             TabView(selection: $selectedTab) {
@@ -20,7 +32,10 @@ struct TabbarView: View {
                         tab.view(router: router)
                             .environmentObject(playerVM)
                     }
-                    .tabItem { Image(systemName: tab.image) }
+                    .tabItem {
+                        Image(systemName: tab.image)
+                        Text(tab.title)
+                    }
                     .tag(tab)
                 }
             }

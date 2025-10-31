@@ -40,18 +40,18 @@ struct PlayerView: View {
                 
 
                 // MARK: Info
-                VStack(spacing: 6) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(playerVM.title)
                         .font(.title2).bold().lineLimit(1)
                     Text(playerVM.subtitle)
-                        .font(.subheadline).foregroundColor(.gray).lineLimit(1)
+                        .font(.caption).foregroundColor(.secondary)
                 }
                 .padding(.horizontal, 24)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 // MARK: Progress
-                if playerVM.duration > 0 {
-                    VStack(spacing: 6) {
+                VStack(spacing: 6) {
+//                    if playerVM.duration > 0 {
                         Slider(
                             value: $playerVM.currentTime,
                             in: 0...playerVM.duration,
@@ -66,23 +66,31 @@ struct PlayerView: View {
                             }
                         )
                         .tint(.purple)
+//                    } else {
+//                        // Khi duration = 0 (đang tải),
+//                        // hiển thị một thanh tải để giữ không gian
+//                        ProgressView()
+//                            .progressViewStyle(.linear)
+//                            .tint(.purple)
+//                            .padding(.vertical, 10) // Giả lập chiều cao của Slider
+//                    }
 
-                        HStack {
-                            Text(formatTime(playerVM.currentTime))
-                                .font(.caption).foregroundColor(.gray)
-                            Spacer()
-                            Text(formatTime(playerVM.duration))
-                                .font(.caption).foregroundColor(.gray)
-                        }
+                    HStack {
+                        Text(formatTime(playerVM.currentTime))
+                            .font(.caption).foregroundColor(.gray)
+                        Spacer()
+                        Text(formatTime(playerVM.duration))
+                            .font(.caption).foregroundColor(.gray)
                     }
-                    .padding(.horizontal, 24)
                 }
+                .padding(.horizontal, 24)
 
                 // MARK: Controls
                 HStack {
                     Spacer()
                     Button {
                         print("Previous track")
+                        playerVM.playPrevious()
                     } label: {
                         Image(systemName: "backward.fill")
                     }
@@ -98,6 +106,7 @@ struct PlayerView: View {
 
                     Spacer()
                     Button {
+                        playerVM.playNext()
                         print("Next track")
                     } label: {
                         Image(systemName: "forward.fill")
@@ -106,15 +115,6 @@ struct PlayerView: View {
                 }
                 .font(.title2)
                 .foregroundColor(.white)
-                .padding(.horizontal, 24)
-
-                // MARK: Volume
-                HStack {
-                    Image(systemName: "speaker.fill")
-                    Slider(value: $volume).tint(.purple)
-                    Image(systemName: "speaker.wave.2.fill")
-                }
-                .foregroundColor(.gray)
                 .padding(.horizontal, 24)
 
                 Spacer(minLength: geometry.size.height * 0.05)
@@ -154,7 +154,7 @@ struct PlayerView: View {
                 }
                 
                 Button {
-                    
+                    playerVM.playNext()
                 } label: {
                     Image(systemName: "forward.fill")
                 }

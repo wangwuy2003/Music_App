@@ -46,10 +46,13 @@ final class PlayerViewModel: ObservableObject {
                 
         self.currentQueue = tracks
         self.currentIndex = index
+        self.isPlaying = true
         self.play(track: tracks[index])
     }
     
     private func play(track: JamendoTrack) {
+        let wasPlaying = self.isPlaying
+        
         player?.pause()
         if let token = timeObserverToken {
             player?.removeTimeObserver(token)
@@ -63,7 +66,8 @@ final class PlayerViewModel: ObservableObject {
         isReady = false
         currentTime = 0
         duration = 0
-        isPlaying = false
+//        isPlaying = false
+        self.isPlaying = wasPlaying
         
         loadPopupArtwork()
 
@@ -78,7 +82,7 @@ final class PlayerViewModel: ObservableObject {
                     return
                 }
 
-                loadAudio(from: audioURLString)
+                loadAudio(from: audioURLString, shouldPlayImmediately: wasPlaying)
             } catch {
                 print("🚫 Lỗi phát nhạc:", error.localizedDescription)
             }
@@ -110,7 +114,7 @@ final class PlayerViewModel: ObservableObject {
     // MARK: - Player Controls
     // ===============================================
 
-    func loadAudio(from urlString: String) {
+    func loadAudio(from urlString: String, shouldPlayImmediately: Bool) {
         guard let url = URL(string: urlString) else { return }
         
         let playerItem = AVPlayerItem(url: url)
@@ -129,7 +133,12 @@ final class PlayerViewModel: ObservableObject {
                 if status == .readyToPlay {
                     self.duration = playerItem.asset.duration.seconds
                     self.isReady = true
-                    self.play()
+                    
+                    if shouldPlayImmediately {
+                        self.play()
+                    } else {
+                        self.isPlaying = false
+                    }
                 }
             }
             .store(in: &cancellables)
@@ -151,7 +160,11 @@ final class PlayerViewModel: ObservableObject {
         if isPlaying {
             pause()
         } else {
-            play()
+            if player == nil, let track = currentTrack {
+                 play(track: track)
+            } else {
+                 play()
+            }
         }
     }
 
