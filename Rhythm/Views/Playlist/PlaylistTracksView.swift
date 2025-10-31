@@ -4,8 +4,6 @@
 //
 //  Created by MacMini A6 on 29/10/25.
 //
-
-
 import SwiftUI
 import SwiftfulRouting
 import SDWebImageSwiftUI
@@ -66,6 +64,16 @@ struct PlaylistTracksView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    router.dismissScreen()
+                } label: {
+                    Image(systemName: "chevron.left")
+                }
+            }
+        }
         .task {
             await vm.fetchTracks(forPlaylistID: playlistId)
         }
@@ -110,8 +118,8 @@ struct PlaylistHeaderView: View {
                         Text(.localized("Play"))
                             .fontWeight(.semibold)
                     }
-                    .frame(width: 120, height: 45)
-                    .background(Color.pink)
+                    .frame(width: 140, height: 45)
+                    .background(Color.accentColor)
                     .foregroundStyle(.white)
                     .clipShape(Capsule())
                 }
@@ -125,9 +133,9 @@ struct PlaylistHeaderView: View {
                         Text(.localized("Random"))
                             .fontWeight(.semibold)
                     }
-                    .frame(width: 120, height: 45)
+                    .frame(width: 140, height: 45)
                     .background(Color.white.opacity(0.1))
-                    .foregroundStyle(.pink)
+                    .foregroundStyle(.accent)
                     .clipShape(Capsule())
                 }
             }

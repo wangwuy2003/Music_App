@@ -69,6 +69,8 @@ struct TrackRowView: View {
                     .padding(8)
                     .rotationEffect(Angle(degrees: -90))
             }
+            .labelStyle(.titleAndIcon)
+            
         }
 //        .padding(.horizontal)
         .padding(.vertical, 4)
