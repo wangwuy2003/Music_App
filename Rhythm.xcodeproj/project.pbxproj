@@ -7,8 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		189E08F12EB60A5A0042D62D /* YMTGetDeviceName in Frameworks */ = {isa = PBXBuildFile; productRef = 189E08F02EB60A5A0042D62D /* YMTGetDeviceName */; };
+		189E092F2EB781EF0042D62D /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 189E092E2EB781EF0042D62D /* Lottie */; };
 		18A356862E826B260058AC49 /* SwiftfulRouting in Frameworks */ = {isa = PBXBuildFile; productRef = 18A356852E826B260058AC49 /* SwiftfulRouting */; };
 		18C91F122E8EB9E70025EBFC /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 18C91F112E8EB9E70025EBFC /* SDWebImageSwiftUI */; };
+		18CCFB162EB7B76400D051C6 /* SwiftfulLoadingIndicators in Frameworks */ = {isa = PBXBuildFile; productRef = 18CCFB152EB7B76400D051C6 /* SwiftfulLoadingIndicators */; };
 		811F671E2EA899CB00C7D10C /* LoremIpsum in Frameworks */ = {isa = PBXBuildFile; productRef = 811F671D2EA899CB00C7D10C /* LoremIpsum */; };
 		811F67242EA8C1D800C7D10C /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = 811F67232EA8C1D800C7D10C /* SwiftUIIntrospect */; };
 		819427132EB0863C00CBBCD6 /* LNPopupUI in Frameworks */ = {isa = PBXBuildFile; productRef = 819427122EB0863C00CBBCD6 /* LNPopupUI */; };
@@ -61,11 +64,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				819427132EB0863C00CBBCD6 /* LNPopupUI in Frameworks */,
+				189E08F12EB60A5A0042D62D /* YMTGetDeviceName in Frameworks */,
+				18CCFB162EB7B76400D051C6 /* SwiftfulLoadingIndicators in Frameworks */,
 				8194289E2EB350E400CBBCD6 /* SkeletonUI in Frameworks */,
 				811F671E2EA899CB00C7D10C /* LoremIpsum in Frameworks */,
 				18C91F122E8EB9E70025EBFC /* SDWebImageSwiftUI in Frameworks */,
 				811F67242EA8C1D800C7D10C /* SwiftUIIntrospect in Frameworks */,
 				18A356862E826B260058AC49 /* SwiftfulRouting in Frameworks */,
+				189E092F2EB781EF0042D62D /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -115,6 +121,9 @@
 				811F67232EA8C1D800C7D10C /* SwiftUIIntrospect */,
 				819427122EB0863C00CBBCD6 /* LNPopupUI */,
 				8194289D2EB350E400CBBCD6 /* SkeletonUI */,
+				189E08F02EB60A5A0042D62D /* YMTGetDeviceName */,
+				189E092E2EB781EF0042D62D /* Lottie */,
+				18CCFB152EB7B76400D051C6 /* SwiftfulLoadingIndicators */,
 			);
 			productName = Music_App;
 			productReference = 18A350992E825D160058AC49 /* Rhythm.app */;
@@ -151,6 +160,9 @@
 				811F67222EA8C1D800C7D10C /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 				819427112EB0863C00CBBCD6 /* XCRemoteSwiftPackageReference "LNPopupUI" */,
 				8194289C2EB350E400CBBCD6 /* XCRemoteSwiftPackageReference "SkeletonUI" */,
+				189E08EF2EB60A5A0042D62D /* XCRemoteSwiftPackageReference "YMTGetDeviceName" */,
+				189E092D2EB781EF0042D62D /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				18CCFB142EB7B76400D051C6 /* XCRemoteSwiftPackageReference "SwiftfulLoadingIndicators" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 18A3509A2E825D160058AC49 /* Products */;
@@ -396,6 +408,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		189E08EF2EB60A5A0042D62D /* XCRemoteSwiftPackageReference "YMTGetDeviceName" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/MasamiYamate/YMTGetDeviceName";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.9.0;
+			};
+		};
+		189E092D2EB781EF0042D62D /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.5.2;
+			};
+		};
 		18A356842E826B260058AC49 /* XCRemoteSwiftPackageReference "SwiftfulRouting" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SwiftfulThinking/SwiftfulRouting";
@@ -410,6 +438,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 3.1.3;
+			};
+		};
+		18CCFB142EB7B76400D051C6 /* XCRemoteSwiftPackageReference "SwiftfulLoadingIndicators" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SwiftfulThinking/SwiftfulLoadingIndicators.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.0.4;
 			};
 		};
 		811F671C2EA899CB00C7D10C /* XCRemoteSwiftPackageReference "LoremIpsum" */ = {
@@ -447,6 +483,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		189E08F02EB60A5A0042D62D /* YMTGetDeviceName */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 189E08EF2EB60A5A0042D62D /* XCRemoteSwiftPackageReference "YMTGetDeviceName" */;
+			productName = YMTGetDeviceName;
+		};
+		189E092E2EB781EF0042D62D /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 189E092D2EB781EF0042D62D /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
 		18A356852E826B260058AC49 /* SwiftfulRouting */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 18A356842E826B260058AC49 /* XCRemoteSwiftPackageReference "SwiftfulRouting" */;
@@ -456,6 +502,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 18C91F102E8EB9E70025EBFC /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */;
 			productName = SDWebImageSwiftUI;
+		};
+		18CCFB152EB7B76400D051C6 /* SwiftfulLoadingIndicators */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 18CCFB142EB7B76400D051C6 /* XCRemoteSwiftPackageReference "SwiftfulLoadingIndicators" */;
+			productName = SwiftfulLoadingIndicators;
 		};
 		811F671D2EA899CB00C7D10C /* LoremIpsum */ = {
 			isa = XCSwiftPackageProductDependency;

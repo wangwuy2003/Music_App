@@ -63,6 +63,7 @@ struct PlaylistTracksView: View {
                     .foregroundStyle(.white.opacity(0.7))
             }
         }
+        .enableSwipeBack()
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
         .toolbar {
@@ -71,6 +72,7 @@ struct PlaylistTracksView: View {
                     router.dismissScreen()
                 } label: {
                     Image(systemName: "chevron.left")
+                        .foregroundStyle(.white)
                 }
             }
         }

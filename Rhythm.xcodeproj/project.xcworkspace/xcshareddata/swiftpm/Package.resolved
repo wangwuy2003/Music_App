@@ -1,5 +1,5 @@
 {
-  "originHash" : "4db010b5aa1bd81a3ff414450689de10739efd266fd57cb8cbcfda29b31a287b",
+  "originHash" : "520d88b752d8651b8bec5fbe093acaefca1b04f1fa2badd0992788e15e21266c",
   "pins" : [
     {
       "identity" : "lnpopupcontroller",
@@ -35,6 +35,15 @@
       "state" : {
         "branch" : "master",
         "revision" : "1c2e7a0d46cbc0343f394bd2a5adf45e8679a1cb"
+      }
+    },
+    {
+      "identity" : "lottie-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/airbnb/lottie-ios.git",
+      "state" : {
+        "revision" : "a004050748dc197c56256a14dca49a035d74726c",
+        "version" : "4.5.2"
       }
     },
     {
@@ -92,6 +101,15 @@
       }
     },
     {
+      "identity" : "swiftfulloadingindicators",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftfulThinking/SwiftfulLoadingIndicators.git",
+      "state" : {
+        "revision" : "85858c0246dcd781228301f9928519f75ce89758",
+        "version" : "0.0.4"
+      }
+    },
+    {
       "identity" : "swiftfulrecursiveui",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftfulThinking/SwiftfulRecursiveUI.git",
@@ -125,6 +143,15 @@
       "state" : {
         "revision" : "4c27acf5394b645b70d8ba19dc249c0472d5f618",
         "version" : "1.7.0"
+      }
+    },
+    {
+      "identity" : "ymtgetdevicename",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/MasamiYamate/YMTGetDeviceName",
+      "state" : {
+        "revision" : "496493df630cd5d3c4e5736fbb06865febef78d9",
+        "version" : "5.9.0"
       }
     }
   ],

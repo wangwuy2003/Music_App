@@ -10,8 +10,10 @@ import SwiftfulRouting
 import SwiftData
 
 struct LibraryView: View {
+    @Environment(\.router) var router
     @Environment(\.modelContext) var modelContext
     @EnvironmentObject var libraryVM: LibraryViewModel
+    @EnvironmentObject var playerVM: PlayerViewModel
     
     @Query private var playlists: [Playlist]
     @State private var isShowingAddSheet: Bool = false
@@ -39,7 +41,6 @@ struct LibraryView: View {
                 .presentationDetents([.large])
         }
         .onAppear {
-            // Gắn modelContext vào ViewModel
             libraryVM.attachModelContext(modelContext)
         }
     }
@@ -90,29 +91,56 @@ extension LibraryView {
                     .foregroundStyle(.white)
                     .font(.system(size: 18, weight: .bold))
             }
-            .padding(.vertical, 20)
+            .padding(.vertical, 10)
         }
     }
     
     private var playlistListView: some View {
         List {
+            FavouriteSection()
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .onTapGesture {
+//                    libraryVM.openFavouritePlaylist()
+                    router.showScreen(.push) { _ in
+                        FavouritesView()
+                    }
+                }
             ForEach(playlists) { playlist in
-                PlaylistRow(playlist: playlist)
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                    .contextMenu {
-                        Button(role: .destructive) {
-                            libraryVM.confirmDeletePlaylist(playlist)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
+                PlaylistRow(
+                    playlist: playlist,
+                    onDelete: {
+                        libraryVM.confirmDeletePlaylist(playlist)
+                    },
+                    onPlay: {
+                        let tracks = playlist.tracks.map { $0.toJamendoTrack() }
+                        playerVM.startPlayback(from: tracks, startingAt: 0)
+                    },
+                    onShuffle: {
+                        let shuffled = playlist.tracks.shuffled().map { $0.toJamendoTrack() }
+                        playerVM.startPlayback(from: shuffled, startingAt: 0)
+                    }
+                )
+                .listRowInsets(EdgeInsets())
+                .listRowSpacing(10)
+                .listRowBackground(Color.clear)
+                .contextMenu {
+                    Button(role: .destructive) {
+                        libraryVM.confirmDeletePlaylist(playlist)
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                }
+                .onTapGesture {
+//                    libraryVM.openPlaylistDetail(playlist)
+                    router.showScreen(.push) { _ in
+                            PlaylistDetailView(playlist: playlist)
+                                .environmentObject(playerVM)
                         }
-                    }
-                    .onTapGesture {
-                        libraryVM.openPlaylistDetail(playlist)
-                    }
+                }
             }
         }
-        .listStyle(.plain)
+        .listStyle(.insetGrouped)
         .scrollContentBackground(.hidden)
     }
     

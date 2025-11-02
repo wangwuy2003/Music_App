@@ -11,6 +11,8 @@ import SwiftData
 struct PlaylistRow: View {
     let playlist: Playlist
     var onDelete: (() -> Void)?
+    var onPlay: (() -> Void)?
+    var onShuffle: (() -> Void)?
     
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -37,13 +39,27 @@ struct PlaylistRow: View {
                     .foregroundStyle(.white)
                     .lineLimit(1)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+            .background(.clear)
             
             Spacer()
             
             Menu {
                 Button {
+                    onPlay?()
                 } label: {
-                    Label("Rename", systemImage: "pencil")
+                    Label(.localized("Play"), systemImage: "play")
+                }
+                
+                Button {
+                    onShuffle?()
+                } label: {
+                    Label(.localized("Shuffle"), systemImage: "shuffle")
+                }
+                
+                Button {
+                } label: {
+                    Label(.localized("Edit"), systemImage: "pencil")
                 }
                 
                 Button(role: .destructive) {
@@ -56,7 +72,10 @@ struct PlaylistRow: View {
                     .foregroundColor(.gray)
                     .padding(8)
             }
+            .labelStyle(.titleAndIcon)
         }
+        .padding(.vertical, 10)
+        .contentShape(Rectangle())
     }
 }
 

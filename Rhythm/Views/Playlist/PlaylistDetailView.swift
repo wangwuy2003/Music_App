@@ -10,6 +10,7 @@ import SDWebImageSwiftUI
 import SwiftData
 
 struct PlaylistDetailView: View {
+    @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) var modelContext
     @EnvironmentObject var playerVM: PlayerViewModel
     
@@ -71,7 +72,19 @@ struct PlaylistDetailView: View {
                 .scrollContentBackground(.hidden)
             }
         }
+        .enableSwipeBack()
         .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden()
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .foregroundStyle(.white)
+                }
+            }
+        }
     }
 }
 

@@ -15,6 +15,9 @@ struct AddToPlaylistSheet: View {
     @State private var isShowingAddPlaylist: Bool = false
     @Query private var playlists: [Playlist]
     
+    @State private var showToast: Bool = false
+    @State private var toastMessage: String = ""
+    
     let track: JamendoTrack
     
     var filteredPlaylists: [Playlist] {
@@ -40,8 +43,9 @@ struct AddToPlaylistSheet: View {
                         Text(.localized("New playlist"))
                             .fontWeight(.medium)
                     }
-                    .padding(.horizontal, 20)
+                    
                 }
+                .padding(.horizontal, 20)
                 .buttonStyle(.plain)
                 
                 List {
@@ -86,6 +90,7 @@ struct AddToPlaylistSheet: View {
                 }
             }
             .searchable(text: $searchText, placement: .navigationBarDrawer(displayMode: .automatic), prompt: Text(.localized("Search Playlists")))
+            .toast(isPresented: $showToast, message: toastMessage)
         }
         .sheet(isPresented: $isShowingAddPlaylist) {
             AddPlaylistView()
@@ -99,9 +104,22 @@ struct AddToPlaylistSheet: View {
         do {
             try modelContext.save()
             print("✅ Đã thêm \(track.name) vào \(playlist.name)")
-            dismiss()
+            
+            showAddPlaylistMessage("🎶 Added to \(playlist.name)")
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                dismiss()
+            }
         } catch {
             print("❌ Lỗi thêm track: \(error.localizedDescription)")
+        }
+    }
+    
+    func showAddPlaylistMessage(_ message: String) {
+        toastMessage = message
+        withAnimation { showToast = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+            withAnimation { showToast = false }
         }
     }
 }

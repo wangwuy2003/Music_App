@@ -9,22 +9,39 @@ import SwiftUI
 import SDWebImageSwiftUI
 import SwiftfulRouting
 import SwiftData
+import SwiftfulLoadingIndicators
 
 struct TrackRowView: View {
     @EnvironmentObject var playerVM: PlayerViewModel
-    let track: JamendoTrack
     @Query private var playlists: [Playlist]
     @State private var showAddToPlaylistSheet = false
+    @State private var showToast: Bool = false
+    @State private var toastMessage: String = ""
+    
+    let track: JamendoTrack
+    
+    var isCurrentPlaying: Bool {
+        playerVM.currentTrack?.id == track.id
+    }
 
     var body: some View {
         HStack(spacing: 12) {
-            WebImage(url: URL(string: track.image ?? ""))
-                .resizable()
-                .indicator(.activity)
-                .transition(.fade)
-                .scaledToFill()
-                .frame(width: 50, height: 50)
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+            ZStack {
+                WebImage(url: URL(string: track.image ?? ""))
+                    .resizable()
+                    .indicator(.activity)
+                    .transition(.fade)
+                    .scaledToFill()
+                    .frame(width: 50, height: 50)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                
+                if isCurrentPlaying {
+                    LoadingIndicator(animation: .fiveLinesWave, color: .white, size: .small)
+                }
+            }
+            .frame(width: 50, height: 50)
+            .clipped()
+            
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(track.name)
@@ -46,13 +63,15 @@ struct TrackRowView: View {
             
             Menu {
                 Button {
-                    
+                    playerVM.addToQueueNext(track)
+                    showQueueMessage("🎵 Added to play next")
                 } label: {
                     Label(.localized("Play next"), systemImage: "text.line.first.and.arrowtriangle.forward")
                 }
                 
                 Button {
-                    
+                    playerVM.addToQueue(track)
+                    showQueueMessage("🎶 Added to queue")
                 } label: {
                     Label(.localized("Add to queue"), systemImage: "text.line.last.and.arrowtriangle.forward")
                 }
@@ -78,10 +97,34 @@ struct TrackRowView: View {
         .sheet(isPresented: $showAddToPlaylistSheet) {
             AddToPlaylistSheet(track: track)
         }
+        .overlay(
+            VStack {
+                if showToast {
+                    Text(toastMessage)
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .background(.black.opacity(0.8))
+                        .clipShape(Capsule())
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .padding(.bottom, 50)
+                }
+            }
+            , alignment: .bottom
+        )
     }
     
     private func formatDuration(_ seconds: Int) -> String {
         let total = seconds
         return String(format: "%d:%02d", total / 60, total % 60)
+    }
+    
+    func showQueueMessage(_ message: String) {
+        toastMessage = message
+        withAnimation { showToast = true }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation { showToast = false }
+        }
     }
 }

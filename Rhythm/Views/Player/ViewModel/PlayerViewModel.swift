@@ -8,6 +8,8 @@
 import SwiftUI
 import AVFoundation
 import Combine
+import MediaPlayer
+import SwiftData
 
 @MainActor
 final class PlayerViewModel: ObservableObject {
@@ -24,6 +26,11 @@ final class PlayerViewModel: ObservableObject {
     @Published var currentQueue: [JamendoTrack] = []
     @Published var currentIndex: Int = 0
     
+    @Published var repeatMode: RepeatMode = .none
+    
+    @Published var isFavourite: Bool = false
+    @Published var favourites: [FavouriteTrack] = []
+    
     private var player: AVPlayer?
     private var timeObserverToken: Any?
     private var cancellables = Set<AnyCancellable>()
@@ -31,6 +38,12 @@ final class PlayerViewModel: ObservableObject {
     var title: String { currentTrack?.name ?? "Unknown Name" }
     var subtitle: String {currentTrack?.artistName ?? "Unknown Artist" }
     var artwork: String? { currentTrack?.image }
+    
+    private var modelContext: ModelContext?
+    
+    func attachModelContext(_ context: ModelContext) {
+        self.modelContext = context
+    }
 
     deinit {
         if let token = timeObserverToken {
@@ -62,6 +75,9 @@ final class PlayerViewModel: ObservableObject {
         cancellables.removeAll()
         
         currentTrack = track
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.checkIfFavourite()
+        }
         isBarPresented = true
         isReady = false
         currentTime = 0
@@ -70,23 +86,27 @@ final class PlayerViewModel: ObservableObject {
         self.isPlaying = wasPlaying
         
         loadPopupArtwork()
+        
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("🚫 Lỗi cấu hình AVAudioSession:", error.localizedDescription)
+        }
 
         Task {
-            do {
-                try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-                try AVAudioSession.sharedInstance().setActive(true)
-
-                guard let audioURLString = track.audio else {
-                    print("🚫 Lỗi: Track này không có link audio.")
-                    self.playNext()
-                    return
-                }
-
-                loadAudio(from: audioURLString, shouldPlayImmediately: wasPlaying)
-            } catch {
-                print("🚫 Lỗi phát nhạc:", error.localizedDescription)
+            guard let audioURLString = track.audio else {
+                print("🚫 Lỗi: Track này không có link audio.")
+                self.playNext()
+                return
             }
+
+            loadAudio(from: audioURLString, shouldPlayImmediately: wasPlaying)
+           
         }
+        
+        setupRemoteTransportControls()
+        setupNowPlayingInfo()
     }
 
     func loadPopupArtwork() {
@@ -109,10 +129,179 @@ final class PlayerViewModel: ObservableObject {
             }
         }
     }
+    
+    // MARK: State
+    func saveState() {
+        guard let track = currentTrack else {
+            return
+        }
+        
+        let state = PlayerState(
+            currentTrack: track,
+            currentTime: currentTime,
+            currentQueue: currentQueue,
+            currentIndex: currentIndex
+        )
+        
+        if let data = try? JSONEncoder().encode(state) {
+            UserDefaults.standard.set(data, forKey: "PlayerState")
+        }
+    }
+    
+    func restoreState() {
+        if let data = UserDefaults.standard.data(forKey: "PlayerState"),
+           let state = try? JSONDecoder().decode(PlayerState.self, from: data) {
+            self.currentQueue = state.currentQueue
+            self.currentIndex = state.currentIndex
+            self.currentTrack = state.currentTrack
+            self.currentTime = state.currentTime
+            self.isBarPresented = true
+            self.isPlaying = false
+            
+            do {
+                let audioSession = AVAudioSession.sharedInstance()
+                try audioSession.setCategory(.playback, mode: .default)
+                try audioSession.setActive(true)
+            } catch {
+                print("🚫 Lỗi kích hoạt AVAudioSession khi restore:", error.localizedDescription)
+            }
+            
+            loadAudio(from: state.currentTrack.audio ?? "", shouldPlayImmediately: false)
+            seek(to: state.currentTime)
+            loadPopupArtwork()
+        }
+    }
+    
+    func toggleRepeatMode() {
+        switch repeatMode {
+        case .none:
+            repeatMode = .repeatAll
+        case .repeatAll:
+            repeatMode = .repeatOne
+        case .repeatOne:
+            repeatMode = .none
+        }
+        print("🔁 Repeat mode: \(repeatMode)")
+    }
+    
+    // MARK: Favourite
+    func checkIfFavourite() {
+        guard let track = currentTrack,
+        let modelContext = modelContext else {
+            isFavourite = false
+            return
+        }
+
+        let fetchDescriptor = FetchDescriptor<FavouriteTrack>(
+            predicate: #Predicate { $0.jamendoID == track.id }
+        )
+
+        do {
+            let results = try modelContext.fetch(fetchDescriptor)
+            isFavourite = !results.isEmpty
+        } catch {
+            print("⚠️ Lỗi kiểm tra yêu thích:", error.localizedDescription)
+            isFavourite = false
+        }
+    }
+    
+    func toggleFavourite() {
+        guard let track = currentTrack,
+              let modelContext = modelContext else {
+            return
+        }
+        
+        let fetchDescriptor = FetchDescriptor<FavouriteTrack>(
+            predicate: #Predicate { $0.jamendoID == track.id }
+        )
+        
+        do {
+            let existing = try modelContext.fetch(fetchDescriptor)
+
+            if let fav = existing.first {
+                modelContext.delete(fav)
+                isFavourite = false
+            } else {
+                let newFav = FavouriteTrack(jamendoTrack: track)
+                modelContext.insert(newFav)
+                isFavourite = true
+            }
+
+            try modelContext.save()
+        } catch {
+            print("❌ Lỗi khi lưu/xóa bài hát yêu thích:", error.localizedDescription)
+        }
+    }
 
     // ===============================================
     // MARK: - Player Controls
     // ===============================================
+    func setupNowPlayingInfo() {
+        guard let track = currentTrack else {
+            return
+        }
+        
+        var nowPlayingInfo: [String: Any] = [
+            MPMediaItemPropertyTitle: track.name,
+            MPMediaItemPropertyArtist: track.artistName ?? "Unknown Artist",
+            MPNowPlayingInfoPropertyElapsedPlaybackTime: currentTime,
+            MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0
+        ]
+        
+        if duration > 0 {
+            nowPlayingInfo[MPMediaItemPropertyPlaybackDuration] = duration
+        }
+        
+        MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+        
+        if let imageUrl = track.image, let url = URL(string: imageUrl) {
+            Task.detached {
+                do {
+                    let (data, _) = try await URLSession.shared.data(from: url)
+                    if let image = UIImage(data: data) {
+                        let artwork = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
+                        await MainActor.run {
+                            nowPlayingInfo[MPMediaItemPropertyArtwork] = artwork
+                            MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+                        }
+                    }
+                } catch {
+                    print("⚠️ Không thể tải ảnh artwork:", error.localizedDescription)
+                }
+            }
+        } else {
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+        }
+    }
+    
+    func setupRemoteTransportControls() {
+        let commandCenter = MPRemoteCommandCenter.shared()
+
+        commandCenter.playCommand.addTarget { [weak self] _ in
+            self?.play()
+            return .success
+        }
+
+        commandCenter.pauseCommand.addTarget { [weak self] _ in
+            self?.pause()
+            return .success
+        }
+
+        commandCenter.nextTrackCommand.addTarget { [weak self] _ in
+            self?.playNext()
+            return .success
+        }
+
+        commandCenter.previousTrackCommand.addTarget { [weak self] _ in
+            self?.playPrevious()
+            return .success
+        }
+
+        commandCenter.togglePlayPauseCommand.addTarget { [weak self] _ in
+            self?.togglePlayback()
+            return .success
+        }
+    }
 
     func loadAudio(from urlString: String, shouldPlayImmediately: Bool) {
         guard let url = URL(string: urlString) else { return }
@@ -148,11 +337,13 @@ final class PlayerViewModel: ObservableObject {
 
     func play() {
         player?.play()
+        setupNowPlayingInfo()
         isPlaying = true
     }
 
     func pause() {
         player?.pause()
+        setupNowPlayingInfo()
         isPlaying = false
     }
 
@@ -187,16 +378,31 @@ final class PlayerViewModel: ObservableObject {
         
         let nextIndex = currentIndex + 1
         
-        guard nextIndex < currentQueue.count else {
-            player?.pause()
+        switch repeatMode {
+        case .none:
+            if nextIndex < currentQueue.count {
+                self.currentIndex = nextIndex
+                play(track: currentQueue[currentIndex])
+            } else {
+                player?.pause()
+                seek(to: 0)
+                isPlaying = false
+                print("🏁 Hết hàng đợi.")
+                return
+            }
+        case .repeatAll:
+            if nextIndex >= currentQueue.count {
+                currentIndex = 0
+                self.play(track: currentQueue[currentIndex])
+            } else {
+                self.currentIndex = nextIndex
+                play(track: currentQueue[currentIndex])
+            }
+        case .repeatOne:
             seek(to: 0)
-            isPlaying = false
-            print("🏁 Hết hàng đợi.")
+            self.play()
             return
         }
-        
-        self.currentIndex = nextIndex
-        self.play(track: currentQueue[currentIndex])
     }
     
     func playPrevious() {
@@ -219,4 +425,37 @@ final class PlayerViewModel: ObservableObject {
         self.currentIndex = prevIndex
         self.play(track: currentQueue[currentIndex])
     }
+    
+    // MARK: - Queue management:
+    func addToQueue(_ track: JamendoTrack) {
+        guard !currentQueue.contains(where: { $0.id == track.id }) else {
+            print("⚠️ Track đã tồn tại trong queue, bỏ qua.")
+            return
+        }
+        
+        currentQueue.append(track)
+        print("✅ Đã thêm vào cuối queue: \(track.name)")
+    }
+    
+    func addToQueueNext(_ track: JamendoTrack) {
+        guard !currentQueue.contains(where: { $0.id == track.id }) else {
+            print("⚠️ Track đã tồn tại trong queue, bỏ qua.")
+            return
+        }
+        
+        guard !currentQueue.isEmpty else {
+            startPlayback(from: [track], startingAt: 0)
+            return
+        }
+        
+        let insertIndex = min(currentIndex + 1, currentQueue.count)
+        currentQueue.insert(track, at: insertIndex)
+        print("✅ Đã thêm vào ngay sau bài hiện tại: \(track.name)")
+    }
+}
+
+enum RepeatMode {
+    case none
+    case repeatAll
+    case repeatOne
 }

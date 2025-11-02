@@ -11,6 +11,7 @@ import SwiftfulRouting
 struct HomeView: View {
     @Environment(\.router) var router
     @EnvironmentObject var homeVM: HomeViewModel
+    @EnvironmentObject var playerVM: PlayerViewModel
     
     var body: some View {
         ZStack {
@@ -28,7 +29,29 @@ struct HomeView: View {
                         ) { album in
                             AlbumSquareView(album: album)
                                 .onTapGesture {
-                                    homeVM.openAlbumDetail(album: album)
+                                    router.showScreen(.push) { _ in
+                                                PlaylistView(album: album)
+                                                    .environmentObject(playerVM) // ✅ Truyền playerVM vào
+                                            }
+                                }
+                        }
+                    }
+                    
+                    if !homeVM.popularPlaylists.isEmpty {
+                        HorizontalSectionViewSplit(
+                            title1: "🎵 Top Playlists",
+                            title2: "🔥 More to Explore",
+                            items: homeVM.popularPlaylists
+                        ) { playlist in
+                            PlaylistSquareView(playlist: playlist)
+                                .onTapGesture {
+                                    router.showScreen(.push) { _ in
+                                        PlaylistTracksView(
+                                            playlistId: playlist.id,
+                                            playlistName: playlist.name ?? "Playlist"
+                                        )
+                                        .environmentObject(playerVM) // ✅ Truyền playerVM vào
+                                    }
                                 }
                         }
                     }
@@ -39,17 +62,8 @@ struct HomeView: View {
                             items: homeVM.topTracks
                         ) { track in
                             TrackSquareView(track: track)
-                        }
-                    }
-                    
-                    if !homeVM.popularPlaylists.isEmpty {
-                        HorizontalSectionView(
-                            title: "Popular Playlists",
-                            items: homeVM.popularPlaylists
-                        ) { playlist in
-                            PlaylistSquareView(playlist: playlist)
                                 .onTapGesture {
-                                    homeVM.openPlaylistDetail(playlist: playlist)
+                                    playerVM.startPlayback(from: [track], startingAt: 0)
                                 }
                         }
                     }
@@ -72,6 +86,12 @@ struct HomeView: View {
                 await homeVM.fetchData()
             }
         }
+//        .onAppear {
+//            // Cập nhật router thực tế cho ViewModel
+//            if homeVM.router == nil {
+//                homeVM.router = router
+//            }
+//        }
     }
     
     private func errorView(_ message: String) -> some View {
@@ -167,6 +187,57 @@ struct HorizontalSectionView<Item: Identifiable & Hashable, Content: View>: View
                     }
                 }
                 .padding(.horizontal)
+            }
+        }
+    }
+}
+
+struct HorizontalSectionViewSplit<Item: Identifiable & Hashable, Content: View>: View {
+    let title1: String
+    let title2: String
+    let items: [Item]
+    @ViewBuilder let content: (Item) -> Content
+
+    private var firstHalf: [Item] {
+        Array(items.prefix(items.count / 2))
+    }
+    
+    private var secondHalf: [Item] {
+        Array(items.suffix(items.count - items.count / 2))
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 10) {
+                Text(title1)
+                    .font(.title3.bold())
+                    .padding(.horizontal)
+                    .foregroundStyle(.white)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 15) {
+                        ForEach(firstHalf) { item in
+                            content(item)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+            
+            VStack(alignment: .leading, spacing: 10) {
+                Text(title2)
+                    .font(.title3.bold())
+                    .padding(.horizontal)
+                    .foregroundStyle(.white)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 15) {
+                        ForEach(secondHalf) { item in
+                            content(item)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
             }
         }
     }

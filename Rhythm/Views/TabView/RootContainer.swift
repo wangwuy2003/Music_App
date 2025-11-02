@@ -8,19 +8,26 @@ import SwiftUI
 import SwiftfulRouting
 
 struct RootContainer: View {
+//    let router: AnyRouter
+//
+//    @StateObject private var homeVM: HomeViewModel
+//
+//    init(router: AnyRouter) {
+//        self.router = router
+//        _homeVM = StateObject(wrappedValue: HomeViewModel(router: router))
+//    }
+//
+//    var body: some View {
+//        HomeView()
+//            .environmentObject(homeVM)
+//    }
     let router: AnyRouter
+        @EnvironmentObject var homeVM: HomeViewModel // 👈 Nhận từ App
 
-    @StateObject private var homeVM: HomeViewModel
-
-    init(router: AnyRouter) {
-        self.router = router
-        _homeVM = StateObject(wrappedValue: HomeViewModel(router: router))
-    }
-
-    var body: some View {
-        HomeView()
-            .environmentObject(homeVM)
-    }
+        var body: some View {
+            HomeView()
+                .environmentObject(homeVM)
+        }
 }
 
 struct LibraryContainer: View {
@@ -34,10 +41,7 @@ struct LibraryContainer: View {
     }
     
     var body: some View {
-        RouterView(addNavigationStack: true, addModuleSupport: false) { innerRouter in
-                    LibraryView()
-                        .environmentObject(libraryVM)
-                        .environment(\.router, innerRouter) // Gắn router con
-                }
+        LibraryView()
+            .environmentObject(libraryVM)
     }
 }

@@ -10,7 +10,6 @@ import SwiftfulRouting
 
 @MainActor
 class HomeViewModel: ObservableObject {
-    let router: AnyRouter
     let homeUseCase = UseCaseProvider.makeHomeUseCase()
     
     @Published var topAlbums: [JamendoAlbum] = []
@@ -19,10 +18,6 @@ class HomeViewModel: ObservableObject {
     
     @Published var errorMessage: String?
     @Published var isLoading: Bool = false
-    
-    init(router: AnyRouter) {
-        self.router = router
-    }
     
     func fetchData() async {
         guard !isLoading else {
@@ -51,21 +46,6 @@ class HomeViewModel: ObservableObject {
         } catch {
             errorMessage = error.localizedDescription
             print("❌ Yolo API Error:", error.localizedDescription)
-        }
-    }
-    
-    func openAlbumDetail(album: JamendoAlbum) {
-        print("Tapped album: \(album.name)")
-        router.showScreen(.push) { _ in
-            PlaylistView(album: album)
-        }
-    }
-    
-    func openPlaylistDetail(playlist: JamendoPlaylistDetail) {
-        print("Tapped playlist: \(playlist.name ?? "ID \(playlist.id)")")
-        
-        router.showScreen(.push) { _ in
-            PlaylistTracksView(playlistId: playlist.id, playlistName: playlist.name ?? "Playlist")
         }
     }
 }

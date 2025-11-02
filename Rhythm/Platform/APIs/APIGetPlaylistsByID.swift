@@ -19,14 +19,17 @@ class APIGetPlaylistsByID: APIClient {
     var clientId: String
     var format: String
     var ids: [String]
+    var limit: Int
 
     init(
         clientId: String = Constant.clientId1,
         format: String = "json",
+        limit: Int,
         ids: [String]
     ) {
         self.clientId = clientId
         self.format = format
+        self.limit = limit
         self.ids = ids
     }
     
@@ -34,7 +37,8 @@ class APIGetPlaylistsByID: APIClient {
         return [
             "client_id": clientId,
             "format": format,
-            "id": ids.joined(separator: "+") 
+            "limit": limit,
+            "id": ids.joined(separator: "+")
         ]
     }
 }

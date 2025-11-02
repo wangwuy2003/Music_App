@@ -1,109 +1,121 @@
 //
-//  PlaylistView.swift
+//  FavouritesView.swift
 //  Rhythm
 //
-//  Created by Apple on 23/9/25.
+//  Created by MacMini A6 on 31/10/25.
 //
 
 import SwiftUI
+import SwiftData
 import SwiftfulRouting
 import SDWebImageSwiftUI
 
-struct PlaylistView: View {
-    @Environment(\.dismiss) var dismiss
+struct FavouritesView: View {
     @Environment(\.router) var router
-    @EnvironmentObject var playerVM: PlayerViewModel 
-    @StateObject private var playlistVM = PlaylistViewModel()
-    let album: JamendoAlbum
+    @EnvironmentObject var playerVM: PlayerViewModel
+    @Query private var favourites: [FavouriteTrack]
+    @Environment(\.modelContext) var modelContext
     
     var body: some View {
         ZStack {
             LinearGradient(gradient: Gradient(colors: [.indigo.opacity(0.8), .black]),
                            startPoint: .top, endPoint: .bottom)
-                .ignoresSafeArea()
+            .ignoresSafeArea()
             
-            if playlistVM.isLoading {
-                ProgressView().tint(.white)
-            } else if let msg = playlistVM.errorMessage {
-                Text(msg).foregroundColor(.red).padding()
+            if favourites.isEmpty {
+                Text(.localized("No favourite songs yet."))
+                    .foregroundStyle(.white.opacity(0.7))
+                    .padding()
             } else {
                 List {
-                    AlbumHeaderView(
-                        album: album,
+                    PlaylistHeaderFavouriteView(
                         onPlay: {
-                            playerVM.startPlayback(from: playlistVM.tracks, startingAt: 0)
+                            playAll()
                         },
                         onShuffle: {
                             playShuffled()
                         }
                     )
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                        .listRowInsets(EdgeInsets())
-                        .padding(.bottom, 20)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets())
+                    .padding(.bottom, 20)
                     
-                    ForEach(playlistVM.tracks) { track in
-                        TrackRowView(track: track)
+                    ForEach(Array(favourites.enumerated()), id: \.element.jamendoID) { index, track in
+                        TrackRowView(track: track.toJamendoTrack())
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
+                            .onTapGesture {
+                                let tracks = favourites.map { $0.toJamendoTrack() }
+                                playerVM.startPlayback(from: tracks, startingAt: index)
+                            }
                     }
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
             }
         }
+        .contentShape(Rectangle())
         .enableSwipeBack()
-        .navigationBarBackButtonHidden()
-        .navigationTitle(playlistVM.album?.name ?? "Album")
+        .navigationTitle(.localized(""))
         .navigationBarTitleDisplayMode(.inline)
-        .task {
-            await playlistVM.fetchTracks(forAlbum: album)
-        }
+        .navigationBarBackButtonHidden()
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
-                    dismiss()
+                    router.dismissScreen()
                 } label: {
                     Image(systemName: "chevron.left")
                         .foregroundStyle(.white)
                 }
-
             }
         }
     }
     
+    // MARK: Helpers
+    
+    private func playAll() {
+        let tracks = favourites.map { $0.toJamendoTrack() }
+        playerVM.startPlayback(from: tracks, startingAt: 0)
+    }
+    
     private func playShuffled() {
-        let shuffledTracks = playlistVM.tracks.shuffled()
-        playerVM.startPlayback(from: shuffledTracks, startingAt: 0)
+        let shuffled = favourites.shuffled().map { $0.toJamendoTrack() }
+        playerVM.startPlayback(from: shuffled, startingAt: 0)
     }
 }
 
-struct AlbumHeaderView: View {
-    let album: JamendoAlbum
-    
+struct PlaylistHeaderFavouriteView: View {
     let onPlay: (() -> Void)?
     let onShuffle: (() -> Void)?
     
     var body: some View {
         VStack(spacing: 16) {
-            WebImage(url: URL(string: album.image))
-                .resizable()
-                .indicator(.activity)
-                .scaledToFill()
-                .frame(width: 200, height: 200)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .shadow(color: .black.opacity(0.4), radius: 10)
+            ZStack {
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(LinearGradient(
+                        colors: [.pink, .purple],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    .frame(width: 200, height: 200)
+                    .shadow(color: .black.opacity(0.4), radius: 10)
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 50))
+                    .foregroundColor(.white)
+            }
             
-            VStack(spacing: 4) {
-                Text(album.name)
+            HStack(spacing: 4) {
+                Text(.localized("Favourites Song"))
                     .font(.title2.bold())
                     .foregroundStyle(.white)
                     .multilineTextAlignment(.center)
                 
-                Text(album.artistName)
-                    .font(.headline)
-                    .foregroundStyle(.white.opacity(0.8))
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 24))
+                    .foregroundColor(.white)
             }
+            
             
             HStack(spacing: 25) {
                 Button {
@@ -142,18 +154,4 @@ struct AlbumHeaderView: View {
         .padding()
         .frame(maxWidth: .infinity)
     }
-}
-
-#Preview {
-    let sampleAlbum = JamendoAlbum(
-        id: "612188",
-        name: "Out Of My Head",
-        artistName: "Jon Worthy",
-        image: "https://usercontent.jamendo.com?type=album&id=612188&width=300&trackid=2272627"
-    )
-    
-    RouterView { _ in
-        PlaylistView(album: sampleAlbum)
-    }
-    .environmentObject(PlayerViewModel())
 }

@@ -5,7 +5,8 @@ import LNPopupUI
 struct TabbarView: View {
     @State private var selectedTab: TabEnum = .home
     @State private var showMiniPlayer: Bool = false
-    @StateObject private var playerVM = PlayerViewModel()
+    @EnvironmentObject var playerVM: PlayerViewModel
+//    @StateObject private var playerVM = PlayerViewModel()
     
 //    init() {
 //        UITabBar.appearance().backgroundColor = UIColor.black

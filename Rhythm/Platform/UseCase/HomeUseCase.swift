@@ -46,7 +46,7 @@ class HomeUseCase {
     }
     
     func fetchPlaylists(byIDs ids: [String]) async throws -> [JamendoPlaylistDetail] {
-        let client = APIGetPlaylistsByID(ids: ids)
+        let client = APIGetPlaylistsByID(limit: 20, ids: ids)
         
         do {
             let response = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<JamendoPlaylistDetailResponse, Error>) in

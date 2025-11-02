@@ -21,7 +21,6 @@ class LibraryViewModel: ObservableObject {
         self.router = router
     }
     
-    // Gắn modelContext từ View
     func attachModelContext(_ context: ModelContext) {
         self.modelContext = context
     }
@@ -45,13 +44,6 @@ class LibraryViewModel: ObservableObject {
             Button(.localized("Delete"), role: .destructive) { [weak self] in
                 self?.deletePlaylist(playlist)
             }
-        }
-    }
-    
-    func openPlaylistDetail(_ playlist: Playlist) {
-        print("🎵 Opening playlist detail for:", playlist.name)
-        router.showScreen(.push) { _ in
-            PlaylistDetailView(playlist: playlist)
         }
     }
 }
