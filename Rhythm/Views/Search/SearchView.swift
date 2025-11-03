@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftfulRouting
 
 struct SearchView: View {
-    @State private var searchText: String = ""
+    @StateObject private var searchVM = SearchViewModel()
     @State private var recentSearches: [String] = [
         "Ariana Grande",
         "Morgan Wallen",
@@ -18,91 +18,44 @@ struct SearchView: View {
         "Happy new year best music for eve night...",
         "Morgan Wallen"
     ]
-    
+
     @State private var isSearching: Bool = false
-    
-    private var filtered: [String] {
-        guard !searchText.isEmpty else { return recentSearches }
-        return recentSearches.filter { $0.localizedCaseInsensitiveContains(searchText) }
-    }
-    
-    private var results: [SearchResult] {
-        guard !searchText.isEmpty else { return [] }
-        return [
-            .song(title: "Vaina loca - osuna", subtitle: "Aura", duration: "3:04", stat: "3.5M"),
-            .song(title: "Vaina loca - osuna", subtitle: "Aura", duration: "3:04", stat: "3.5M"),
-            .playlist(title: "Playlist Name", subtitle: "Artis name", tracks: 15),
-            .artist(title: "Ariana Grande", followers: "803K")
-        ]
-    }
-    
+
     var body: some View {
         ZStack {
             LinearGradient(colors: [.hex291F2A, .hex0F0E13], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
-            
-            Group {
-                // searching
-                if isSearching || !searchText.isEmpty {
-                    ScrollView {
-                        VStack(spacing: 12) {
-                            ForEach(results.indices, id: \.self) { i in
-                                ResultRow(result: results[i])
-                            }
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.top, 8)
+
+            VStack(spacing: 8) {
+                titleView
+                
+                SearchBarView(searchText: $searchVM.searchText)
+
+                clearAllView
+
+                List(recentSearches, id: \.self) { item in
+                    HStack {
+                        Text(item)
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                        Spacer()
+                        Image(systemName: "arrow.up.right.square")
+                            .foregroundColor(.gray)
                     }
-                } else {
-                    // default
-                    VStack(spacing: 8) {
-                        clearAllView
-                        
-                        List(recentSearches, id: \.self) { item in
-                            HStack {
-                                Text(item)
-                                    .foregroundColor(.white)
-                                    .lineLimit(1)
-                                Spacer()
-                                Image(systemName: "arrow.up.right.square")
-                                    .foregroundColor(.gray)
-                            }
-                            .contentShape(Rectangle())
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                            .listRowInsets(.init(top: 4, leading: 0, bottom: 4, trailing: 0))
-                        }
-                        .padding(.horizontal)
-                        .listStyle(.plain)
-                        .scrollContentBackground(.hidden)
-                        .background(Color.clear)
-                    }
+                    .contentShape(Rectangle())
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(.init(top: 4, leading: 0, bottom: 4, trailing: 0))
                 }
+                .padding(.horizontal)
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
             }
         }
-        .navigationTitle(.localized("Search"))
-        .navigationBarTitleDisplayMode(.large)
-        .modifier(SearchableCompatibility(searchText: $searchText, isSearching: $isSearching))
-//        .searchable(text: $searchText, isPresented: $isSearching)
-        .onAppear {
-            DispatchQueue.main.async {
-                if let searchBar = findSearchBar(),
-                   let textField = searchBar.value(forKey: "searchField") as? UITextField {
-                    
-                    textField.backgroundColor = UIColor(Color.accentColor.opacity(0.15))
-                    textField.textColor = .white
-                    
-                    textField.layer.borderColor = UIColor.accent.cgColor
-                    textField.layer.borderWidth = 1.5
-                    textField.layer.cornerRadius = 10
-                    textField.layer.masksToBounds = true
-                }
-            }
-        }
-        .animation(.spring, value: isSearching)
-        .animation(.spring, value: searchText)
     }
 }
+
 
 // MARK: subviews
 extension SearchView {

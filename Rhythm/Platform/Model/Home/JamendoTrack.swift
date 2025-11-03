@@ -6,6 +6,10 @@
 //
 import Foundation
 
+struct JamendoTracksResponse: Codable {
+    let results: [JamendoTrack]
+}
+
 struct JamendoTrack: Codable, Identifiable, Hashable {
     let id: String
     let name: String

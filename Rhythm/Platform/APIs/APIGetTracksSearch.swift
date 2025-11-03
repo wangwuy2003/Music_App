@@ -1,37 +1,38 @@
 //
-//  APIGetPlaylistTracks.swift
+//  Untitled.swift
 //  Rhythm
 //
-//  Created by MacMini A6 on 29/10/25.
+//  Created by MacMini A6 on 3/11/25.
 //
-
-
 import Foundation
 
-// MARK: Get playlist track
-class APIGetPlaylistTracks: APIClient {
-    typealias Model = JamendoPlaylistTracksResponse
+class APIGetTracksSearch: APIClient {
+    typealias Model = JamendoTracksResponse
 
     var enviroment: any APIEnvironment { BaseAPIEnviroment() }
-    var path: String { "/playlists/tracks" }
+    var path: String { "/tracks" }
     var method: HTTPMethod { .get }
     var encoding: ParameterEncoding { .url }
 
     var clientId: String
-    var playlistId: String
+    var nameSearch: String
+    var limit: Int
     
     init(
         clientId: String = Constant.clientId1,
-        playlistId: String
+        nameSearch: String,
+        limit: Int = 10
     ) {
         self.clientId = clientId
-        self.playlistId = playlistId
+        self.nameSearch = nameSearch
+        self.limit = limit
     }
     
     var params: [String: Any] {
         return [
             "client_id": clientId,
-            "id": playlistId 
+            "namesearch": nameSearch,
+            "limit": limit
         ]
     }
 }

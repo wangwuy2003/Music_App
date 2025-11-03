@@ -94,6 +94,7 @@ struct PlayerView: View {
                     playerVM.togglePlayback()
                 } label: {
                     Image(systemName: playerVM.isPlaying ? "pause.fill" : "play.fill")
+                        .foregroundStyle(.white)
                         .font(.title3)
                 }
                 
@@ -101,6 +102,7 @@ struct PlayerView: View {
                     playerVM.playNext()
                 } label: {
                     Image(systemName: "forward.fill")
+                        .foregroundStyle(.white)
                 }
             }
         }
