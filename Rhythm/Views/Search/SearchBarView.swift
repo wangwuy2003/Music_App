@@ -40,7 +40,11 @@ struct SearchBarView: View {
         .padding(.vertical, 10)
         .background(
             RoundedRectangle(cornerRadius: 25)
-                .fill(.hex7A51E2)
+                .fill(.hex7A51E2.opacity(0.2))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 25)
+                        .stroke(Color.hex7A51E2, lineWidth: 1.5)
+                )
                 .shadow(color: .hexCBB7FF.opacity(0.2), radius: 10, x: 0, y: 0)
         )
         .padding(.horizontal)

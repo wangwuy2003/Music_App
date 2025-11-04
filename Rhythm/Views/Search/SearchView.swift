@@ -153,10 +153,10 @@ extension SearchView {
             List(recentSearches, id: \.self) { item in
                 HStack {
                     Text(item)
-                        .foregroundColor(.white)
+                        .foregroundColor(.gray)
                         .lineLimit(1)
                     Spacer()
-                    Image(systemName: "arrow.up.right.square")
+                    Image(systemName: "arrow.up.forward.app")
                         .foregroundColor(.gray)
                 }
                 .contentShape(Rectangle())
