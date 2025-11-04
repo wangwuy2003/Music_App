@@ -1,2 +1,2 @@
-# Music_App
-A Music App iOS using SoundCloud API
+# Music App
+A Music App Streaming SwiftUI using Jamendo API
