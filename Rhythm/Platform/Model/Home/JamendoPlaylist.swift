@@ -24,3 +24,15 @@ struct JamendoPlaylist: Codable, Identifiable, Hashable {
         case userName = "user_name"
     }
 }
+
+struct JamendoPlaylistMetadata: Codable, Identifiable, Hashable {
+    let id: String
+    let name: String
+    let image: String?
+    let userName: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, name, image
+        case userName = "user_name"
+    }
+}

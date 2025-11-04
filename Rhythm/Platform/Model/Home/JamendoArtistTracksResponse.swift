@@ -29,3 +29,11 @@ struct JamendoArtistDetail: Codable, Identifiable {
         case tracks
     }
 }
+
+struct JamendoArtist: Codable, Identifiable, Hashable {
+    let id: String
+    let name: String
+    let image: String?
+    let website: String?
+}
+
