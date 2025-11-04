@@ -9,18 +9,25 @@ import SwiftUI
 import SwiftfulRouting
 import SwiftfulLoadingIndicators
 
-struct SearchView: View {
-    @StateObject private var searchVM = SearchViewModel()
-    @State private var recentSearches: [String] = [
-        "Ariana Grande",
-        "Morgan Wallen",
-        "Justin Bieber",
-        "Drake",
-        "Happy new year best music for eve night...",
-        "Morgan Wallen"
-    ]
+enum SearchFilterType: String, CaseIterable, Identifiable {
+    case all = "All"
+    case tracks = "Tracks"
+    case albums = "Albums"
+    case artists = "Artists"
+    case playlists = "Playlists"
     
+    var id: String { rawValue }
+}
+
+struct SearchView: View {
+    @Environment(\.router) var router
+    @EnvironmentObject var playerVM: PlayerViewModel
+    
+    @StateObject private var searchVM = SearchViewModel()
+    
+    @State private var recentSearches: [String] = []
     @State private var isSearching: Bool = false
+    @State private var selectedFilter: SearchFilterType = .all
     
     var body: some View {
             ZStack {
@@ -29,10 +36,19 @@ struct SearchView: View {
                 VStack(spacing: 8) {
                     titleView
                     searchBar
+                    filterBar
                     contentArea
                 }
                 
                 if searchVM.isLoading { loadingOverlay }
+            }
+            .onAppear {
+                recentSearches = RecentSearchManager.shared.load()
+            }
+            .onChange(of: searchVM.searchText) { newValue in
+                if newValue.isEmpty {
+                    searchVM.hasSearched = false
+                }
             }
             .animation(.easeInOut(duration: 0.25), value: searchVM.isLoading)
         }
@@ -69,6 +85,37 @@ extension SearchView {
             }
     }
     
+    // MARK: FilterBar
+    private var filterBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                ForEach(SearchFilterType.allCases) { filter in
+                    Button {
+                        withAnimation(.easeInOut) {
+                            if selectedFilter == filter {
+                                selectedFilter = .all
+                            } else {
+                                selectedFilter = filter
+                            }
+                        }
+                    } label: {
+                        Text(filter.rawValue)
+                            .font(.system(size: 16, weight: .medium))
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(selectedFilter == filter ? Color.accentColor : Color.gray.opacity(0.3))
+                            )
+                            .foregroundColor(.white)
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+        .padding(.vertical, 5)
+    }
+    
     // MARK: Main Content
     @ViewBuilder
     private var contentArea: some View {
@@ -100,7 +147,7 @@ extension SearchView {
     
     // MARK: Recent Search
     private var recentSearchList: some View {
-        VStack {
+        VStack(spacing: 0) {
             clearAllView
             
             List(recentSearches, id: \.self) { item in
@@ -112,15 +159,16 @@ extension SearchView {
                     Image(systemName: "arrow.up.right.square")
                         .foregroundColor(.gray)
                 }
+                .contentShape(Rectangle())
+                .frame(maxWidth: .infinity)
                 .onTapGesture {
                     searchVM.searchText = item
-                    Task { await searchVM.searchAll() }
+                    Task { await handleSearchSubmit() }
                 }
                 .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
+                .listRowSeparator(.visible)
             }
-            .padding(.horizontal)
-            .listStyle(.plain)
+            .listStyle(.inset)
             .scrollContentBackground(.hidden)
         }
     }
@@ -133,7 +181,10 @@ extension SearchView {
             Spacer()
             
             Button {
-                withAnimation { recentSearches.removeAll() }
+                withAnimation {
+                    recentSearches.removeAll()
+                    RecentSearchManager.shared.clear()
+                }
             } label: {
                 Text(.localized("Clear All"))
                     .font(.system(size: 18, weight: .bold))
@@ -147,7 +198,10 @@ extension SearchView {
     private var searchResultsView: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 25) {
-                if !searchVM.tracks.isEmpty {
+                
+                // MARK: Tracks
+                if (selectedFilter == .all || selectedFilter == .tracks),
+                   !searchVM.tracks.isEmpty {
                     SearchSectionView(
                         title: "🎵 Tracks",
                         items: searchVM.tracks.map {
@@ -156,11 +210,20 @@ extension SearchView {
                                        subtitle: $0.artistName ?? "",
                                        imageURL: $0.image ?? $0.albumImage)
                         },
-                        onTap: { id in print("Play track \(id)") }
+                        onTap: { id in
+                            if let track = searchVM.tracks.first(where: { $0.id == id }) {
+                                playerVM.startPlayback(from: searchVM.tracks, startingAt: searchVM.tracks.firstIndex(where: { $0.id == id }) ?? 0)
+                                RecentSearchManager.shared.add(track.name)
+                                recentSearches = RecentSearchManager.shared.load()
+                            }
+                        },
+                        type: .track
                     )
                 }
                 
-                if !searchVM.albums.isEmpty {
+                // MARK: Albums
+                if (selectedFilter == .all || selectedFilter == .albums),
+                   !searchVM.albums.isEmpty {
                     SearchSectionView(
                         title: "💿 Albums",
                         items: searchVM.albums.map {
@@ -169,11 +232,22 @@ extension SearchView {
                                        subtitle: $0.artistName,
                                        imageURL: $0.image)
                         },
-                        onTap: { id in print("Open Album \(id)") }
+                        onTap: { id in
+                            if let album = searchVM.albums.first(where: { $0.id == id }) {
+                                router.showScreen(.push) { _ in
+                                    PlaylistView(album: album)
+                                }
+                                RecentSearchManager.shared.add(album.name)
+                                recentSearches = RecentSearchManager.shared.load()
+                            }
+                        },
+                        type: .album
                     )
                 }
                 
-                if !searchVM.artists.isEmpty {
+                // MARK: Artists
+                if (selectedFilter == .all || selectedFilter == .artists),
+                   !searchVM.artists.isEmpty {
                     SearchSectionView(
                         title: "👩‍🎤 Artists",
                         items: searchVM.artists.map {
@@ -182,11 +256,22 @@ extension SearchView {
                                        subtitle: $0.website ?? "",
                                        imageURL: $0.image)
                         },
-                        onTap: { id in print("Open Artist \(id)") }
+                        onTap: { id in
+                            if let artist = searchVM.artists.first(where: { $0.id == id }) {
+                                router.showScreen(.push) { _ in
+                                    ArtistDetailView(artist: artist)
+                                }
+                                RecentSearchManager.shared.add(artist.name)
+                                recentSearches = RecentSearchManager.shared.load()
+                            }
+                        },
+                        type: .artist
                     )
                 }
                 
-                if !searchVM.playlists.isEmpty {
+                // MARK: Playlists
+                if (selectedFilter == .all || selectedFilter == .playlists),
+                   !searchVM.playlists.isEmpty {
                     SearchSectionView(
                         title: "🎧 Playlists",
                         items: searchVM.playlists.map {
@@ -195,7 +280,19 @@ extension SearchView {
                                        subtitle: $0.userName ?? "",
                                        imageURL: $0.image)
                         },
-                        onTap: { id in print("Open Playlist \(id)") }
+                        onTap: { id in
+                            if let playlist = searchVM.playlists.first(where: { $0.id == id }) {
+                                router.showScreen(.push) { _ in
+                                    PlaylistTracksView(
+                                        playlistId: playlist.id,
+                                        playlistName: playlist.name
+                                    )
+                                }
+                                RecentSearchManager.shared.add(playlist.name)
+                                recentSearches = RecentSearchManager.shared.load()
+                            }
+                        },
+                        type: .playlist
                     )
                 }
             }
@@ -203,6 +300,7 @@ extension SearchView {
             .padding(.bottom, 40)
         }
     }
+
 }
 
 // MARK: - Actions
@@ -210,9 +308,9 @@ extension SearchView {
     private func handleSearchSubmit() async {
         await searchVM.searchAll()
         
-        if !recentSearches.contains(searchVM.searchText),
-           !searchVM.searchText.isEmpty {
-            recentSearches.insert(searchVM.searchText, at: 0)
+        if !searchVM.searchText.trimmingCharacters(in: .whitespaces).isEmpty {
+            RecentSearchManager.shared.add(searchVM.searchText)
+            recentSearches = RecentSearchManager.shared.load()
         }
     }
 }

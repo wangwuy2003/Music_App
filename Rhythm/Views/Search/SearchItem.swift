@@ -6,6 +6,13 @@
 //
 import SwiftUI
 
+enum SearchType {
+    case track
+    case album
+    case artist
+    case playlist
+}
+
 struct SearchItem: Identifiable {
     let id: String
     let title: String
@@ -17,6 +24,7 @@ struct SearchSectionView: View {
     let title: String
     let items: [SearchItem]
     let onTap: (String) -> Void
+    let type: SearchType
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -35,21 +43,34 @@ struct SearchSectionView: View {
                             }
                     }
                     .frame(width: 55, height: 55)
-                    .cornerRadius(8)
+                    .conditionalClipShape(isCircle: type == .artist)
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text(item.title)
                             .font(.headline)
                             .foregroundColor(.white)
-                        if !item.subtitle.isEmpty {
+                        
+                        if type == .album || type == .artist, !item.subtitle.isEmpty {
                             Text(item.subtitle)
                                 .font(.subheadline)
                                 .foregroundColor(.gray)
                         }
                     }
                     Spacer()
+                    
+                    if type == .track {
+                        Image(systemName: "play.circle.fill")
+                            .foregroundStyle(.accent)
+                            .font(.title2)
+                            .onTapGesture {
+                                onTap(item.id)
+                            }
+                    }
                 }
-                .onTapGesture { onTap(item.id) }
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    onTap(item.id)
+                }
             }
         }
     }

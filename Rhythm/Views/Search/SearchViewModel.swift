@@ -29,7 +29,6 @@ class SearchViewModel: ObservableObject {
         errorMessage = nil
 
         do {
-            // 🔥 Gọi song song 4 API
             async let tracksTask = useCase.searchTracks(name: searchText)
             async let albumsTask = useCase.searchAlbums(name: searchText)
             async let artistsTask = useCase.searchArtists(name: searchText)

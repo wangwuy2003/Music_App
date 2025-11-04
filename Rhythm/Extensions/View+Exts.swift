@@ -14,4 +14,13 @@ extension View {
     ) -> some View {
         self.modifier(ToastModifier(isPresented: isPresented, message: message, style: style))
     }
+    
+    @ViewBuilder
+    func conditionalClipShape(isCircle: Bool) -> some View {
+        if isCircle {
+            self.clipShape(Circle())
+        } else {
+            self.clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+    }
 }

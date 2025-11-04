@@ -27,20 +27,20 @@ class APIGetArtistTracks: APIClient {
     }
     
     var clientId: String
-    var artistName: String
+    var artistId: String
     
     init(
         clientId: String = Constant.clientId1,
-        artistName: String
+        artistId: String
     ) {
         self.clientId = clientId
-        self.artistName = artistName
+        self.artistId = artistId
     }
     
     var params: [String : Any] {
         return [
             "client_id": clientId,
-            "name": artistName
+            "id": artistId
         ]
     }
 }

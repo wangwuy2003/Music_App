@@ -110,6 +110,45 @@ class HomeUseCase {
         }
     }
     
+    // MARK: - Fetch Tracks For Artist
+    func fetchTracks(forArtistID artistId: String) async throws -> [JamendoTrack] {
+        let client = APIGetArtistTracks(artistId: artistId)
+        
+        do {
+            let response = try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<JamendoArtistTracksResponse, Error>) in
+                client.execute { result in
+                    switch result {
+                    case .success(let value):
+                        continuation.resume(returning: value)
+                    case .failure(let error):
+                        continuation.resume(throwing: error)
+                    }
+                }
+            }
+            
+            return response.results.first?.tracks ?? []
+            
+        } catch let decoding as DecodingError {
+            switch decoding {
+            case .keyNotFound(let key, let ctx):
+                print("❌ keyNotFound:", key.stringValue, "context:", ctx.debugDescription)
+            case .typeMismatch(let type, let ctx):
+                print("❌ typeMismatch:", type, "context:", ctx.debugDescription)
+            case .valueNotFound(let type, let ctx):
+                print("❌ valueNotFound:", type, "context:", ctx.debugDescription)
+            case .dataCorrupted(let ctx):
+                print("❌ dataCorrupted:", ctx.debugDescription)
+            @unknown default:
+                print("❌ unknown DecodingError:", decoding)
+            }
+            throw decoding
+        } catch {
+            print("❌ API error fetchTracks forArtistID '\(artistId)':", error.localizedDescription)
+            throw error
+        }
+    }
+
+    // MARK: Fetch Tracks Playlist
     func fetchTracks(forPlaylistID playlistId: String) async throws -> [JamendoTrack] {
         let client = APIGetPlaylistTracks(playlistId: playlistId)
         
