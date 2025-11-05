@@ -8,21 +8,8 @@ import SwiftUI
 import SwiftfulRouting
 
 struct RootContainer: View {
-//    let router: AnyRouter
-//
-//    @StateObject private var homeVM: HomeViewModel
-//
-//    init(router: AnyRouter) {
-//        self.router = router
-//        _homeVM = StateObject(wrappedValue: HomeViewModel(router: router))
-//    }
-//
-//    var body: some View {
-//        HomeView()
-//            .environmentObject(homeVM)
-//    }
     let router: AnyRouter
-        @EnvironmentObject var homeVM: HomeViewModel // 👈 Nhận từ App
+        @EnvironmentObject var homeVM: HomeViewModel 
 
         var body: some View {
             HomeView()
@@ -43,5 +30,24 @@ struct LibraryContainer: View {
     var body: some View {
         LibraryView()
             .environmentObject(libraryVM)
+    }
+}
+
+struct SettingsContainer: View {
+    @State private var showSignInView: Bool = false
+    
+    var body: some View {
+        ZStack {
+            SettingsView(showSignInView: $showSignInView)
+        }
+        .onAppear {
+            let authuser = try? AuthenticationManager.shared.getAuthenticatedUser()
+            self.showSignInView = authuser == nil
+        }
+        .fullScreenCover(isPresented: $showSignInView) {
+            NavigationStack {
+                AuthenticationView(showSignInView: $showSignInView)
+            }
+        }
     }
 }

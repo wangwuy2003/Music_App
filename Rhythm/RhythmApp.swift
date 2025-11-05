@@ -8,8 +8,7 @@
 import SwiftUI
 import SwiftfulRouting
 import SwiftData
-import UIKit
-import YMTGetDeviceName
+import FirebaseCore
 
 @main
 struct RhythmApp: App {
@@ -18,6 +17,9 @@ struct RhythmApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.modelContext) var modelContext
     @State private var showMainView = false
+    
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    
     var body: some Scene {
         WindowGroup {
             if showMainView {
@@ -34,7 +36,6 @@ struct RhythmApp: App {
                 SplashView(showMainView: $showMainView)
                     .environmentObject(homeVM)
             }
-            
         }
         .modelContainer(for: [Playlist.self, SavedTrack.self, FavouriteTrack.self])
         .onChange(of: scenePhase) { phase in
@@ -43,6 +44,15 @@ struct RhythmApp: App {
             }
         }
     }
+}
+
+class AppDelegate: NSObject, UIApplicationDelegate {
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+    FirebaseApp.configure()
+
+    return true
+  }
 }
 
 

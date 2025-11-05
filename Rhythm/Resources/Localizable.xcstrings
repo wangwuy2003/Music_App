@@ -19,7 +19,16 @@
     "Delete" : {
 
     },
+    "Email functions" : {
+
+    },
+    "Email..." : {
+
+    },
     "Error" : {
+
+    },
+    "Log out" : {
 
     },
     "New Playlist" : {
@@ -31,6 +40,9 @@
     "No tracks found in this playlist." : {
 
     },
+    "Password..." : {
+
+    },
     "Play" : {
 
     },
@@ -40,7 +52,19 @@
     "Random" : {
 
     },
+    "Reset password" : {
+
+    },
     "Retry" : {
+
+    },
+    "Settings" : {
+
+    },
+    "Sign In" : {
+
+    },
+    "Sign In With Email" : {
 
     },
     "This playlist has no tracks yet." : {
@@ -50,6 +74,12 @@
 
     },
     "Unknown Artist" : {
+
+    },
+    "Update email" : {
+
+    },
+    "Update password" : {
 
     }
   },
