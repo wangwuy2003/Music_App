@@ -9,7 +9,16 @@ import FirebaseAuth
 import GoogleSignIn
 import GoogleSignInSwift
 
+@MainActor
+final class AuthenticationViewModel: ObservableObject {
+    func signInGoogle() async throws {
+        
+        let something = GIDSignIn().sharedInstance.signIn(withPresenting: <#T##UIViewController#>)
+    }
+}
+
 struct AuthenticationView: View {
+    @StateObject private var viewModel = AuthenticationViewModel()
     @Binding var showSignInView: Bool
     
     var body: some View {
