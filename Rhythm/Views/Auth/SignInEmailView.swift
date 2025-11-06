@@ -35,6 +35,7 @@ final class SignInEmailViewModel: ObservableObject {
 struct SignInEmailView: View {
     @StateObject private var viewModel = SignInEmailViewModel()
     @Binding var showSignInView: Bool
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         ZStack {
@@ -84,6 +85,19 @@ struct SignInEmailView: View {
             .padding()
         }
         .navigationTitle("Sign In With Email")
+        .navigationBarBackButtonHidden()
+        .enableSwipeBack()
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .foregroundStyle(.white)
+                }
+
+            }
+        }
     }
 }
 

@@ -23,9 +23,6 @@ final class SignInGoogleHelper {
             throw URLError(.cannotFindHost)
         }
         let gidSignInResult = try await GIDSignIn.sharedInstance.signIn(withPresenting: topVC)
-//        gidSignInResult.serverAuthCode
-        
-        
         
         guard let idToken: String = gidSignInResult.user.idToken?.tokenString else {
             throw URLError(.badServerResponse)
