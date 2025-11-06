@@ -10,13 +10,34 @@
     "⚠️ %@" : {
 
     },
+    "Account Settings" : {
+
+    },
     "Add to Playlist" : {
+
+    },
+    "App Info" : {
+
+    },
+    "Are you sure you want to permanently delete your account? This action cannot be undone." : {
+
+    },
+    "By continuing, you agree to our Terms and Privacy Policy." : {
 
     },
     "Cancel" : {
 
     },
+    "Continue as Guest" : {
+
+    },
+    "Create Account" : {
+
+    },
     "Delete" : {
+
+    },
+    "Delete Account" : {
 
     },
     "Email functions" : {
@@ -26,9 +47,6 @@
 
     },
     "Error" : {
-
-    },
-    "Log out" : {
 
     },
     "New Playlist" : {
@@ -64,7 +82,19 @@
     "Sign In" : {
 
     },
+    "Sign in to personalize your music experience" : {
+
+    },
+    "Sign in with Email" : {
+
+    },
     "Sign In With Email" : {
+
+    },
+    "Sign in with Google" : {
+
+    },
+    "Tap to sign in" : {
 
     },
     "This playlist has no tracks yet." : {
@@ -80,6 +110,9 @@
 
     },
     "Update password" : {
+
+    },
+    "Welcome to Rhythm" : {
 
     }
   },

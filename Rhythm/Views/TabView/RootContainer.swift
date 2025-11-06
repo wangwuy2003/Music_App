@@ -37,17 +37,20 @@ struct SettingsContainer: View {
     @State private var showSignInView: Bool = false
     
     var body: some View {
-        ZStack {
-            SettingsView(showSignInView: $showSignInView)
-        }
-        .onAppear {
-            let authuser = try? AuthenticationManager.shared.getAuthenticatedUser()
-            self.showSignInView = authuser == nil
-        }
-        .fullScreenCover(isPresented: $showSignInView) {
-            NavigationStack {
-                AuthenticationView(showSignInView: $showSignInView)
-            }
-        }
+//        ZStack {
+//            if !showSignInView {
+//                SettingsView(showSignInView: $showSignInView)
+//            }
+//        }
+//        .onAppear {
+//            let authuser = try? AuthenticationManager.shared.getAuthenticatedUser()
+//            self.showSignInView = authuser == nil
+//        }
+//        .fullScreenCover(isPresented: $showSignInView) {
+//            NavigationStack {
+//                AuthenticationView(showSignInView: $showSignInView)
+//            }
+//        }
+        SettingsView(showSignInView: $showSignInView)
     }
 }

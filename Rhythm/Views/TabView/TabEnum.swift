@@ -19,7 +19,7 @@ enum TabEnum: String, CaseIterable, Hashable {
         case .home:         return .localized("Home")
         case .search:       return .localized("Search")
         case .library:      return .localized("Library")
-        case .profile:      return .localized("Profile")
+        case .profile:      return .localized("Setting")
         }
     }
     
