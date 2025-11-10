@@ -10,6 +10,7 @@ import AVFoundation
 import Combine
 import MediaPlayer
 import SwiftData
+import FirebaseAuth
 
 @MainActor
 final class PlayerViewModel: ObservableObject {
@@ -75,6 +76,16 @@ final class PlayerViewModel: ObservableObject {
         cancellables.removeAll()
         
         currentTrack = track
+        
+        // log event "play"
+        if let uid = Auth.auth().currentUser?.uid {
+            FirestoreManager.shared.logListeningEvent(uid: uid, trackId: track.id, type: "play")
+        }
+        
+        if let user = Auth.auth().currentUser {
+            print("👤 UID:", user.uid)
+        }
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.checkIfFavourite()
         }
@@ -225,6 +236,11 @@ final class PlayerViewModel: ObservableObject {
                 let newFav = FavouriteTrack(jamendoTrack: track)
                 modelContext.insert(newFav)
                 isFavourite = true
+                
+                // log event favourite
+                if let uid = Auth.auth().currentUser?.uid {
+                    FirestoreManager.shared.logListeningEvent(uid: uid, trackId: track.id, type: "like")
+                }
             }
 
             try modelContext.save()
@@ -312,6 +328,11 @@ final class PlayerViewModel: ObservableObject {
         NotificationCenter.default.publisher(for: AVPlayerItem.didPlayToEndTimeNotification, object: playerItem)
             .sink { [weak self] _ in
                 print("🎶 Bài hát kết thúc, tự động chuyển bài...")
+                // log event complete
+                if let uid = Auth.auth().currentUser?.uid,
+                   let trackId = self?.currentTrack?.id {
+                    FirestoreManager.shared.logListeningEvent(uid: uid, trackId: trackId, type: "complete")
+                }
                 self?.playNext()
             }
             .store(in: &cancellables)
