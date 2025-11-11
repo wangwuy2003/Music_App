@@ -76,13 +76,13 @@ class HomeViewModel: ObservableObject {
             await MainActor.run { self.isRefreshing = true }
 
             do {
-                // 1️⃣ Lấy danh sách bài hát đã có mix cũ
+                // 1️⃣ Lấy danh sách các mix cũ (đã có)
                 let existingIds = Set(recentMixes.map { $0.id })
 
-                // 2️⃣ Lấy danh sách bài đã nghe gần đây từ UserDefaults
+                // 2️⃣ Lấy danh sách các bài hát đã nghe gần đây
                 let recentIds = UserDefaults.standard.array(forKey: "recentlyPlayed") as? [String] ?? []
 
-                // 3️⃣ Chỉ lấy những bài mới chưa có mix
+                // 3️⃣ Lọc ra các bài mới chưa có mix
                 let newIds = recentIds.filter { !existingIds.contains($0) }
 
                 if newIds.isEmpty {
@@ -91,32 +91,40 @@ class HomeViewModel: ObservableObject {
                     return
                 }
 
-                print("🔍 Cần tạo mix cho \(newIds.count) bài mới:", newIds)
+                print("🚀 Bắt đầu tải mix cho \(newIds.count) bài mới...")
 
-                // 4️⃣ Gọi hàm fetchSimilarTracks cho từng bài mới
-                var newMixes: [PersonalMix] = []
-                for id in newIds {
-                    do {
-                        let mix = try await homeUseCase.fetchMixForSingleTrack(trackId: id)
-                        newMixes.append(mix)
-                    } catch {
-                        print("⚠️ Bỏ qua lỗi khi tạo mix cho \(id):", error.localizedDescription)
+                // 4️⃣ Tạo nhóm Task chạy song song cho từng bài hát
+                await withTaskGroup(of: PersonalMix?.self) { group in
+                    for id in newIds {
+                        group.addTask {
+                            do {
+                                let mix = try await self.homeUseCase.fetchMixForSingleTrack(trackId: id)
+                                return mix
+                            } catch {
+                                print("⚠️ Lỗi khi tạo mix cho \(id):", error.localizedDescription)
+                                return nil
+                            }
+                        }
+                    }
+
+                    // 5️⃣ Khi từng mix hoàn thành, cập nhật UI ngay
+                    for await result in group {
+                        if let mix = result, !mix.similarTracks.isEmpty {
+                            await MainActor.run {
+                                withAnimation(.easeOut(duration: 0.3)) {
+                                    self.recentMixes.insert(mix, at: 0) // thêm vào đầu danh sách
+                                }
+                                self.saveCache()
+                            }
+                            print("✅ Mix mới đã thêm cho \(mix.baseTrack.name)")
+                        }
                     }
                 }
-
-                // 5️⃣ Gộp mix mới vào danh sách cũ
-                let updated = newMixes + recentMixes
-                let filtered = updated.filter { !$0.similarTracks.isEmpty }
 
                 await MainActor.run {
-                    withAnimation(.easeOut(duration: 0.25)) {
-                        self.recentMixes = filtered
-                    }
-                    self.saveCache()
                     self.isRefreshing = false
+                    print("🎧 Hoàn tất cập nhật mixes — tổng cộng \(self.recentMixes.count) playlist.")
                 }
-
-                print("✅ Đã thêm \(newMixes.count) mix mới (tổng \(filtered.count)).")
 
             } catch {
                 await MainActor.run {

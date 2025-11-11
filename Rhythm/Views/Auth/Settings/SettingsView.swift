@@ -134,7 +134,7 @@ struct SettingsView: View {
             viewModel.loadAuthProviders()
             viewModel.loadAuthUser()
         }
-        .onChange(of: showSignInView) { newValue in
+        .onChange(of: showSignInView) { oldValue, newValue in
             if newValue == false {
                 viewModel.loadAuthUser()
                 viewModel.loadAuthProviders()

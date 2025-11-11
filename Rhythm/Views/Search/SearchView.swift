@@ -45,7 +45,7 @@ struct SearchView: View {
             .onAppear {
                 recentSearches = RecentSearchManager.shared.load()
             }
-            .onChange(of: searchVM.searchText) { newValue in
+            .onChange(of: searchVM.searchText) { oldValue, newValue in
                 if newValue.isEmpty {
                     searchVM.hasSearched = false
                 }
