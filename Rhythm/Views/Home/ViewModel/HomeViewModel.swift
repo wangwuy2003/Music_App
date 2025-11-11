@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftfulRouting
+import SwiftUI
 
 @MainActor
 class HomeViewModel: ObservableObject {
@@ -15,10 +16,9 @@ class HomeViewModel: ObservableObject {
     @Published var topAlbums: [JamendoAlbum] = []
     @Published var topTracks: [JamendoTrack] = []
     @Published var popularPlaylists: [JamendoPlaylistDetail] = []
-    @Published var similarMix: [JamendoTrack] = []
-    @Published var personalMix: [JamendoTrack] = []
     @Published var recentMixes: [PersonalMix] = []
     
+    @Published var isRefreshing: Bool = false
     @Published var errorMessage: String?
     @Published var isLoading: Bool = false
     
@@ -52,68 +52,129 @@ class HomeViewModel: ObservableObject {
         }
     }
     
-    func fetchSimilarMix(playerVM: PlayerViewModel? = nil) async {
-        do {
-            // 1️⃣ Ưu tiên bài đang phát (nếu có PlayerViewModel truyền vào)
-            if let currentTrack = playerVM?.currentTrack {
-                print("🎧 Lấy Mix dựa trên bài đang phát: \(currentTrack.name)")
-                let similar = try await homeUseCase.fetchSimilarTracks(for: currentTrack.id)
-                self.similarMix = similar
-                print("✅ Loaded \(similar.count) tracks for mix giống bài: \(currentTrack.name)")
-                return
-            }
-
-            // 2️⃣ Nếu không có playerVM hoặc currentTrack, dùng bài phát cuối cùng từ UserDefaults
-            if let lastPlayedId = UserDefaults.standard.string(forKey: "lastPlayedTrackID"),
-               !lastPlayedId.isEmpty {
-                let lastPlayedName = UserDefaults.standard.string(forKey: "lastPlayedTrackName") ?? "Unknown"
-                print("📀 Lấy Mix dựa trên bài phát cuối cùng: \(lastPlayedName) [\(lastPlayedId)]")
-
-                let similar = try await homeUseCase.fetchSimilarTracks(for: lastPlayedId)
-                self.similarMix = similar
-                print("✅ Loaded \(similar.count) tracks for mix giống bài: \(lastPlayedName)")
-                return
-            }
-
-            // 3️⃣ Nếu vẫn không có, fallback sang bài đầu tiên trong topTracks
-            guard let firstTrack = topTracks.first else {
-                print("⚠️ Không có bài hát nào để làm Mix")
-                return
-            }
-
-            print("🎵 Fallback: Lấy Mix theo bài đầu tiên \(firstTrack.name)")
-            let similar = try await homeUseCase.fetchSimilarTracks(for: firstTrack.id)
-            self.similarMix = similar
-            print("✅ Loaded \(similar.count) tracks for mix giống bài: \(firstTrack.name)")
-
-        } catch {
-            print("❌ Lỗi fetchSimilarMix:", error.localizedDescription)
-        }
-    }
-    
-    func fetchPersonalMix() async {
-        do {
-            let mix = try await homeUseCase.fetchPersonalMix()
-            await MainActor.run {
-                self.personalMix = mix
-            }
-        } catch {
-            print("❌ Lỗi fetchPersonalMix:", error.localizedDescription)
-        }
-    }
-    
     func fetchRecentMixes() async {
         do {
             let mixes = try await homeUseCase.fetchRecentMixes()
-            let filtered = mixes.filter { !$0.similarTracks.isEmpty } // ✅ bỏ mix trống
-            await MainActor.run {
+            let filtered = mixes.filter { !$0.similarTracks.isEmpty }
+
+            withAnimation(.easeOut(duration: 0.25)) {
                 self.recentMixes = filtered
             }
-            print("✅ Tạo \(filtered.count) playlists mix hợp lệ dựa trên recent tracks")
+
+            await MainActor.run {
+                self.saveCache()
+            }
+
+            print("✅ Cập nhật recent mixes: \(filtered.count) playlists.")
         } catch {
             print("❌ Lỗi fetchRecentMixes:", error.localizedDescription)
         }
     }
+    
+    func refreshDataInBackground() {
+        Task {
+            await MainActor.run { self.isRefreshing = true }
 
+            do {
+                // 1️⃣ Lấy danh sách bài hát đã có mix cũ
+                let existingIds = Set(recentMixes.map { $0.id })
 
+                // 2️⃣ Lấy danh sách bài đã nghe gần đây từ UserDefaults
+                let recentIds = UserDefaults.standard.array(forKey: "recentlyPlayed") as? [String] ?? []
+
+                // 3️⃣ Chỉ lấy những bài mới chưa có mix
+                let newIds = recentIds.filter { !existingIds.contains($0) }
+
+                if newIds.isEmpty {
+                    print("⚡ Không có bài hát mới cần tạo mix.")
+                    await MainActor.run { self.isRefreshing = false }
+                    return
+                }
+
+                print("🔍 Cần tạo mix cho \(newIds.count) bài mới:", newIds)
+
+                // 4️⃣ Gọi hàm fetchSimilarTracks cho từng bài mới
+                var newMixes: [PersonalMix] = []
+                for id in newIds {
+                    do {
+                        let mix = try await homeUseCase.fetchMixForSingleTrack(trackId: id)
+                        newMixes.append(mix)
+                    } catch {
+                        print("⚠️ Bỏ qua lỗi khi tạo mix cho \(id):", error.localizedDescription)
+                    }
+                }
+
+                // 5️⃣ Gộp mix mới vào danh sách cũ
+                let updated = newMixes + recentMixes
+                let filtered = updated.filter { !$0.similarTracks.isEmpty }
+
+                await MainActor.run {
+                    withAnimation(.easeOut(duration: 0.25)) {
+                        self.recentMixes = filtered
+                    }
+                    self.saveCache()
+                    self.isRefreshing = false
+                }
+
+                print("✅ Đã thêm \(newMixes.count) mix mới (tổng \(filtered.count)).")
+
+            } catch {
+                await MainActor.run {
+                    self.isRefreshing = false
+                    print("⚠️ Refresh thất bại:", error.localizedDescription)
+                }
+            }
+        }
+    }
+}
+
+// MARK: Cache
+extension HomeViewModel {
+    private var cacheURL: URL {
+        let dir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        return dir.appendingPathComponent("home_cache.json")
+    }
+    
+    func saveCache() {
+        let cache = HomeCacheData(
+            topAlbums: topAlbums,
+            topTracks: topTracks,
+            popularPlaylists: popularPlaylists,
+            recentMixes: recentMixes,
+            timestamp: Date()
+        )
+        
+        if let data = try? JSONEncoder().encode(cache) {
+            try? data.write(to: cacheURL)
+            print("💾 Cache saved: \(cacheURL.lastPathComponent)")
+        }
+    }
+    
+    func loadCache() {
+        guard let data = try? Data(contentsOf: cacheURL),
+              let cache = try? JSONDecoder().decode(HomeCacheData.self, from: data) else {
+            print("⚠️ No cache found.")
+            return
+        }
+        
+        // Check if the cache is too old (more than 24 hours)
+        if Date().timeIntervalSince(cache.timestamp) > 24 * 3600 {
+            print("⚠️ Cache expired, reloading...")
+            return
+        }
+        
+        self.topAlbums = cache.topAlbums
+        self.topTracks = cache.topTracks
+        self.popularPlaylists = cache.popularPlaylists
+        self.recentMixes = cache.recentMixes
+        print("✅ Loaded cache successfully.")
+    }
+}
+
+struct HomeCacheData: Codable {
+    let topAlbums: [JamendoAlbum]
+    let topTracks: [JamendoTrack]
+    let popularPlaylists: [JamendoPlaylistDetail]
+    let recentMixes: [PersonalMix]
+    let timestamp: Date
 }

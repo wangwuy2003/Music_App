@@ -77,12 +77,6 @@ final class PlayerViewModel: ObservableObject {
         
         currentTrack = track
         
-        // ✅ Lưu lại bài hát hiện tại để hiển thị "Mix for you" khi vào lại app
-        UserDefaults.standard.set(track.id, forKey: "lastPlayedTrackID")
-        UserDefaults.standard.set(track.name, forKey: "lastPlayedTrackName")
-        UserDefaults.standard.synchronize()
-        print("💾 Đã lưu bài phát cuối cùng: \(track.name) [\(track.id)]")
-        
         // log event "play"
         if let uid = Auth.auth().currentUser?.uid {
             FirestoreManager.shared.logListeningEvent(uid: uid, trackId: track.id, type: "play")
@@ -125,6 +119,7 @@ final class PlayerViewModel: ObservableObject {
         setupRemoteTransportControls()
         setupNowPlayingInfo()
         self.saveRecentlyPlayed(track)
+        print("Save recent play: \(track.id)")
     }
 
     func loadPopupArtwork() {

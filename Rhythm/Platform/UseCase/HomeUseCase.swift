@@ -189,46 +189,6 @@ class HomeUseCase {
 }
 
 extension HomeUseCase {
-//    func fetchSimilarTracks(for trackId: String) async throws -> [JamendoTrack] {
-//        let db = Firestore.firestore()
-//        
-//        return try await withCheckedThrowingContinuation { continuation in
-//            db.collection("item_item_sim").document(trackId).getDocument { snapshot, error in
-//                if let error = error {
-//                    print("❌ Firestore fetch error:", error)
-//                    continuation.resume(throwing: error)
-//                    return
-//                }
-//                
-//                guard let data = snapshot?.data(),
-//                      let neighbors = data["neighbors"] as? [[String: Any]] else {
-//                    print("⚠️ Không tìm thấy dữ liệu gợi ý cho track \(trackId)")
-//                    continuation.resume(returning: [])
-//                    return
-//                }
-//                
-//                let ids = neighbors.compactMap { $0["id"] as? String }
-//                
-//                // Gọi Jamendo API để lấy thông tin chi tiết
-//                Task {
-//                    do {
-//                        var tracks: [JamendoTrack] = []
-//                        for id in ids {
-//                            let url = URL(string: "https://api.jamendo.com/v3.0/tracks/?client_id=\(Constant.clientId1)&format=json&id=\(id)")!
-//                            let (data, _) = try await URLSession.shared.data(from: url)
-//                            let response = try JSONDecoder().decode(JamendoResponse<JamendoTrack>.self, from: data)
-//                            if let track = response.results.first {
-//                                tracks.append(track)
-//                            }
-//                        }
-//                        continuation.resume(returning: tracks)
-//                    } catch {
-//                        continuation.resume(throwing: error)
-//                    }
-//                }
-//            }
-//        }
-//    }
     
     func fetchSimilarTracks(for trackId: String) async throws -> [JamendoTrack] {
         guard let url = URL(string: "https://nikolai-unthrashed-almeda.ngrok-free.dev/recommend?track_id=\(trackId)") else {
@@ -270,27 +230,6 @@ extension HomeUseCase {
         }
     }
 
-    func fetchPersonalMix() async throws -> [JamendoTrack] {
-        let recentIds = UserDefaults.standard.array(forKey: "recentlyPlayed") as? [String] ?? []
-        var combinedMix: [JamendoTrack] = []
-        var seen = Set<String>()
-        
-        for id in recentIds {
-            do {
-                let similarTracks = try await fetchSimilarTracks(for: id)
-                for track in similarTracks where !seen.contains(track.id) {
-                    combinedMix.append(track)
-                    seen.insert(track.id)
-                }
-            } catch {
-                print("⚠️ Bỏ qua lỗi khi tạo mix cho track \(id): \(error.localizedDescription)")
-            }
-        }
-        
-        print("🎧 Mix cá nhân gồm \(combinedMix.count) bài hát dựa trên \(recentIds.count) bài gần nhất.")
-        return combinedMix
-    }
-
     func fetchRecentMixes() async throws -> [PersonalMix] {
         let recentIds = UserDefaults.standard.array(forKey: "recentlyPlayed") as? [String] ?? []
         var mixes: [PersonalMix] = []
@@ -316,5 +255,18 @@ extension HomeUseCase {
         }
         return mixes
     }
+    
+    func fetchMixForSingleTrack(trackId: String) async throws -> PersonalMix {
+        // 🔹 Lấy bài hát gốc
+        let baseTrackURL = URL(string: "https://api.jamendo.com/v3.0/tracks/?client_id=\(Constant.clientId1)&format=json&id=\(trackId)")!
+        let (baseData, _) = try await URLSession.shared.data(from: baseTrackURL)
+        let baseResponse = try JSONDecoder().decode(JamendoResponse<JamendoTrack>.self, from: baseData)
+        guard let baseTrack = baseResponse.results.first else {
+            throw NSError(domain: "MixError", code: 404, userInfo: [NSLocalizedDescriptionKey: "Không tìm thấy bài \(trackId)"])
+        }
 
+        // 🔹 Lấy các bài tương tự từ API ngrok
+        let similar = try await fetchSimilarTracks(for: trackId)
+        return PersonalMix(id: trackId, baseTrack: baseTrack, similarTracks: similar)
+    }
 }

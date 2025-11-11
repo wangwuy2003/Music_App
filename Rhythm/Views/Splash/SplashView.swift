@@ -34,12 +34,17 @@ struct SplashView: View {
     }
     
     private func preloadData() async {
-        await homeVM.fetchData()
-        await homeVM.fetchSimilarMix(playerVM: playerVM)
-        await homeVM.fetchPersonalMix()
-        await homeVM.fetchRecentMixes()
+        homeVM.loadCache()
+        
+        Task.detached {
+            await homeVM.fetchData()
+            await homeVM.fetchRecentMixes()
+            await MainActor.run {
+                homeVM.saveCache()
+            }
+        }
 
-        withAnimation(.easeOut(duration: 0.5)) {
+        withAnimation(.easeOut(duration: 1.5)) {
             isLoading = false
         }
         

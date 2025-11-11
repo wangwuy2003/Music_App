@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct PersonalMix: Identifiable, Hashable {
+struct PersonalMix: Codable, Identifiable, Hashable {
     let id: String        // chính là track_id gốc
     let baseTrack: JamendoTrack
     let similarTracks: [JamendoTrack]

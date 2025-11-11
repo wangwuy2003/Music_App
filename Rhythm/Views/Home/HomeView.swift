@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftfulRouting
+import SwiftfulLoadingIndicators
 
 struct HomeView: View {
     @Environment(\.router) var router
@@ -22,8 +23,6 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 25) {
                     titleView
                     
-                    mixesSection
-                    
                     if !homeVM.topAlbums.isEmpty {
                         HorizontalSectionView(
                             title: "Top Albums",
@@ -33,7 +32,7 @@ struct HomeView: View {
                                 .onTapGesture {
                                     router.showScreen(.push) { _ in
                                         PlaylistView(album: album)
-                                            .environmentObject(playerVM) // ✅ Truyền playerVM vào
+                                            .environmentObject(playerVM)
                                     }
                                 }
                         }
@@ -52,11 +51,13 @@ struct HomeView: View {
                                             playlistId: playlist.id,
                                             playlistName: playlist.name ?? "Playlist"
                                         )
-                                        .environmentObject(playerVM) // ✅ Truyền playerVM vào
+                                        .environmentObject(playerVM)
                                     }
                                 }
                         }
                     }
+                    
+                    mixesSection
                     
                     if !homeVM.topTracks.isEmpty {
                         HorizontalSectionView(
@@ -74,6 +75,20 @@ struct HomeView: View {
                 }
                 .padding(.top, 10)
             }
+            .refreshable {
+                homeVM.refreshDataInBackground()
+            }
+            .overlay {
+                if homeVM.isRefreshing {
+                    Color.black.opacity(0.4)
+                        .ignoresSafeArea()
+                        .overlay(
+                            LoadingIndicator(animation: .text, color: .white, size: .medium)
+                        )
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 0.3), value: homeVM.isRefreshing)
             
             if homeVM.isLoading {
                 ProgressView().tint(.white)
@@ -83,6 +98,13 @@ struct HomeView: View {
                 errorView(errorMessage)
             }
         }
+//        .navigationTitle("Trending")
+//        .toolbar(.visible)
+//        .toolbar {
+//            ToolbarItem(placement: .topBarLeading) {
+//                Text(.localized("Trending"))
+//            }
+//        }
         //        .task {
         //            if homeVM.topAlbums.isEmpty && !homeVM.isLoading {
         //                await homeVM.fetchData()
