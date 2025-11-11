@@ -10,6 +10,9 @@
     "⚠️ %@" : {
 
     },
+    "🎧 Your Personalized Mixes" : {
+
+    },
     "Account Settings" : {
 
     },
@@ -47,6 +50,9 @@
 
     },
     "Error" : {
+
+    },
+    "Mix based on\n%@" : {
 
     },
     "New Playlist" : {

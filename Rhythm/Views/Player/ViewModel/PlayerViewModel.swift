@@ -77,6 +77,12 @@ final class PlayerViewModel: ObservableObject {
         
         currentTrack = track
         
+        // ✅ Lưu lại bài hát hiện tại để hiển thị "Mix for you" khi vào lại app
+        UserDefaults.standard.set(track.id, forKey: "lastPlayedTrackID")
+        UserDefaults.standard.set(track.name, forKey: "lastPlayedTrackName")
+        UserDefaults.standard.synchronize()
+        print("💾 Đã lưu bài phát cuối cùng: \(track.name) [\(track.id)]")
+        
         // log event "play"
         if let uid = Auth.auth().currentUser?.uid {
             FirestoreManager.shared.logListeningEvent(uid: uid, trackId: track.id, type: "play")
@@ -118,6 +124,7 @@ final class PlayerViewModel: ObservableObject {
         
         setupRemoteTransportControls()
         setupNowPlayingInfo()
+        self.saveRecentlyPlayed(track)
     }
 
     func loadPopupArtwork() {
@@ -247,6 +254,24 @@ final class PlayerViewModel: ObservableObject {
         } catch {
             print("❌ Lỗi khi lưu/xóa bài hát yêu thích:", error.localizedDescription)
         }
+    }
+    
+    // MARK: Recent play
+    private func saveRecentlyPlayed(_ track: JamendoTrack) {
+        var recent = (UserDefaults.standard.array(forKey: "recentlyPlayed") as? [String]) ?? []
+
+        // Xóa nếu đã có track này
+        recent.removeAll { $0 == track.id }
+
+        // Thêm lên đầu danh sách
+        recent.insert(track.id, at: 0)
+
+        // Giới hạn 10 bài
+        if recent.count > 10 {
+            recent = Array(recent.prefix(10))
+        }
+
+        UserDefaults.standard.set(recent, forKey: "recentlyPlayed")
     }
 
     // ===============================================

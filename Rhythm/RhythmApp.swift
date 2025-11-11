@@ -35,6 +35,7 @@ struct RhythmApp: App {
             } else {
                 SplashView(showMainView: $showMainView)
                     .environmentObject(homeVM)
+                    .environmentObject(playerVM)
             }
         }
         .modelContainer(for: [Playlist.self, SavedTrack.self, FavouriteTrack.self])

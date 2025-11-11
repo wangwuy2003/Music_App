@@ -22,6 +22,8 @@ struct HomeView: View {
                 VStack(alignment: .leading, spacing: 25) {
                     titleView
                     
+                    mixesSection
+                    
                     if !homeVM.topAlbums.isEmpty {
                         HorizontalSectionView(
                             title: "Top Albums",
@@ -30,9 +32,9 @@ struct HomeView: View {
                             AlbumSquareView(album: album)
                                 .onTapGesture {
                                     router.showScreen(.push) { _ in
-                                                PlaylistView(album: album)
-                                                    .environmentObject(playerVM) // ✅ Truyền playerVM vào
-                                            }
+                                        PlaylistView(album: album)
+                                            .environmentObject(playerVM) // ✅ Truyền playerVM vào
+                                    }
                                 }
                         }
                     }
@@ -81,17 +83,18 @@ struct HomeView: View {
                 errorView(errorMessage)
             }
         }
-        .task {
-            if homeVM.topAlbums.isEmpty && !homeVM.isLoading {
-                await homeVM.fetchData()
-            }
-        }
-//        .onAppear {
-//            // Cập nhật router thực tế cho ViewModel
-//            if homeVM.router == nil {
-//                homeVM.router = router
-//            }
-//        }
+        //        .task {
+        //            if homeVM.topAlbums.isEmpty && !homeVM.isLoading {
+        //                await homeVM.fetchData()
+        //                await homeVM.fetchSimilarMix()
+        //            }
+        //        }
+        //        .onAppear {
+        //            // Cập nhật router thực tế cho ViewModel
+        //            if homeVM.router == nil {
+        //                homeVM.router = router
+        //            }
+        //        }
     }
     
     private func errorView(_ message: String) -> some View {
@@ -166,6 +169,65 @@ extension HomeView {
         }
         .frame(maxWidth: .infinity)
     }
+    
+    // MARK: - Personalized Mixes Section
+    @ViewBuilder
+    private var mixesSection: some View {
+       
+        if !homeVM.recentMixes.filter({ !$0.similarTracks.isEmpty }).isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("🎧 Your Personalized Mixes")
+                    .font(.title2.bold())
+                    .padding(.horizontal)
+                    .foregroundStyle(.white)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 15) {
+                        ForEach(homeVM.recentMixes.filter { !$0.similarTracks.isEmpty }) { mix in
+                            Button {
+                                router.showScreen(.push) { _ in
+                                    PlaylistTracksView(
+                                        playlistId: mix.id,
+                                        playlistName: "Mix based on \(mix.baseTrack.name)",
+                                        customTracks: mix.similarTracks
+                                    )
+                                    .environmentObject(playerVM)
+                                }
+                            } label: {
+                                VStack(spacing: 8) {
+                                    // ảnh đại diện playlist (ảnh bài gốc)
+                                    AsyncImage(url: URL(string: mix.baseTrack.image ?? mix.baseTrack.albumImage ?? "")) { phase in
+                                        if let img = phase.image {
+                                            img.resizable()
+                                                .scaledToFill()
+                                        } else if phase.error != nil {
+                                            Color.gray.opacity(0.3)
+                                                .overlay(Image(systemName: "music.note").foregroundColor(.white.opacity(0.7)))
+                                        } else {
+                                            ProgressView().tint(.white)
+                                        }
+                                    }
+                                    .frame(width: 140, height: 140)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .shadow(color: .black.opacity(0.4), radius: 5)
+                                    
+                                    // tiêu đề
+                                    Text("Mix based on\n\(mix.baseTrack.name)")
+                                        .font(.caption)
+                                        .multilineTextAlignment(.center)
+                                        .foregroundColor(.white)
+                                        .lineLimit(2)
+                                        .frame(width: 140)
+                                }
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+        }
+    }
 }
 
 struct HorizontalSectionView<Item: Identifiable & Hashable, Content: View>: View {
@@ -197,7 +259,7 @@ struct HorizontalSectionViewSplit<Item: Identifiable & Hashable, Content: View>:
     let title2: String
     let items: [Item]
     @ViewBuilder let content: (Item) -> Content
-
+    
     private var firstHalf: [Item] {
         Array(items.prefix(items.count / 2))
     }

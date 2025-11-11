@@ -11,6 +11,7 @@ import SwiftfulLoadingIndicators
 
 struct SplashView: View {
     @EnvironmentObject var homeVM: HomeViewModel
+    @EnvironmentObject var playerVM: PlayerViewModel
     @Binding var showMainView: Bool
     @State private var isLoading: Bool = true
     
@@ -34,6 +35,10 @@ struct SplashView: View {
     
     private func preloadData() async {
         await homeVM.fetchData()
+        await homeVM.fetchSimilarMix(playerVM: playerVM)
+        await homeVM.fetchPersonalMix()
+        await homeVM.fetchRecentMixes()
+
         withAnimation(.easeOut(duration: 0.5)) {
             isLoading = false
         }

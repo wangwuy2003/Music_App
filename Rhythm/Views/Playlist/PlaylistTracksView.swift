@@ -15,6 +15,7 @@ struct PlaylistTracksView: View {
     
     let playlistId: String
     let playlistName: String
+    var customTracks: [JamendoTrack]? = nil
     
     var body: some View {
         ZStack {
@@ -77,7 +78,15 @@ struct PlaylistTracksView: View {
             }
         }
         .task {
-            await vm.fetchTracks(forPlaylistID: playlistId)
+            if let customTracks = customTracks {
+                // ✅ Trường hợp là playlist mix (Your Mix)
+                vm.tracks = customTracks
+                vm.isLoading = false
+                print("🎧 Hiển thị playlist tùy chỉnh gồm \(customTracks.count) bài hát.")
+            } else {
+                // 🕐 Trường hợp playlist bình thường
+                await vm.fetchTracks(forPlaylistID: playlistId)
+            }
         }
     }
     
