@@ -52,7 +52,13 @@
     "Error" : {
 
     },
-    "Mix based on\n%@" : {
+    "For You" : {
+
+    },
+    "Mix" : {
+
+    },
+    "Mix based on %@" : {
 
     },
     "New Playlist" : {
@@ -107,9 +113,6 @@
 
     },
     "Unknown" : {
-
-    },
-    "Unknown Artist" : {
 
     },
     "Update email" : {

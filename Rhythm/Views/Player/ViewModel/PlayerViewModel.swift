@@ -64,6 +64,7 @@ final class PlayerViewModel: ObservableObject {
         self.play(track: tracks[index])
     }
     
+    // MARK: Play
     private func play(track: JamendoTrack) {
         let wasPlaying = self.isPlaying
         
@@ -77,7 +78,7 @@ final class PlayerViewModel: ObservableObject {
         
         currentTrack = track
         
-        // log event "play"
+        // MARK: log event "play"
         if let uid = Auth.auth().currentUser?.uid {
             FirestoreManager.shared.logListeningEvent(uid: uid, trackId: track.id, type: "play")
         }
@@ -239,7 +240,7 @@ final class PlayerViewModel: ObservableObject {
                 modelContext.insert(newFav)
                 isFavourite = true
                 
-                // log event favourite
+                // MARK: log event favourite
                 if let uid = Auth.auth().currentUser?.uid {
                     FirestoreManager.shared.logListeningEvent(uid: uid, trackId: track.id, type: "like")
                 }
@@ -348,7 +349,7 @@ final class PlayerViewModel: ObservableObject {
         NotificationCenter.default.publisher(for: AVPlayerItem.didPlayToEndTimeNotification, object: playerItem)
             .sink { [weak self] _ in
                 print("🎶 Bài hát kết thúc, tự động chuyển bài...")
-                // log event complete
+                // MARK: log event complete
                 if let uid = Auth.auth().currentUser?.uid,
                    let trackId = self?.currentTrack?.id {
                     FirestoreManager.shared.logListeningEvent(uid: uid, trackId: trackId, type: "complete")

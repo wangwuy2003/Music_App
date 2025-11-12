@@ -37,7 +37,7 @@ struct TrackSquareView: View {
                 .font(.headline)
                 .lineLimit(1)
             
-            Text("Unknown Artist")
+            Text(track.artistName ?? "Unknown Artist")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)

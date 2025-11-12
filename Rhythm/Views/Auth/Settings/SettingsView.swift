@@ -17,118 +17,124 @@ struct SettingsView: View {
     @State private var isDeleting: Bool = false
     
     var body: some View {
-        List {
-            // MARK: Account section
-            Section {
-                Button {
-                    if viewModel.authUser == nil {
-                        showSignInView = true
-                    }
-                } label: {
-                    HStack(spacing: 15) {
-                        if let photoUrl = viewModel.authUser?.photoUrl,
-                           let url = URL(string: photoUrl) {
-                            WebImage(url: url)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: 60, height: 60)
-                                .clipShape(Circle())
-                        } else {
-                            Image(systemName: "person.circle.fill")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 60, height: 60)
-                                .foregroundColor(.gray.opacity(0.6))
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text(viewModel.authUser?.email ?? (viewModel.authUser?.isAnonymous == true ? "Anonymous" : "Login"))
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                            if viewModel.authUser != nil {
-//                                Text("Tap to view account")
-//                                    .font(.subheadline)
-//                                    .foregroundColor(.secondary)
-                                Text(viewModel.authUser?.name ?? "Unkown")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            } else {
-                                Text("Tap to sign in")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        Spacer()
+        ZStack {
+            LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]), startPoint: .top, endPoint: .bottom)
+                .ignoresSafeArea()
+            
+            List {
+                // MARK: Account section
+                Section {
+                    Button {
                         if viewModel.authUser == nil {
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-                    }
-                    .padding(.vertical, 8)
-                }
-            }
-            
-            
-            
-            if viewModel.authUser?.isAnonymous == true {
-                anonymousSection
-            }
-
-            // MARK: - App Info Section
-            Section("App Info") {
-                Button {
-                    
-                } label: {
-                    Label(.localized("Privacy Policy"), systemImage: "shield.fill")
-                        .foregroundStyle(.white)
-                }
-                .labelStyle(.titleAndIcon)
-                
-                Button {
-                    
-                } label: {
-                    Label(.localized("Terms of Use"), systemImage: "list.bullet.clipboard.fill")
-                        .foregroundStyle(.white)
-                }
-                .labelStyle(.titleAndIcon)
-            }
-            
-            // MARK: - Account Management Section
-            if viewModel.authUser != nil {
-                Section("Account Settings") {
-                    Button{
-                        do {
-                            try viewModel.signOut()
-                            viewModel.loadAuthUser()
-                            viewModel.loadAuthProviders()
-                        } catch {
-                            print(error)
+                            showSignInView = true
                         }
                     } label: {
-                        Label(.localized("Sign out"), systemImage: "iphone.and.arrow.right.outward")
+                        HStack(spacing: 15) {
+                            if let photoUrl = viewModel.authUser?.photoUrl,
+                               let url = URL(string: photoUrl) {
+                                WebImage(url: url)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 60, height: 60)
+                                    .clipShape(Circle())
+                            } else {
+                                Image(systemName: "person.circle.fill")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 60, height: 60)
+                                    .foregroundColor(.gray.opacity(0.6))
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text(viewModel.authUser?.email ?? (viewModel.authUser?.isAnonymous == true ? "Anonymous" : "Login"))
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                if viewModel.authUser != nil {
+                                    //                                Text("Tap to view account")
+                                    //                                    .font(.subheadline)
+                                    //                                    .foregroundColor(.secondary)
+                                    Text(viewModel.authUser?.name ?? "Unkown")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                } else {
+                                    Text("Tap to sign in")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                            Spacer()
+                            if viewModel.authUser == nil {
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .padding(.vertical, 8)
+                    }
+                }
+                
+                
+                
+                if viewModel.authUser?.isAnonymous == true {
+                    anonymousSection
+                }
+                
+                // MARK: - App Info Section
+                Section("App Info") {
+                    Button {
+                        
+                    } label: {
+                        Label(.localized("Privacy Policy"), systemImage: "shield.fill")
                             .foregroundStyle(.white)
                     }
+                    .labelStyle(.titleAndIcon)
                     
-                    Button(role: .destructive) {
-                        showDeleteAlert = true
+                    Button {
+                        
                     } label: {
-                        Label("Delete Account", systemImage: "trash.fill")
-                            .foregroundStyle(.red)
+                        Label(.localized("Terms of Use"), systemImage: "list.bullet.clipboard.fill")
+                            .foregroundStyle(.white)
                     }
-                    .alert("Delete Account", isPresented: $showDeleteAlert) {
-                        Button("Cancel", role: .cancel) { }
-                        Button("Delete", role: .destructive) {
-                            Task {
-                                await deleteAccount()
+                    .labelStyle(.titleAndIcon)
+                }
+                
+                // MARK: - Account Management Section
+                if viewModel.authUser != nil {
+                    Section("Account Settings") {
+                        Button{
+                            do {
+                                try viewModel.signOut()
+                                viewModel.loadAuthUser()
+                                viewModel.loadAuthProviders()
+                            } catch {
+                                print(error)
                             }
+                        } label: {
+                            Label(.localized("Sign out"), systemImage: "iphone.and.arrow.right.outward")
+                                .foregroundStyle(.white)
                         }
-                    } message: {
-                        Text("Are you sure you want to permanently delete your account? This action cannot be undone.")
+                        
+                        Button(role: .destructive) {
+                            showDeleteAlert = true
+                        } label: {
+                            Label("Delete Account", systemImage: "trash.fill")
+                                .foregroundStyle(.red)
+                        }
+                        .alert("Delete Account", isPresented: $showDeleteAlert) {
+                            Button("Cancel", role: .cancel) { }
+                            Button("Delete", role: .destructive) {
+                                Task {
+                                    await deleteAccount()
+                                }
+                            }
+                        } message: {
+                            Text("Are you sure you want to permanently delete your account? This action cannot be undone.")
+                        }
+                        
                     }
-
                 }
             }
+            
         }
         .onAppear {
             viewModel.loadAuthProviders()
@@ -155,7 +161,7 @@ extension SettingsView {
     private func deleteAccount() async {
         isDeleting = true
         defer { isDeleting = false }
-
+        
         if viewModel.authUser?.isAnonymous == true {
             // Anonymous users: chỉ signOut, không xóa tài khoản Firebase
             do {
@@ -178,14 +184,14 @@ extension SettingsView {
                 print("Delete account error: \(error.localizedDescription)")
             }
         }
-
+        
         // ✅ Reset view để cập nhật lại UI
         await MainActor.run {
             viewModel.loadAuthUser()
             viewModel.loadAuthProviders()
         }
     }
-
+    
 }
 
 // MARK: Subviews

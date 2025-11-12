@@ -8,6 +8,7 @@
 import SwiftUI
 import SwiftfulRouting
 import SwiftfulLoadingIndicators
+import FirebaseAuth
 
 struct HomeView: View {
     @Environment(\.router) var router
@@ -22,6 +23,8 @@ struct HomeView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 25) {
                     titleView
+                    
+                    forYouSection
                     
                     if !homeVM.topAlbums.isEmpty {
                         HorizontalSectionView(
@@ -98,13 +101,19 @@ struct HomeView: View {
                 errorView(errorMessage)
             }
         }
-//        .navigationTitle("Trending")
-//        .toolbar(.visible)
-//        .toolbar {
-//            ToolbarItem(placement: .topBarLeading) {
-//                Text(.localized("Trending"))
-//            }
-//        }
+        .task {
+            if let uid = Auth.auth().currentUser?.uid {
+                await homeVM.fetchForYouMixes(for: uid)
+            }
+        }
+        
+        //        .navigationTitle("Trending")
+        //        .toolbar(.visible)
+        //        .toolbar {
+        //            ToolbarItem(placement: .topBarLeading) {
+        //                Text(.localized("Trending"))
+        //            }
+        //        }
         //        .task {
         //            if homeVM.topAlbums.isEmpty && !homeVM.isLoading {
         //                await homeVM.fetchData()
@@ -192,11 +201,91 @@ extension HomeView {
         .frame(maxWidth: .infinity)
     }
     
+    // MARK: For You section
+    @ViewBuilder
+    private var forYouSection: some View {
+        let forYouMixes = homeVM.recentMixes.filter { $0.id == "for_you" }
+        
+        if !forYouMixes.isEmpty {
+            VStack(alignment: .leading, spacing: 10) {
+                Text("For You")
+                    .font(.title2.bold())
+                    .padding(.horizontal)
+                    .foregroundStyle(.white)
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 15) {
+                        ForEach(forYouMixes) { mix in
+                            Button {
+                                router.showScreen(.push) { _ in
+                                    PlaylistTracksView(
+                                        playlistId: mix.id,
+                                        playlistName: "Your Favourites",
+                                        customTracks: mix.similarTracks
+                                    )
+                                    .environmentObject(playerVM)
+                                }
+                            } label: {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    LinearGradient(
+                                        colors: [.purple, .pink],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                    .cornerRadius(16)
+                                    .overlay(alignment: .leading) {
+                                        VStack(alignment: .leading) {
+                                            Text("Mix")
+                                                .font(.title3)
+                                                .foregroundColor(.white)
+                                                .padding(.horizontal)
+                                                .padding(.top, 10)
+                                            
+                                            Text("For You")
+                                                .font(.title3)
+                                                .bold()
+                                                .foregroundStyle(.white)
+                                                .padding(.horizontal)
+                                            
+                                            Spacer()
+                                            
+                                            let artists = mix.similarTracks
+                                                .compactMap { $0.artistName }
+                                                .prefix(5)
+                                                .joined(separator: ", ")
+                                            
+                                            Text(artists.isEmpty ? "Various Artists" : artists)
+                                                .font(.caption)
+                                                .foregroundColor(.white.opacity(0.85))
+                                                .multilineTextAlignment(.center)
+                                                .lineLimit(3)
+                                                .padding(.bottom, 12)
+                                                .frame(maxWidth: .infinity, alignment: .center)
+                                                .background(.black.opacity(0.3))
+                                        }
+                                    }
+                                    .frame(width: 160, height: 200)
+                                    .shadow(radius: 6)
+                                }
+                                .frame(width: 160, height: 200)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
+            .padding(.top, 10)
+        }
+    }
+
+    
     // MARK: - Personalized Mixes Section
     @ViewBuilder
     private var mixesSection: some View {
-       
-        if !homeVM.recentMixes.filter({ !$0.similarTracks.isEmpty }).isEmpty {
+        let mixes = homeVM.recentMixes.filter { $0.id != "for_you" && !$0.similarTracks.isEmpty }
+        
+        if !mixes.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
                 Text("🎧 Your Personalized Mixes")
                     .font(.title2.bold())
@@ -204,8 +293,8 @@ extension HomeView {
                     .foregroundStyle(.white)
                 
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 15) {
-                        ForEach(homeVM.recentMixes.filter { !$0.similarTracks.isEmpty }) { mix in
+                    HStack(spacing: 20) {
+                        ForEach(mixes) { mix in
                             Button {
                                 router.showScreen(.push) { _ in
                                     PlaylistTracksView(
@@ -216,30 +305,48 @@ extension HomeView {
                                     .environmentObject(playerVM)
                                 }
                             } label: {
-                                VStack(spacing: 8) {
-                                    // ảnh đại diện playlist (ảnh bài gốc)
+                                VStack(alignment: .leading, spacing: 6) {
+                                    // Ảnh vuông của mix
                                     AsyncImage(url: URL(string: mix.baseTrack.image ?? mix.baseTrack.albumImage ?? "")) { phase in
                                         if let img = phase.image {
-                                            img.resizable()
+                                            img
+                                                .resizable()
                                                 .scaledToFill()
+                                                .frame(width: 140, height: 140)
+                                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                                                .shadow(color: .black.opacity(0.4), radius: 5)
                                         } else if phase.error != nil {
-                                            Color.gray.opacity(0.3)
-                                                .overlay(Image(systemName: "music.note").foregroundColor(.white.opacity(0.7)))
+                                            ZStack {
+                                                Color.gray.opacity(0.3)
+                                                Image(systemName: "music.note")
+                                                    .foregroundColor(.white.opacity(0.7))
+                                            }
+                                            .frame(width: 140, height: 140)
+                                            .clipShape(RoundedRectangle(cornerRadius: 12))
                                         } else {
-                                            ProgressView().tint(.white)
+                                            ProgressView()
+                                                .tint(.white)
+                                                .frame(width: 140, height: 140)
                                         }
                                     }
-                                    .frame(width: 140, height: 140)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                                    .shadow(color: .black.opacity(0.4), radius: 5)
                                     
-                                    // tiêu đề
-                                    Text("Mix based on\n\(mix.baseTrack.name)")
-                                        .font(.caption)
-                                        .multilineTextAlignment(.center)
+                                    // Tên Mix
+                                    Text("Mix based on \(mix.baseTrack.name)")
+                                        .font(.headline)
                                         .foregroundColor(.white)
                                         .lineLimit(2)
-                                        .frame(width: 140)
+                                        .frame(width: 140, alignment: .leading)
+                                    
+                                    let artists = mix.similarTracks
+                                        .compactMap { $0.artistName }
+                                        .prefix(3)
+                                        .joined(separator: ", ")
+                                    
+                                    Text(artists.isEmpty ? (mix.baseTrack.artistName ?? "Various Artists") : artists)
+                                        .font(.caption2)
+                                        .foregroundColor(.white.opacity(0.6))
+                                        .lineLimit(1)
+                                        .frame(width: 140, alignment: .leading)
                                 }
                             }
                             .buttonStyle(.plain)
@@ -248,6 +355,7 @@ extension HomeView {
                     .padding(.horizontal)
                 }
             }
+            .padding(.top, 10)
         }
     }
 }

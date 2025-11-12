@@ -14,10 +14,44 @@ struct RecommendedTrack: Codable, Identifiable {
     let audio: String
     let audioDownload: String
     let similarity: Double
+
+    enum CodingKeys: String, CodingKey {
+        case id, name, artistName, image, audio, audioDownload
+        case similarity
+        case score_cf
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        artistName = try container.decodeIfPresent(String.self, forKey: .artistName) ?? "Unknown"
+        image = try container.decodeIfPresent(String.self, forKey: .image) ?? ""
+        audio = try container.decodeIfPresent(String.self, forKey: .audio) ?? ""
+        audioDownload = try container.decodeIfPresent(String.self, forKey: .audioDownload) ?? ""
+        similarity = try container.decodeIfPresent(Double.self, forKey: .similarity)
+            ?? (try container.decodeIfPresent(Double.self, forKey: .score_cf) ?? 0)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(name, forKey: .name)
+        try container.encode(artistName, forKey: .artistName)
+        try container.encode(image, forKey: .image)
+        try container.encode(audio, forKey: .audio)
+        try container.encode(audioDownload, forKey: .audioDownload)
+        try container.encode(similarity, forKey: .similarity)
+    }
 }
 
 struct SimilarTracksResponse: Codable {
     let track_id: String
+    let recommendations: [RecommendedTrack]
+}
+
+struct CFRecommendationsResponse: Codable {
+    let user_id: String
     let recommendations: [RecommendedTrack]
 }
 

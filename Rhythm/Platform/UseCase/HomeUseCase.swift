@@ -188,6 +188,7 @@ class HomeUseCase {
     }
 }
 
+// MARK: fast api
 extension HomeUseCase {
     
     func fetchSimilarTracks(for trackId: String) async throws -> [JamendoTrack] {
@@ -269,4 +270,14 @@ extension HomeUseCase {
         let similar = try await fetchSimilarTracks(for: trackId)
         return PersonalMix(id: trackId, baseTrack: baseTrack, similarTracks: similar)
     }
+    
+    func fetchPersonalRecommendations(for uid: String) async throws -> [JamendoTrack] {
+        let urlString = "https://nikolai-unthrashed-almeda.ngrok-free.dev/reco/home?user_id=\(uid)"
+        guard let url = URL(string: urlString) else { return [] }
+
+        let (data, _) = try await URLSession.shared.data(from: url)
+        let decoded = try JSONDecoder().decode(CFRecommendationsResponse.self, from: data)
+        return decoded.recommendations.map { $0.toJamendoTrack() }
+    }
+
 }

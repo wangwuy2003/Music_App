@@ -57,8 +57,14 @@ class HomeViewModel: ObservableObject {
             let mixes = try await homeUseCase.fetchRecentMixes()
             let filtered = mixes.filter { !$0.similarTracks.isEmpty }
 
+            let forYouMix = recentMixes.first(where: { $0.id == "for_you" })
+            var combined = filtered
+            if let forYouMix {
+                combined.insert(forYouMix, at: 0)
+            }
+
             withAnimation(.easeOut(duration: 0.25)) {
-                self.recentMixes = filtered
+                self.recentMixes = combined
             }
 
             await MainActor.run {
@@ -68,6 +74,34 @@ class HomeViewModel: ObservableObject {
             print("✅ Cập nhật recent mixes: \(filtered.count) playlists.")
         } catch {
             print("❌ Lỗi fetchRecentMixes:", error.localizedDescription)
+        }
+    }
+    
+    func fetchForYouMixes(for uid: String) async {
+        do {
+            let tracks = try await homeUseCase.fetchPersonalRecommendations(for: uid)
+            let mix = PersonalMix(
+                id: "for_you",
+                baseTrack: tracks.first ?? JamendoTrack(id: "0", name: "Unknown"),
+                similarTracks: tracks
+            )
+
+            // 🔒 Kiểm tra nếu đã tồn tại mix for_you thì chỉ cập nhật, không thêm trùng
+            if let index = recentMixes.firstIndex(where: { $0.id == "for_you" }) {
+                await MainActor.run {
+                    recentMixes[index] = mix
+                    print("🔁 Cập nhật lại For You Mix (\(tracks.count) tracks).")
+                }
+            } else {
+                await MainActor.run {
+                    withAnimation(.easeOut(duration: 0.25)) {
+                        recentMixes.insert(mix, at: 0)
+                    }
+                }
+                print("✅ Thêm mới For You Mix (\(tracks.count) tracks).")
+            }
+        } catch {
+            print("❌ Lỗi fetchForYouMixes:", error.localizedDescription)
         }
     }
     
