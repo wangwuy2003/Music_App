@@ -14,11 +14,13 @@ struct RecommendedTrack: Codable, Identifiable {
     let audio: String
     let audioDownload: String
     let similarity: Double
+    let reason: String?
 
     enum CodingKeys: String, CodingKey {
         case id, name, artistName, image, audio, audioDownload
         case similarity
         case score_cf
+        case reason
     }
 
     init(from decoder: Decoder) throws {
@@ -31,6 +33,7 @@ struct RecommendedTrack: Codable, Identifiable {
         audioDownload = try container.decodeIfPresent(String.self, forKey: .audioDownload) ?? ""
         similarity = try container.decodeIfPresent(Double.self, forKey: .similarity)
             ?? (try container.decodeIfPresent(Double.self, forKey: .score_cf) ?? 0)
+        reason = try container.decodeIfPresent(String.self, forKey: .reason)
     }
 
     func encode(to encoder: Encoder) throws {
@@ -42,6 +45,7 @@ struct RecommendedTrack: Codable, Identifiable {
         try container.encode(audio, forKey: .audio)
         try container.encode(audioDownload, forKey: .audioDownload)
         try container.encode(similarity, forKey: .similarity)
+        try container.encode(reason, forKey: .reason)
     }
 }
 
@@ -66,7 +70,8 @@ extension RecommendedTrack {
             albumImage: image,
             image: image,
             audio: audio,
-            audioDownload: audioDownload
+            audioDownload: audioDownload,
+            reason: reason
         )
     }
 }

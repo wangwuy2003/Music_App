@@ -279,5 +279,4 @@ extension HomeUseCase {
         let decoded = try JSONDecoder().decode(CFRecommendationsResponse.self, from: data)
         return decoded.recommendations.map { $0.toJamendoTrack() }
     }
-
 }

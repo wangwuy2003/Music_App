@@ -20,6 +20,7 @@ struct JamendoTrack: Codable, Identifiable, Hashable {
     let image: String?
     let audio: String?
     let audioDownload: String?
+    let reason: String?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -31,6 +32,7 @@ struct JamendoTrack: Codable, Identifiable, Hashable {
         case image
         case audio
         case audioDownload = "audiodownload"
+        case reason
     }
     
     init(from decoder: Decoder) throws {
@@ -43,6 +45,7 @@ struct JamendoTrack: Codable, Identifiable, Hashable {
         image = try? container.decode(String.self, forKey: .image)
         audio = try? container.decode(String.self, forKey: .audio)
         audioDownload = try? container.decode(String.self, forKey: .audioDownload)
+        reason = try? container.decode(String.self, forKey: .reason)
         
         if let durationString = try? container.decode(String.self, forKey: .duration),
            let durationValue = Int(durationString) {
@@ -61,7 +64,8 @@ struct JamendoTrack: Codable, Identifiable, Hashable {
         albumImage: String? = nil,
         image: String? = nil,
         audio: String? = nil,
-        audioDownload: String? = nil
+        audioDownload: String? = nil,
+        reason: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -72,6 +76,7 @@ struct JamendoTrack: Codable, Identifiable, Hashable {
         self.image = image
         self.audio = audio
         self.audioDownload = audioDownload
+        self.reason = reason
     }
 }
 

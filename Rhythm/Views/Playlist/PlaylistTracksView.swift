@@ -79,12 +79,12 @@ struct PlaylistTracksView: View {
         }
         .task {
             if let customTracks = customTracks {
-                // ✅ Trường hợp là playlist mix (Your Mix)
+                //  playlist mix (Your Mix)
                 vm.tracks = customTracks
                 vm.isLoading = false
                 print("🎧 Hiển thị playlist tùy chỉnh gồm \(customTracks.count) bài hát.")
             } else {
-                // 🕐 Trường hợp playlist bình thường
+                // normal playlist 
                 await vm.fetchTracks(forPlaylistID: playlistId)
             }
         }

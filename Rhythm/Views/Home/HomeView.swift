@@ -22,7 +22,10 @@ struct HomeView: View {
             
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 25) {
-                    titleView
+//                    titleView
+                    if homeVM.isRefreshing {
+                        LoadingIndicator(animation: .text, color: .white, size: .medium)
+                    }
                     
                     forYouSection
                     
@@ -81,21 +84,21 @@ struct HomeView: View {
             .refreshable {
                 homeVM.refreshDataInBackground()
             }
-            .overlay {
-                if homeVM.isRefreshing {
-                    Color.black.opacity(0.4)
-                        .ignoresSafeArea()
-                        .overlay(
-                            LoadingIndicator(animation: .text, color: .white, size: .medium)
-                        )
-                        .transition(.opacity)
-                }
-            }
+//            .overlay {
+//                if homeVM.isRefreshing {
+//                    Color.black.opacity(0.4)
+//                        .ignoresSafeArea()
+//                        .overlay(
+//                            LoadingIndicator(animation: .text, color: .white, size: .medium)
+//                        )
+//                        .transition(.opacity)
+//                }
+//            }
             .animation(.easeInOut(duration: 0.3), value: homeVM.isRefreshing)
             
-            if homeVM.isLoading {
-                ProgressView().tint(.white)
-            }
+//            if homeVM.isLoading {
+//                ProgressView().tint(.white)
+//            }
             
             if let errorMessage = homeVM.errorMessage {
                 errorView(errorMessage)
@@ -106,14 +109,13 @@ struct HomeView: View {
                 await homeVM.fetchForYouMixes(for: uid)
             }
         }
-        
-        //        .navigationTitle("Trending")
-        //        .toolbar(.visible)
-        //        .toolbar {
-        //            ToolbarItem(placement: .topBarLeading) {
-        //                Text(.localized("Trending"))
-        //            }
-        //        }
+        .toolbar(.visible)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Text(.localized("Trending"))
+                    .font(.title)
+            }
+        }
         //        .task {
         //            if homeVM.topAlbums.isEmpty && !homeVM.isLoading {
         //                await homeVM.fetchData()
@@ -278,7 +280,6 @@ extension HomeView {
             .padding(.top, 10)
         }
     }
-
     
     // MARK: - Personalized Mixes Section
     @ViewBuilder

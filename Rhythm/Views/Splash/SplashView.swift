@@ -1,6 +1,6 @@
 //
 //  SplashView.swift
-//  LocalTune
+//  Rhythm
 //
 //  Created by Apple on 27/10/25.
 //
