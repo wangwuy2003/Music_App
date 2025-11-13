@@ -247,6 +247,7 @@ final class PlayerViewModel: ObservableObject {
             }
 
             try modelContext.save()
+            NotificationCenter.default.post(name: .favouritesDidChange, object: nil)
         } catch {
             print("❌ Lỗi khi lưu/xóa bài hát yêu thích:", error.localizedDescription)
         }

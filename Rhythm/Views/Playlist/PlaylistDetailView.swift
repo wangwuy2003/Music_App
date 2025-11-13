@@ -8,13 +8,30 @@
 import SwiftUI
 import SDWebImageSwiftUI
 import SwiftData
+import SwiftfulRouting
 
 struct PlaylistDetailView: View {
+    @Environment(\.router) var router
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) var modelContext
     @EnvironmentObject var playerVM: PlayerViewModel
     
     var playlist: Playlist
+    
+    var orderedTracks: [SavedTrack] {
+        let tracks = playlist.tracks
+        if var savedOrder = UserDefaults.standard.array(forKey: "playlist_order_\(playlist.id)") as? [String] {
+            let newIDs = tracks.map { $0.jamendoID }
+            for id in newIDs where !savedOrder.contains(id) {
+                savedOrder.append(id)
+            }
+            UserDefaults.standard.set(savedOrder, forKey: "playlist_order_\(playlist.id)")
+            return savedOrder.compactMap { id in
+                tracks.first(where: { $0.jamendoID == id })
+            }
+        }
+        return tracks
+    }
     
     var body: some View {
         ZStack {
@@ -42,6 +59,7 @@ struct PlaylistDetailView: View {
                     // MARK: - Header View
                     PlaylistLocalHeaderView(
                         name: playlist.name,
+                        description: playlist.playlistDescription,
                         imageData: playlist.imageData,
                         onPlay: {
                             let tracks = playlist.tracks.map { $0.toJamendoTrack() }
@@ -55,11 +73,10 @@ struct PlaylistDetailView: View {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets())
-                    .padding(.bottom, 20)
                     
                     // MARK: - Track list
-                    ForEach(Array(playlist.tracks.enumerated()), id: \.element.jamendoID) { index, track in
-                        TrackRowView(track: track.toJamendoTrack())
+                    ForEach(Array(orderedTracks.enumerated()), id: \.element.jamendoID) { index, track in
+                        TrackRowView(track: track.toJamendoTrack(), playlist: playlist)
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                             .onTapGesture {
@@ -90,6 +107,7 @@ struct PlaylistDetailView: View {
 
 struct PlaylistLocalHeaderView: View {
     let name: String
+    let description: String
     let imageData: Data?
     let onPlay: (() -> Void)?
     let onShuffle: (() -> Void)?
@@ -157,6 +175,11 @@ struct PlaylistLocalHeaderView: View {
             }
             .padding(.top, 8)
             .buttonStyle(.borderless)
+            
+            Text(description)
+                .font(.caption)
+                .foregroundStyle(.white)
+                .multilineTextAlignment(.leading)
         }
         .padding()
         .frame(maxWidth: .infinity)

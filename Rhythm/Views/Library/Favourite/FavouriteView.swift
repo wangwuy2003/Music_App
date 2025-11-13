@@ -42,7 +42,7 @@ struct FavouritesView: View {
                     .padding(.bottom, 20)
                     
                     ForEach(Array(favourites.enumerated()), id: \.element.jamendoID) { index, track in
-                        TrackRowView(track: track.toJamendoTrack())
+                        TrackRowView(track: track.toJamendoTrack(), isInFavouritesView: true)
                             .listRowBackground(Color.clear)
                             .listRowSeparator(.hidden)
                             .onTapGesture {
@@ -50,9 +50,11 @@ struct FavouritesView: View {
                                 playerVM.startPlayback(from: tracks, startingAt: index)
                             }
                     }
+                    .onDelete(perform: deleteFavourite)
                 }
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
+                .animation(.easeInOut(duration: 0.3), value: favourites)
             }
         }
         .contentShape(Rectangle())
@@ -82,6 +84,14 @@ struct FavouritesView: View {
     private func playShuffled() {
         let shuffled = favourites.shuffled().map { $0.toJamendoTrack() }
         playerVM.startPlayback(from: shuffled, startingAt: 0)
+    }
+    
+    private func deleteFavourite(at offsets: IndexSet) {
+        for index in offsets {
+            let track = favourites[index]
+            modelContext.delete(track)
+        }
+        try? modelContext.save()
     }
 }
 

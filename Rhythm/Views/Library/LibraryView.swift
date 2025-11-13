@@ -15,6 +15,7 @@ struct LibraryView: View {
     @EnvironmentObject var libraryVM: LibraryViewModel
     @EnvironmentObject var playerVM: PlayerViewModel
     
+    @Query private var favourites: [FavouriteTrack]
     @Query private var playlists: [Playlist]
     @State private var isShowingAddSheet: Bool = false
     
@@ -26,7 +27,7 @@ struct LibraryView: View {
                 titleView
                 buttonAddNewPlaylist
                 
-                if playlists.isEmpty {
+                if playlists.isEmpty && favourites.isEmpty {
                     emptyStateView
                 } else {
                     playlistListView
@@ -97,46 +98,84 @@ extension LibraryView {
     
     private var playlistListView: some View {
         List {
-            FavouriteSection()
-                .listRowInsets(EdgeInsets())
-                .listRowBackground(Color.clear)
-                .onTapGesture {
-//                    libraryVM.openFavouritePlaylist()
-                    router.showScreen(.push) { _ in
-                        FavouritesView()
+            // --- Favourite Section ---
+            if !favourites.isEmpty {
+                FavouriteSection()
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                    .onTapGesture {
+                        router.showScreen(.push) { _ in
+                            FavouritesView()
+                                .environmentObject(libraryVM)
+                        }
                     }
-                }
-            ForEach(playlists) { playlist in
-                PlaylistRow(
-                    playlist: playlist,
-                    onDelete: {
-                        libraryVM.confirmDeletePlaylist(playlist)
-                    },
-                    onPlay: {
-                        let tracks = playlist.tracks.map { $0.toJamendoTrack() }
-                        playerVM.startPlayback(from: tracks, startingAt: 0)
-                    },
-                    onShuffle: {
-                        let shuffled = playlist.tracks.shuffled().map { $0.toJamendoTrack() }
-                        playerVM.startPlayback(from: shuffled, startingAt: 0)
+            }
+
+            // --- Playlist Section ---
+            if !playlists.isEmpty {
+                ForEach(playlists) { playlist in
+                    PlaylistRow(
+                        playlist: playlist,
+                        onDelete: {
+                            libraryVM.confirmDeletePlaylist(playlist)
+                        },
+                        onPlay: {
+                            let tracks = playlist.tracks.map { $0.toJamendoTrack() }
+                            playerVM.startPlayback(from: tracks, startingAt: 0)
+                        },
+                        onShuffle: {
+                            let shuffled = playlist.tracks.shuffled().map { $0.toJamendoTrack() }
+                            playerVM.startPlayback(from: shuffled, startingAt: 0)
+                        },
+                        onEdit: {
+                            router.showScreen(.fullScreenCover) { _ in
+                                EditPlaylistView(playlist: playlist)
+                                    .environmentObject(libraryVM)
+                                    .environmentObject(playerVM)
+                            }
+                        }
+                    )
+                    .listRowInsets(EdgeInsets())
+                    .listRowSpacing(10)
+                    .listRowBackground(Color.clear)
+                    .contextMenu {
+                        Button {
+                            let tracks = playlist.tracks.map { $0.toJamendoTrack() }
+                            playerVM.startPlayback(from: tracks, startingAt: 0)
+                        } label: {
+                            Label(.localized("Play"), systemImage: "play")
+                        }
+                        
+                        Button {
+                            let shuffled = playlist.tracks.shuffled().map { $0.toJamendoTrack() }
+                            playerVM.startPlayback(from: shuffled, startingAt: 0)
+                        } label: {
+                            Label(.localized("Shuffle"), systemImage: "shuffle")
+                        }
+                        
+                        Button {
+                            router.showScreen(.fullScreenCover) { _ in
+                                EditPlaylistView(playlist: playlist)
+                                    .environmentObject(libraryVM)
+                                    .environmentObject(playerVM)
+                            }
+                        } label: {
+                            Label(.localized("Edit"), systemImage: "pencil")
+                        }
+                        
+                        Button(role: .destructive) {
+                            libraryVM.confirmDeletePlaylist(playlist)
+                        } label: {
+                            Label("Delete", systemImage: "trash")
+                        }
                     }
-                )
-                .listRowInsets(EdgeInsets())
-                .listRowSpacing(10)
-                .listRowBackground(Color.clear)
-                .contextMenu {
-                    Button(role: .destructive) {
-                        libraryVM.confirmDeletePlaylist(playlist)
-                    } label: {
-                        Label("Delete", systemImage: "trash")
-                    }
-                }
-                .onTapGesture {
-//                    libraryVM.openPlaylistDetail(playlist)
-                    router.showScreen(.push) { _ in
+                    .onTapGesture {
+                        router.showScreen(.push) { _ in
                             PlaylistDetailView(playlist: playlist)
                                 .environmentObject(playerVM)
+                                .environmentObject(libraryVM)
                         }
+                    }
                 }
             }
         }

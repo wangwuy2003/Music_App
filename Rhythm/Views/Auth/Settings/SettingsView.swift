@@ -134,7 +134,7 @@ struct SettingsView: View {
                     }
                 }
             }
-            
+            .listRowBackground(Color.clear)
         }
         .onAppear {
             viewModel.loadAuthProviders()

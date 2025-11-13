@@ -9,6 +9,7 @@ import SwiftUI
 import SwiftfulRouting
 import PhotosUI
 import AVFoundation
+import Photos
 
 struct AddPlaylistView: View {
     @Environment(\.router) var router
@@ -132,7 +133,13 @@ struct AddPlaylistView: View {
                 }
 
                 Button {
-                    showPhotoPicker = true
+                    checkPhotoPermission { granted in
+                        if granted {
+                            showPhotoPicker = true
+                        } else {
+                            print("❌ Người dùng chưa cấp quyền truy cập thư viện ảnh.")
+                        }
+                    }
                 } label: {
                     Label(.localized("Import from Photos"), systemImage: "photo")
                 }
@@ -185,6 +192,22 @@ struct AddPlaylistView: View {
             AVCaptureDevice.requestAccess(for: .video) { granted in
                 DispatchQueue.main.async {
                     completion(granted)
+                }
+            }
+        default:
+            completion(false)
+        }
+    }
+    
+    func checkPhotoPermission(completion: @escaping (Bool) -> Void) {
+        let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+        switch status {
+        case .authorized, .limited:
+            completion(true)
+        case .notDetermined:
+            PHPhotoLibrary.requestAuthorization(for: .readWrite) { newStatus in
+                DispatchQueue.main.async {
+                    completion(newStatus == .authorized || newStatus == .limited)
                 }
             }
         default:

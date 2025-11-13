@@ -13,6 +13,7 @@ struct PlaylistRow: View {
     var onDelete: (() -> Void)?
     var onPlay: (() -> Void)?
     var onShuffle: (() -> Void)?
+    var onEdit: (() -> Void)?
     
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -58,6 +59,7 @@ struct PlaylistRow: View {
                 }
                 
                 Button {
+                    onEdit?()
                 } label: {
                     Label(.localized("Edit"), systemImage: "pencil")
                 }

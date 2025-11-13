@@ -78,8 +78,17 @@ struct PlayerView: View {
                     playerVM.checkIfFavourite()
                 }
             }
+            
+            NotificationCenter.default.addObserver(forName: .favouritesDidChange, object: nil, queue: .main) { _ in
+                Task { @MainActor in
+                    playerVM.checkIfFavourite()
+                }
+            }
         }
-
+        .onDisappear {
+            NotificationCenter.default.removeObserver(self, name: .favouritesDidChange, object: nil)
+        }
+        
         // MARK: Popup Config
         .popupTitle(playerVM.title)
         .popupImage(playerVM.popupArtwork)

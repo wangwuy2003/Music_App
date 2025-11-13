@@ -113,7 +113,8 @@ struct HomeView: View {
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Text(.localized("Trending"))
-                    .font(.title)
+                    .font(.largeTitle)
+                    .bold()
             }
         }
         //        .task {

@@ -40,3 +40,16 @@ extension View {
         }
     }
 }
+
+extension View {
+    func hideKeyboardOnScroll() -> some View {
+        self.gesture(
+            DragGesture().onChanged { _ in
+                UIApplication.shared.sendAction(
+                    #selector(UIResponder.resignFirstResponder),
+                    to: nil, from: nil, for: nil
+                )
+            }
+        )
+    }
+}

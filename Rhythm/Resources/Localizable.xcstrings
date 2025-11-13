@@ -43,6 +43,15 @@
     "Delete Account" : {
 
     },
+    "Description" : {
+
+    },
+    "Discard" : {
+
+    },
+    "Edit playlist" : {
+
+    },
     "Email functions" : {
 
     },
@@ -70,10 +79,16 @@
     "No tracks found in this playlist." : {
 
     },
+    "No tracks in this playlist yet." : {
+
+    },
     "Password..." : {
 
     },
     "Play" : {
+
+    },
+    "Playlist Name" : {
 
     },
     "Playlist Title" : {
@@ -110,6 +125,9 @@
 
     },
     "This playlist has no tracks yet." : {
+
+    },
+    "Tracks" : {
 
     },
     "Unknown" : {
