@@ -12,16 +12,15 @@ struct PlaylistTracksView: View {
     @Environment(\.router) var router
     @EnvironmentObject var playerVM: PlayerViewModel
     @StateObject private var vm = PlaylistTracksViewModel()
-    
+    @State private var gradient = LinearGradient.randomDark()
     let playlistId: String
     let playlistName: String
     var customTracks: [JamendoTrack]? = nil
     
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [.indigo.opacity(0.8), .black]),
-                           startPoint: .top, endPoint: .bottom)
-            .ignoresSafeArea()
+            gradient
+                .ignoresSafeArea()
             
             if vm.isLoading {
                 ProgressView()

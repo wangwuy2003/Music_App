@@ -15,7 +15,8 @@ struct PlaylistDetailView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) var modelContext
     @EnvironmentObject var playerVM: PlayerViewModel
-    
+    @EnvironmentObject var libraryVM: LibraryViewModel
+    @State private var gradient = LinearGradient.randomDark()
     var playlist: Playlist
     
     var orderedTracks: [SavedTrack] {
@@ -35,12 +36,8 @@ struct PlaylistDetailView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [.indigo.opacity(0.8), .black]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            gradient
+                .ignoresSafeArea()
             
             if playlist.tracks.isEmpty {
                 VStack(spacing: 16) {
@@ -101,6 +98,20 @@ struct PlaylistDetailView: View {
                         .foregroundStyle(.white)
                 }
             }
+            
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    router.showScreen(.fullScreenCover) { _ in
+                        EditPlaylistView(playlist: playlist)
+                            .environmentObject(libraryVM)
+                            .environmentObject(playerVM)
+                    }
+                } label: {
+                    Image(systemName: "pencil")
+                        .foregroundStyle(.white)
+                }
+
+            }
         }
     }
 }
@@ -153,7 +164,7 @@ struct PlaylistLocalHeaderView: View {
                             .fontWeight(.semibold)
                     }
                     .frame(width: 120, height: 45)
-                    .background(Color.pink)
+                    .background(Color.accent)
                     .foregroundStyle(.white)
                     .clipShape(Capsule())
                 }
@@ -169,7 +180,7 @@ struct PlaylistLocalHeaderView: View {
                     }
                     .frame(width: 120, height: 45)
                     .background(Color.white.opacity(0.1))
-                    .foregroundStyle(.pink)
+                    .foregroundStyle(.accent)
                     .clipShape(Capsule())
                 }
             }

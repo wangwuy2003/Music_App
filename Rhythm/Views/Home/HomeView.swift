@@ -262,6 +262,7 @@ extension HomeView {
                                                 .foregroundColor(.white.opacity(0.85))
                                                 .multilineTextAlignment(.center)
                                                 .lineLimit(3)
+                                                .padding(.top, 5)
                                                 .padding(.bottom, 12)
                                                 .frame(maxWidth: .infinity, alignment: .center)
                                                 .background(.black.opacity(0.3))

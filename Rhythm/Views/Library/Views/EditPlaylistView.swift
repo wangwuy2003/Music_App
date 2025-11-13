@@ -34,6 +34,7 @@ struct EditPlaylistView: View {
     @State private var showFileImporter = false
     
     @State private var selectedTracks: Set<String> = []
+    @State private var gradient = LinearGradient.randomDark()
     
     init(playlist: Playlist) {
         self.playlist = playlist
@@ -41,43 +42,50 @@ struct EditPlaylistView: View {
     }
     
     var body: some View {
-        VStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    photoPickerSection
-                    
-                    TextField("Playlist Name", text: $draftPlaylist.name)
-                        .font(.title3.bold())
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                    
-                    TextField("Description", text: $draftPlaylist.description, axis: .vertical)
-                        .lineLimit(3, reservesSpace: true)
-                        .padding(.horizontal)
-                        .textFieldStyle(.plain)
-                    
-                    Divider().padding(.horizontal)
-                    
-                    // MARK: Tracks List
-                    trackListSection
+        ZStack {
+            gradient
+                .ignoresSafeArea()
+            
+            VStack {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        photoPickerSection
+                        
+                        TextField("Playlist Name", text: $draftPlaylist.name)
+                            .font(.title3.bold())
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                        
+                        TextField("Description", text: $draftPlaylist.description, axis: .vertical)
+                            .lineLimit(3, reservesSpace: true)
+                            .padding(.horizontal)
+                            .textFieldStyle(.plain)
+                        
+                        Divider().padding(.horizontal)
+                        
+                        // MARK: Tracks List
+                        trackListSection
+                    }
+                    .padding(.top, 20)
+                    .padding(.bottom, 80)
                 }
-                .padding(.top, 20)
-                .padding(.bottom, 80)
+                .scrollDismissesKeyboard(.immediately)
             }
-            .scrollDismissesKeyboard(.immediately)
         }
+        
         .navigationTitle("Edit playlist")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button { handleDismiss() } label: {
                     Image(systemName: "xmark")
+                        .foregroundStyle(.white)
                 }
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button { saveChanges() } label: {
                     Image(systemName: "checkmark")
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(.white)
                 }
             }
             ToolbarItem(placement: .bottomBar) {
@@ -133,6 +141,16 @@ struct EditPlaylistView: View {
         .onChange(of: playlist.tracks) { _, _ in
             loadPlaylist()
         }
+        .onAppear {
+            let toolbarAppearance = UIToolbarAppearance()
+            toolbarAppearance.configureWithTransparentBackground()
+            toolbarAppearance.backgroundColor = .clear
+            toolbarAppearance.shadowColor = .clear
+            
+            UIToolbar.appearance().standardAppearance = toolbarAppearance
+            UIToolbar.appearance().scrollEdgeAppearance = toolbarAppearance
+        }
+
     }
 }
 
@@ -253,7 +271,7 @@ extension EditPlaylistView {
                     .font(.system(size: 22, weight: .bold))
                     .foregroundColor(.white)
                     .padding(18)
-                    .background(Circle().fill(Color.red))
+                    .background(Circle().fill(Color.accent))
                     .shadow(radius: 5)
             }
         }

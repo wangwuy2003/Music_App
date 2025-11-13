@@ -154,7 +154,7 @@ struct AddPlaylistView: View {
                     .font(.system(size: 20, weight: .bold))
                     .foregroundColor(.white)
                     .padding(16)
-                    .background(Circle().fill(Color.red))
+                    .background(Circle().fill(Color.accentColor))
                     .menuStyle(.button)
                     .shadow(radius: 5)
             }

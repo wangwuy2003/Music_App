@@ -14,12 +14,13 @@ struct PlaylistView: View {
     @Environment(\.router) var router
     @EnvironmentObject var playerVM: PlayerViewModel 
     @StateObject private var playlistVM = PlaylistViewModel()
+    @State private var gradient = LinearGradient.randomDark()
+    
     let album: JamendoAlbum
     
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [.indigo.opacity(0.8), .black]),
-                           startPoint: .top, endPoint: .bottom)
+            gradient
                 .ignoresSafeArea()
             
             if playlistVM.isLoading {
