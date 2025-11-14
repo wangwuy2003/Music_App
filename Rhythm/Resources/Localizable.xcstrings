@@ -4,6 +4,16 @@
     "%@ followers" : {
 
     },
+    "%lld song%@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "%1$lld song%2$@"
+          }
+        }
+      }
+    },
     "%lld tracks" : {
 
     },
@@ -70,6 +80,9 @@
     "Mix based on %@" : {
 
     },
+    "My Uploads" : {
+
+    },
     "New Playlist" : {
 
     },
@@ -80,6 +93,9 @@
 
     },
     "No tracks in this playlist yet." : {
+
+    },
+    "No uploaded songs yet" : {
 
     },
     "Password..." : {
@@ -119,6 +135,9 @@
 
     },
     "Sign in with Google" : {
+
+    },
+    "Tap the Upload button to add your own songs" : {
 
     },
     "Tap to sign in" : {

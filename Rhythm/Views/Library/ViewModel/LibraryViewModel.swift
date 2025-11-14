@@ -9,6 +9,7 @@ import Foundation
 import SwiftfulRouting
 import SwiftData
 import SwiftUI
+import AVFoundation
 
 @MainActor
 class LibraryViewModel: ObservableObject {
@@ -129,5 +130,56 @@ extension LibraryViewModel {
                 }
             }
         }
+    }
+    
+    
+}
+
+// MARK: Local song
+extension LibraryViewModel {
+    func ensureMyUploadsPlaylistExists() -> Playlist {
+        guard let modelContext else { fatalError("ModelContext not attached") }
+
+        let fetch = FetchDescriptor<Playlist>(
+            predicate: #Predicate { $0.name == "My Uploads" }
+        )
+
+        if let existing = try? modelContext.fetch(fetch).first {
+            return existing
+        } else {
+            let uploads = Playlist(name: "My Uploads", playlistDescription: "Your personal uploaded songs")
+            modelContext.insert(uploads)
+            try? modelContext.save()
+            return uploads
+        }
+    }
+    
+    func handleUploadAudio(from url: URL) {
+        guard let modelContext else {
+            return
+        }
+        
+        let asset = AVURLAsset(url: url)
+        let duration = CMTimeGetSeconds(asset.duration)
+        let fileName = url.lastPathComponent
+        
+        let track = JamendoTrack(
+            id: UUID().uuidString,
+            name: fileName,
+            albumId: nil,
+            duration: Int(duration),
+            artistName: "Unknown Artist",
+            albumImage: nil,
+            image: nil,
+            audio: url.absoluteString,
+            audioDownload: nil
+        )
+        
+        let uploadsPlaylist = ensureMyUploadsPlaylistExists()
+        let savedTrack = SavedTrack(jamendoTrack: track, playlist: uploadsPlaylist)
+        uploadsPlaylist.tracks.append(savedTrack)
+        
+        try? modelContext.save()
+        print("✅ Uploaded song added to My Uploads: \(fileName)")
     }
 }

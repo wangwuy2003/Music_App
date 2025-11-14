@@ -7,12 +7,14 @@
 import SwiftUI
 
 struct FavouriteSection: View {
+    var tracks: [FavouriteTrack]
+    
     var body: some View {
         HStack(spacing: 16) {
             ZStack {
-                RoundedRectangle(cornerRadius: 8)
+                RoundedRectangle(cornerRadius: 15)
                     .fill(LinearGradient(
-                        colors: [.pink, .purple],
+                        colors: [.purple.opacity(0.8), .black],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ))
@@ -22,13 +24,20 @@ struct FavouriteSection: View {
                     .foregroundColor(.white)
             }
             
-            Text(.localized("Favourite Songs"))
-                .font(.headline)
-                .foregroundStyle(.white)
+            VStack(alignment: .leading, spacing: 6) {
+                Text(.localized("Favourite Songs"))
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                
+                Text("\(tracks.count) song\(tracks.count == 1 ? "" : "s")")
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.7))
+            }
             
             Spacer()
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.vertical, 8)
+        .contentShape(Rectangle())
     }
 }

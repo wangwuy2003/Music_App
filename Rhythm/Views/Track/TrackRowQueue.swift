@@ -24,13 +24,17 @@ struct TrackRowQueue: View {
     var body: some View {
         HStack(spacing: 12) {
             ZStack {
-                WebImage(url: URL(string: track.image ?? ""))
-                    .resizable()
-                    .indicator(.activity)
-                    .transition(.fade)
-                    .scaledToFill()
-                    .frame(width: 50, height: 50)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                if let image = track.image {
+                    WebImage(url: URL(string: image))
+                        .resizable()
+                        .indicator(.activity)
+                        .transition(.fade)
+                        .scaledToFill()
+                        .frame(width: 50, height: 50)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                } else {
+                    Image("red_music_ic")
+                }
                 
                 if isCurrentPlaying {
                     LoadingIndicator(animation: .fiveLinesWave, color: .white, size: .small)
@@ -58,7 +62,6 @@ struct TrackRowQueue: View {
                 .padding(8)
             
         }
-//        .padding(.horizontal)
         .padding(.vertical, 4)
         .contentShape(Rectangle())
     }

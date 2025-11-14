@@ -50,28 +50,30 @@ struct AddToPlaylistSheet: View {
                 
                 List {
                     ForEach(playlists) { playlist in
-                        Button {
-                            addTrack(to: playlist)
-                        } label: {
-                            HStack {
-                                if let data = playlist.imageData, let uiImage = UIImage(data: data) {
-                                    Image(uiImage: uiImage)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 50, height: 50)
-                                        .clipShape(RoundedRectangle(cornerRadius: 8))
-                                } else {
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.gray.opacity(0.3))
-                                        .frame(width: 50, height: 50)
-                                        .overlay(Image(systemName: "music.note.list"))
+                        if playlist.name != "My Uploads" {
+                            Button {
+                                addTrack(to: playlist)
+                            } label: {
+                                HStack {
+                                    if let data = playlist.imageData, let uiImage = UIImage(data: data) {
+                                        Image(uiImage: uiImage)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 50, height: 50)
+                                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                                    } else {
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(Color.gray.opacity(0.3))
+                                            .frame(width: 50, height: 50)
+                                            .overlay(Image(systemName: "music.note.list"))
+                                    }
+                                    
+                                    Text(playlist.name)
+                                        .font(.headline)
+                                        .foregroundStyle(.primary)
+                                    
+                                    Spacer()
                                 }
-                                
-                                Text(playlist.name)
-                                    .font(.headline)
-                                    .foregroundStyle(.primary)
-                                
-                                Spacer()
                             }
                         }
                     }

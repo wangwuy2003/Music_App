@@ -37,6 +37,8 @@ struct PlayerView: View {
                             .frame(width: currentArtworkWidth)
                             .animation(.spring(response: 0.4, dampingFraction: 0.7), value: playerVM.isPlaying)
                             .popupTransitionTarget()
+                    } else {
+                        Image("red_music_ic")
                     }
                 }
                 .frame(width: maxArtworkWidth, height: maxArtworkWidth)

@@ -17,7 +17,7 @@ final class PlayerViewModel: ObservableObject {
     @Published var isBarPresented = false
     @Published var isPopupOpen = false
     @Published var currentTrack: JamendoTrack?
-    @Published var popupArtwork: Image = Image(systemName: "music.note")
+    @Published var popupArtwork: Image = Image("red_music_ic")
 
     @Published var currentTime: Double = 0
     @Published var duration: Double = 0
@@ -126,7 +126,7 @@ final class PlayerViewModel: ObservableObject {
     func loadPopupArtwork() {
         guard let artwork = artwork, !artwork.isEmpty,
               let url = URL(string: artwork) else {
-            popupArtwork = Image(systemName: "music.note")
+            popupArtwork = Image("red_music_ic")
             return
         }
 
@@ -342,9 +342,27 @@ final class PlayerViewModel: ObservableObject {
     }
 
     func loadAudio(from urlString: String, shouldPlayImmediately: Bool) {
-        guard let url = URL(string: urlString) else { return }
+        var playerItem: AVPlayerItem?
         
-        let playerItem = AVPlayerItem(url: url)
+        if urlString.starts(with: "file://") {
+            if let localURL = URL(string: urlString) {
+                playerItem = AVPlayerItem(url: localURL)
+                print("📂 Playing local file:", localURL.lastPathComponent)
+            } else {
+                print("⚠️ Invalid local file URL:", urlString)
+                return
+            }
+        } else if let remoteURL = URL(string: urlString) {
+            playerItem = AVPlayerItem(url: remoteURL)
+            print("🌐 Playing remote URL:", remoteURL)
+        } else {
+            print("🚫 Invalid URL:", urlString)
+            return
+        }
+        
+        guard let playerItem else {
+            return
+        }
         player = AVPlayer(playerItem: playerItem)
         
         NotificationCenter.default.publisher(for: AVPlayerItem.didPlayToEndTimeNotification, object: playerItem)

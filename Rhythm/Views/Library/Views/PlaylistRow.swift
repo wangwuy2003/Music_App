@@ -22,7 +22,7 @@ struct PlaylistRow: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: 60, height: 60)
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .clipShape(RoundedRectangle(cornerRadius: 15))
             } else {
                 ZStack {
                     Color.gray.opacity(0.3)
@@ -34,11 +34,15 @@ struct PlaylistRow: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
             
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text(playlist.name)
                     .font(.headline)
                     .foregroundStyle(.white)
                     .lineLimit(1)
+                
+                Text("\(playlist.tracks.count) song\(playlist.tracks.count == 1 ? "" : "s")")
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.7))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .background(.clear)

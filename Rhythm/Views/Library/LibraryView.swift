@@ -27,6 +27,10 @@ struct LibraryView: View {
                 titleView
                 buttonAddNewPlaylist
                 
+                Divider()
+                    .padding(.top, 10)
+                    .padding(.horizontal)
+                
                 if playlists.isEmpty && favourites.isEmpty {
                     emptyStateView
                 } else {
@@ -43,10 +47,12 @@ struct LibraryView: View {
         }
         .onAppear {
             libraryVM.attachModelContext(modelContext)
+            libraryVM.ensureMyUploadsPlaylistExists()
         }
     }
 }
 
+// MARK: Subviews
 extension LibraryView {
     private var titleView: some View {
         HStack {
@@ -100,7 +106,7 @@ extension LibraryView {
         List {
             // --- Favourite Section ---
             if !favourites.isEmpty {
-                FavouriteSection()
+                FavouriteSection(tracks: favourites)
                     .listRowInsets(EdgeInsets())
                     .listRowBackground(Color.clear)
                     .onTapGesture {
@@ -110,77 +116,104 @@ extension LibraryView {
                         }
                     }
             }
-
+            
+            if let uploads = playlists.first(where: { $0.name == "My Uploads" }) {
+                UploadSection(playlist: uploads)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+                    .onTapGesture {
+                        router.showScreen(.push) { _ in
+                            UploadDetailView(
+                                playlist: uploads,
+                                onPlay: {
+                                    let tracks = uploads.tracks.map { $0.toJamendoTrack() }
+                                    playerVM.startPlayback(from: tracks, startingAt: 0)
+                                },
+                                onShuffle: {
+                                    let shuffled = uploads.tracks.shuffled().map { $0.toJamendoTrack() }
+                                    playerVM.startPlayback(from: shuffled, startingAt: 0)
+                                }
+                            )
+                                .environmentObject(libraryVM)
+                                .environmentObject(playerVM)
+                        }
+                    }
+            }
+            
             // --- Playlist Section ---
             if !playlists.isEmpty {
                 ForEach(playlists) { playlist in
-                    PlaylistRow(
-                        playlist: playlist,
-                        onDelete: {
-                            libraryVM.confirmDeletePlaylist(playlist)
-                        },
-                        onPlay: {
-                            let tracks = playlist.tracks.map { $0.toJamendoTrack() }
-                            playerVM.startPlayback(from: tracks, startingAt: 0)
-                        },
-                        onShuffle: {
-                            let shuffled = playlist.tracks.shuffled().map { $0.toJamendoTrack() }
-                            playerVM.startPlayback(from: shuffled, startingAt: 0)
-                        },
-                        onEdit: {
-                            router.showScreen(.fullScreenCover) { _ in
-                                EditPlaylistView(playlist: playlist)
-                                    .environmentObject(libraryVM)
-                                    .environmentObject(playerVM)
+                    if playlist.name != "My Uploads" {
+                        PlaylistRow(
+                            playlist: playlist,
+                            onDelete: {
+                                libraryVM.confirmDeletePlaylist(playlist)
+                            },
+                            onPlay: {
+                                let tracks = playlist.tracks.map { $0.toJamendoTrack() }
+                                playerVM.startPlayback(from: tracks, startingAt: 0)
+                            },
+                            onShuffle: {
+                                let shuffled = playlist.tracks.shuffled().map { $0.toJamendoTrack() }
+                                playerVM.startPlayback(from: shuffled, startingAt: 0)
+                            },
+                            onEdit: {
+                                router.showScreen(.fullScreenCover) { _ in
+                                    EditPlaylistView(playlist: playlist)
+                                        .environmentObject(libraryVM)
+                                        .environmentObject(playerVM)
+                                }
+                            }
+                        )
+                        .listRowInsets(EdgeInsets())
+                        .listRowSpacing(10)
+                        .listRowBackground(Color.clear)
+                        .contextMenu {
+                            Button {
+                                let tracks = playlist.tracks.map { $0.toJamendoTrack() }
+                                playerVM.startPlayback(from: tracks, startingAt: 0)
+                            } label: {
+                                Label(.localized("Play"), systemImage: "play")
+                            }
+                            
+                            Button {
+                                let shuffled = playlist.tracks.shuffled().map { $0.toJamendoTrack() }
+                                playerVM.startPlayback(from: shuffled, startingAt: 0)
+                            } label: {
+                                Label(.localized("Shuffle"), systemImage: "shuffle")
+                            }
+                            
+                            Button {
+                                router.showScreen(.fullScreenCover) { _ in
+                                    EditPlaylistView(playlist: playlist)
+                                        .environmentObject(libraryVM)
+                                        .environmentObject(playerVM)
+                                }
+                            } label: {
+                                Label(.localized("Edit"), systemImage: "pencil")
+                            }
+                            
+                            Button(role: .destructive) {
+                                libraryVM.confirmDeletePlaylist(playlist)
+                            } label: {
+                                Label("Delete", systemImage: "trash")
                             }
                         }
-                    )
-                    .listRowInsets(EdgeInsets())
-                    .listRowSpacing(10)
-                    .listRowBackground(Color.clear)
-                    .contextMenu {
-                        Button {
-                            let tracks = playlist.tracks.map { $0.toJamendoTrack() }
-                            playerVM.startPlayback(from: tracks, startingAt: 0)
-                        } label: {
-                            Label(.localized("Play"), systemImage: "play")
-                        }
-                        
-                        Button {
-                            let shuffled = playlist.tracks.shuffled().map { $0.toJamendoTrack() }
-                            playerVM.startPlayback(from: shuffled, startingAt: 0)
-                        } label: {
-                            Label(.localized("Shuffle"), systemImage: "shuffle")
-                        }
-                        
-                        Button {
-                            router.showScreen(.fullScreenCover) { _ in
-                                EditPlaylistView(playlist: playlist)
-                                    .environmentObject(libraryVM)
+                        .onTapGesture {
+                            router.showScreen(.push) { _ in
+                                PlaylistDetailView(playlist: playlist)
                                     .environmentObject(playerVM)
+                                    .environmentObject(libraryVM)
                             }
-                        } label: {
-                            Label(.localized("Edit"), systemImage: "pencil")
                         }
-                        
-                        Button(role: .destructive) {
-                            libraryVM.confirmDeletePlaylist(playlist)
-                        } label: {
-                            Label("Delete", systemImage: "trash")
-                        }
-                    }
-                    .onTapGesture {
-                        router.showScreen(.push) { _ in
-                            PlaylistDetailView(playlist: playlist)
-                                .environmentObject(playerVM)
-                                .environmentObject(libraryVM)
-                        }
+
                     }
                 }
             }
         }
-        .listStyle(.insetGrouped)
+        .listStyle(.inset)
         .scrollContentBackground(.hidden)
+        .padding(.horizontal)
     }
     
     private var emptyStateView: some View {
