@@ -8,6 +8,7 @@
 import SwiftUI
 import LNPopupUI
 import SDWebImageSwiftUI
+import MarqueeText
 
 struct PlayerView: View {
     @Environment(\.modelContext) var modelContext
@@ -132,8 +133,12 @@ extension PlayerView {
         // MARK: Info
         HStack {
             VStack(alignment: .leading, spacing: 6) {
-                Text(playerVM.title)
-                    .font(.title2).bold().lineLimit(1)
+                MarqueeText(text: playerVM.title,
+                            font: .boldSystemFont(ofSize: 20),
+                            leftFade: 16,
+                            rightFade: 16,
+                            startDelay: 4)
+                
                 Text(playerVM.subtitle)
                     .font(.caption).foregroundColor(.secondary)
             }
@@ -141,11 +146,14 @@ extension PlayerView {
             Spacer()
             
             HStack(spacing: 20) {
-                Button {
-                    playerVM.toggleFavourite()
-                } label: {
-                    Image(systemName: playerVM.isFavourite ? "star.fill" : "star")
-                        .foregroundStyle(playerVM.isFavourite ? .yellow : .white)
+                if let current = playerVM.currentTrack,
+                   current.audio?.hasPrefix("http") == true {
+                    Button {
+                        playerVM.toggleFavourite()
+                    } label: {
+                        Image(systemName: playerVM.isFavourite ? "star.fill" : "star")
+                            .foregroundStyle(playerVM.isFavourite ? .yellow : .white)
+                    }
                 }
                 
                 Menu {

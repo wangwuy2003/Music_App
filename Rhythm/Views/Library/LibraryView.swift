@@ -105,17 +105,15 @@ extension LibraryView {
     private var playlistListView: some View {
         List {
             // --- Favourite Section ---
-            if !favourites.isEmpty {
-                FavouriteSection(tracks: favourites)
-                    .listRowInsets(EdgeInsets())
-                    .listRowBackground(Color.clear)
-                    .onTapGesture {
-                        router.showScreen(.push) { _ in
-                            FavouritesView()
-                                .environmentObject(libraryVM)
-                        }
+            FavouriteSection(tracks: favourites)
+                .listRowInsets(EdgeInsets())
+                .listRowBackground(Color.clear)
+                .onTapGesture {
+                    router.showScreen(.push) { _ in
+                        FavouritesView()
+                            .environmentObject(libraryVM)
                     }
-            }
+                }
             
             if let uploads = playlists.first(where: { $0.name == "My Uploads" }) {
                 UploadSection(playlist: uploads)
@@ -123,17 +121,7 @@ extension LibraryView {
                     .listRowBackground(Color.clear)
                     .onTapGesture {
                         router.showScreen(.push) { _ in
-                            UploadDetailView(
-                                playlist: uploads,
-                                onPlay: {
-                                    let tracks = uploads.tracks.map { $0.toJamendoTrack() }
-                                    playerVM.startPlayback(from: tracks, startingAt: 0)
-                                },
-                                onShuffle: {
-                                    let shuffled = uploads.tracks.shuffled().map { $0.toJamendoTrack() }
-                                    playerVM.startPlayback(from: shuffled, startingAt: 0)
-                                }
-                            )
+                            UploadDetailView(playlist: uploads)
                                 .environmentObject(libraryVM)
                                 .environmentObject(playerVM)
                         }

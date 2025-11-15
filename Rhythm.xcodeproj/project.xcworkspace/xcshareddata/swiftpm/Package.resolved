@@ -1,5 +1,5 @@
 {
-  "originHash" : "bde03952362c0870c7fdf785aa04fcee5a1b9a7df8ff530f796631395771e69b",
+  "originHash" : "eb336e6be1d43549b7c3faab9df6a70b618764330d500ec2dafd725aca0a22cf",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -170,6 +170,24 @@
       "state" : {
         "revision" : "a004050748dc197c56256a14dca49a035d74726c",
         "version" : "4.5.2"
+      }
+    },
+    {
+      "identity" : "marqueetext",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/joekndy/MarqueeText",
+      "state" : {
+        "branch" : "master",
+        "revision" : "22309f6863a182e81a2b4ebbca8cdc044f854b33"
+      }
+    },
+    {
+      "identity" : "mediatoolswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/starkdmi/MediaToolSwift.git",
+      "state" : {
+        "revision" : "6717979b66fda1228e45ea657eeb7357a559f648",
+        "version" : "1.2.0"
       }
     },
     {

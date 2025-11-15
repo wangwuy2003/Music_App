@@ -57,7 +57,7 @@ class LibraryViewModel: ObservableObject {
             subtitle: "This track will be deleted from \(playlist.name)."
         ) {
             Button("Cancel", role: .cancel) { }
-
+            
             Button("Delete", role: .destructive) { [weak self] in
                 self?.deleteTrack(track, from: playlist)
             }
@@ -78,31 +78,31 @@ class LibraryViewModel: ObservableObject {
 }
 
 extension LibraryViewModel {
-//    func isFavourite(_ track: JamendoTrack) -> Bool {
-//        let descriptor = FetchDescriptor<FavouriteTrack>(
-//            predicate: #Predicate { $0.jamendoID == track.id }
-//        )
-//        if let modelContext,
-//           let results = try? modelContext.fetch(descriptor) {
-//            return !results.isEmpty
-//        }
-//        return false
-//    }
-//    
-//    func addToFavourites(_ track: JamendoTrack) {
-//        guard let modelContext else { return }
-//        
-//        if isFavourite(track) { return }
-//        
-//        let favourite = FavouriteTrack(jamendoTrack: track)
-//        modelContext.insert(favourite)
-//        try? modelContext.save()
-//        print("❤️ Added to favourites:", track.name)
-//    }
+    //    func isFavourite(_ track: JamendoTrack) -> Bool {
+    //        let descriptor = FetchDescriptor<FavouriteTrack>(
+    //            predicate: #Predicate { $0.jamendoID == track.id }
+    //        )
+    //        if let modelContext,
+    //           let results = try? modelContext.fetch(descriptor) {
+    //            return !results.isEmpty
+    //        }
+    //        return false
+    //    }
+    //
+    //    func addToFavourites(_ track: JamendoTrack) {
+    //        guard let modelContext else { return }
+    //
+    //        if isFavourite(track) { return }
+    //
+    //        let favourite = FavouriteTrack(jamendoTrack: track)
+    //        modelContext.insert(favourite)
+    //        try? modelContext.save()
+    //        print("❤️ Added to favourites:", track.name)
+    //    }
     
     func deleteTrackFavourites(_ track: JamendoTrack) {
         guard let modelContext else { return }
-                
+        
         let descriptor = FetchDescriptor<FavouriteTrack>(
             predicate: #Predicate { $0.jamendoID == track.id }
         )
@@ -122,7 +122,7 @@ extension LibraryViewModel {
             subtitle: "This will remove it from your favourites."
         ) {
             Button("Cancel", role: .cancel) { }
-
+            
             Button(.localized("Delete"), role: .destructive) { [weak self] in
                 withAnimation(.easeInOut(duration: 0.3)) {
                     self?.deleteTrackFavourites(track)
@@ -139,11 +139,11 @@ extension LibraryViewModel {
 extension LibraryViewModel {
     func ensureMyUploadsPlaylistExists() -> Playlist {
         guard let modelContext else { fatalError("ModelContext not attached") }
-
+        
         let fetch = FetchDescriptor<Playlist>(
             predicate: #Predicate { $0.name == "My Uploads" }
         )
-
+        
         if let existing = try? modelContext.fetch(fetch).first {
             return existing
         } else {
@@ -155,31 +155,128 @@ extension LibraryViewModel {
     }
     
     func handleUploadAudio(from url: URL) {
-        guard let modelContext else {
+        guard let modelContext else { return }
+
+        // 🔒 Cho phép truy cập security scoped resource (khi lấy từ Files)
+        let isAccessGranted = url.startAccessingSecurityScopedResource()
+        defer {
+            if isAccessGranted {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        let fileManager = FileManager.default
+        let uploadsDir = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("Uploads", isDirectory: true)
+
+        // ✅ Tạo thư mục Uploads nếu chưa có
+        if !fileManager.fileExists(atPath: uploadsDir.path) {
+            do {
+                try fileManager.createDirectory(at: uploadsDir, withIntermediateDirectories: true)
+                print("📁 Created Uploads folder:", uploadsDir.path)
+            } catch {
+                print("❌ Failed to create folder:", error.localizedDescription)
+                return
+            }
+        }
+
+        let destinationURL = uploadsDir.appendingPathComponent(url.lastPathComponent)
+
+        // 🚫 Nếu file đã tồn tại → bỏ qua (không copy, không thêm playlist)
+        if fileManager.fileExists(atPath: destinationURL.path) {
+            print("⚠️ File already exists, skipping:", destinationURL.lastPathComponent)
             return
         }
-        
-        let asset = AVURLAsset(url: url)
+
+        // ✅ Copy file vào thư mục app sandbox
+        do {
+            try fileManager.copyItem(at: url, to: destinationURL)
+            print("✅ Copied file to:", destinationURL.path)
+        } catch {
+            print("❌ Copy failed:", error.localizedDescription)
+            return
+        }
+
+        // ✅ Lấy thông tin file audio
+        let asset = AVURLAsset(url: destinationURL)
         let duration = CMTimeGetSeconds(asset.duration)
-        let fileName = url.lastPathComponent
-        
+        if duration.isNaN {
+            print("⚠️ Invalid duration:", destinationURL.lastPathComponent)
+        }
+
         let track = JamendoTrack(
             id: UUID().uuidString,
-            name: fileName,
+            name: destinationURL.lastPathComponent,
             albumId: nil,
             duration: Int(duration),
             artistName: "Unknown Artist",
             albumImage: nil,
             image: nil,
-            audio: url.absoluteString,
+            audio: destinationURL.lastPathComponent,
             audioDownload: nil
         )
-        
+
         let uploadsPlaylist = ensureMyUploadsPlaylistExists()
+
+        // 🚫 Nếu track đã có trong playlist → bỏ qua
+        if uploadsPlaylist.tracks.contains(where: { $0.name == track.name }) {
+            print("⚠️ Skipped duplicate track in playlist:", track.name)
+            return
+        }
+
+        // ✅ Thêm track mới vào playlist
         let savedTrack = SavedTrack(jamendoTrack: track, playlist: uploadsPlaylist)
         uploadsPlaylist.tracks.append(savedTrack)
-        
         try? modelContext.save()
-        print("✅ Uploaded song added to My Uploads: \(fileName)")
+
+        print("✅ Added \(track.name) (\(Int(duration))s) to My Uploads")
+    }
+
+    func confirmDeleteLocalTrack(_ track: SavedTrack, from playlist: Playlist) {
+        router.showAlert(
+            .alert,
+            title: "Delete “\(track.name)”?",
+            subtitle: "This song will be permanently removed from My Uploads."
+        ) {
+            Button("Cancel", role: .cancel) { }
+
+            Button("Delete", role: .destructive) { [weak self] in
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    self?.deleteLocalTrack(track, from: playlist)
+                }
+            }
+        }
+    }
+
+    func deleteLocalTrack(_ track: SavedTrack, from playlist: Playlist) {
+        guard let modelContext else { return }
+
+        // ✅ Luôn trỏ vào thư mục Uploads trong sandbox
+        let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+        let uploadsDir = documentsURL.appendingPathComponent("Uploads", isDirectory: true)
+        
+        if let fileName = track.audioURL {
+            let fileURL = uploadsDir.appendingPathComponent(fileName)
+            let fileManager = FileManager.default
+            
+            if fileManager.fileExists(atPath: fileURL.path) {
+                do {
+                    try fileManager.removeItem(at: fileURL)
+                    print("🗑️ Deleted local file:", fileURL.path)
+                } catch {
+                    print("❌ Failed to delete local file:", error.localizedDescription)
+                }
+            } else {
+                print("⚠️ File not found when deleting:", fileURL.path)
+            }
+        }
+
+        if let index = playlist.tracks.firstIndex(where: { $0.jamendoID == track.jamendoID }) {
+            playlist.tracks.remove(at: index)
+        }
+
+        modelContext.delete(track)
+        try? modelContext.save()
+        print("✅ Deleted track object: \(track.name)")
     }
 }

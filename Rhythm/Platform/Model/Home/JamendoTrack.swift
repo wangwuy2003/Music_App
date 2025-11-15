@@ -18,7 +18,7 @@ struct JamendoTrack: Codable, Identifiable, Hashable {
     let artistName: String?
     let albumImage: String?
     let image: String?
-    let audio: String?
+    var audio: String?
     let audioDownload: String?
     let reason: String?
     

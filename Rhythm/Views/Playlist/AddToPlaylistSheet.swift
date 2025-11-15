@@ -100,20 +100,45 @@ struct AddToPlaylistSheet: View {
     }
     
     private func addTrack(to playlist: Playlist) {
-        let newTrack = SavedTrack(jamendoTrack: track, playlist: playlist)
-        modelContext.insert(newTrack)
+        // ⚙️ Kiểm tra xem playlist đã có bài này chưa
+        let isDuplicate = playlist.tracks.contains {
+            $0.name.lowercased() == track.name.lowercased() || $0.jamendoID == track.id
+        }
+
+        if isDuplicate {
+            // 🚫 Báo đã có sẵn, không thêm trùng
+            showAddPlaylistMessage("⚠️ \"\(track.name)\" is already in \(playlist.name)")
+            return
+        }
+
+        // ✅ Tạo bản sao độc lập của track
+        let copy = JamendoTrack(
+            id: UUID().uuidString, // id mới để tránh trùng
+            name: track.name,
+            albumId: track.albumId,
+            duration: track.duration,
+            artistName: track.artistName,
+            albumImage: track.albumImage,
+            image: track.image,
+            audio: track.audio,
+            audioDownload: track.audioDownload
+        )
         
+        // ✅ Tạo SavedTrack mới gắn vào playlist đích
+        let newTrack = SavedTrack(jamendoTrack: copy, playlist: playlist)
+        modelContext.insert(newTrack)
+
         do {
             try modelContext.save()
-            print("✅ Đã thêm \(track.name) vào \(playlist.name)")
-            
+            print("✅ Copied \(track.name) to \(playlist.name)")
             showAddPlaylistMessage("🎶 Added to \(playlist.name)")
             
+            // Tự đóng sheet sau 3 giây
             DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                 dismiss()
             }
         } catch {
-            print("❌ Lỗi thêm track: \(error.localizedDescription)")
+            print("❌ Failed to add track: \(error.localizedDescription)")
         }
     }
     

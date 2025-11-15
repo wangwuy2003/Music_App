@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		18597DE82EC8E90000AAA942 /* MediaToolSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 18597DE72EC8E90000AAA942 /* MediaToolSwift */; };
+		18597DED2EC8F93B00AAA942 /* MarqueeText in Frameworks */ = {isa = PBXBuildFile; productRef = 18597DEC2EC8F93B00AAA942 /* MarqueeText */; };
 		189E092F2EB781EF0042D62D /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 189E092E2EB781EF0042D62D /* Lottie */; };
 		18A356862E826B260058AC49 /* SwiftfulRouting in Frameworks */ = {isa = PBXBuildFile; productRef = 18A356852E826B260058AC49 /* SwiftfulRouting */; };
 		18C91F122E8EB9E70025EBFC /* SDWebImageSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 18C91F112E8EB9E70025EBFC /* SDWebImageSwiftUI */; };
@@ -84,6 +86,8 @@
 				817CF3922EBAFC28003FE6D0 /* FirebaseAppCheck in Frameworks */,
 				817CF3962EBAFC28003FE6D0 /* FirebaseAuthCombine-Community in Frameworks */,
 				817CF39C2EBAFC28003FE6D0 /* FirebaseDatabase in Frameworks */,
+				18597DED2EC8F93B00AAA942 /* MarqueeText in Frameworks */,
+				18597DE82EC8E90000AAA942 /* MediaToolSwift in Frameworks */,
 				817CF3BF2EBB5C28003FE6D0 /* GoogleSignInSwift in Frameworks */,
 				811F671E2EA899CB00C7D10C /* LoremIpsum in Frameworks */,
 				18C91F122E8EB9E70025EBFC /* SDWebImageSwiftUI in Frameworks */,
@@ -160,6 +164,8 @@
 				817CF3A52EBAFC28003FE6D0 /* FirebaseStorage */,
 				817CF3BC2EBB5C28003FE6D0 /* GoogleSignIn */,
 				817CF3BE2EBB5C28003FE6D0 /* GoogleSignInSwift */,
+				18597DE72EC8E90000AAA942 /* MediaToolSwift */,
+				18597DEC2EC8F93B00AAA942 /* MarqueeText */,
 			);
 			productName = Music_App;
 			productReference = 18A350992E825D160058AC49 /* Rhythm.app */;
@@ -198,6 +204,8 @@
 				18CCFB142EB7B76400D051C6 /* XCRemoteSwiftPackageReference "SwiftfulLoadingIndicators" */,
 				817CF38C2EBAFC28003FE6D0 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				817CF3BB2EBB5C28003FE6D0 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				18597DE62EC8E90000AAA942 /* XCRemoteSwiftPackageReference "MediaToolSwift" */,
+				18597DEB2EC8F93B00AAA942 /* XCRemoteSwiftPackageReference "MarqueeText" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 18A3509A2E825D160058AC49 /* Products */;
@@ -447,6 +455,22 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		18597DE62EC8E90000AAA942 /* XCRemoteSwiftPackageReference "MediaToolSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/starkdmi/MediaToolSwift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
+		18597DEB2EC8F93B00AAA942 /* XCRemoteSwiftPackageReference "MarqueeText" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/joekndy/MarqueeText";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		189E092D2EB781EF0042D62D /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
@@ -514,6 +538,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		18597DE72EC8E90000AAA942 /* MediaToolSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 18597DE62EC8E90000AAA942 /* XCRemoteSwiftPackageReference "MediaToolSwift" */;
+			productName = MediaToolSwift;
+		};
+		18597DEC2EC8F93B00AAA942 /* MarqueeText */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 18597DEB2EC8F93B00AAA942 /* XCRemoteSwiftPackageReference "MarqueeText" */;
+			productName = MarqueeText;
+		};
 		189E092E2EB781EF0042D62D /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 189E092D2EB781EF0042D62D /* XCRemoteSwiftPackageReference "lottie-ios" */;

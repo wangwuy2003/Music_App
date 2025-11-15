@@ -29,6 +29,7 @@ struct PlaylistRow: View {
                     Image(systemName: "music.note.list")
                         .font(.system(size: 24))
                         .foregroundStyle(.white.opacity(0.7))
+                        .clipShape(RoundedRectangle(cornerRadius: 15))
                 }
                 .frame(width: 60, height: 60)
                 .clipShape(RoundedRectangle(cornerRadius: 8))

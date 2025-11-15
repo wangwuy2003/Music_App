@@ -18,7 +18,7 @@ struct FavouritesView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [.indigo.opacity(0.8), .black]),
+            LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]),
                            startPoint: .top, endPoint: .bottom)
             .ignoresSafeArea()
             
@@ -104,7 +104,7 @@ struct PlaylistHeaderFavouriteView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 12)
                     .fill(LinearGradient(
-                        colors: [.pink, .purple],
+                        colors: [.purple.opacity(0.8), .black],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ))

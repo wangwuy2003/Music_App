@@ -34,7 +34,6 @@ struct EditPlaylistView: View {
     @State private var showFileImporter = false
     
     @State private var selectedTracks: Set<String> = []
-    @State private var gradient = LinearGradient.randomDark()
     
     init(playlist: Playlist) {
         self.playlist = playlist
@@ -43,12 +42,16 @@ struct EditPlaylistView: View {
     
     var body: some View {
         ZStack {
-            gradient
+            LinearGradient(colors: [.gray.opacity(0.6), .black], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
             
             VStack {
                 ScrollView {
                     VStack(spacing: 20) {
+                        
+                        Divider()
+                            .padding(.horizontal)
+                        
                         photoPickerSection
                         
                         TextField("Playlist Name", text: $draftPlaylist.name)

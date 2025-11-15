@@ -32,6 +32,9 @@
     "App Info" : {
 
     },
+    "Are you sure you want to delete ?" : {
+
+    },
     "Are you sure you want to permanently delete your account? This action cannot be undone." : {
 
     },
@@ -53,10 +56,19 @@
     "Delete Account" : {
 
     },
+    "Delete Selected Songs?" : {
+
+    },
     "Description" : {
 
     },
     "Discard" : {
+
+    },
+    "Done" : {
+
+    },
+    "Edit" : {
 
     },
     "Edit playlist" : {

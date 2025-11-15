@@ -163,27 +163,46 @@ final class PlayerViewModel: ObservableObject {
     }
     
     func restoreState() {
-        if let data = UserDefaults.standard.data(forKey: "PlayerState"),
-           let state = try? JSONDecoder().decode(PlayerState.self, from: data) {
-            self.currentQueue = state.currentQueue
-            self.currentIndex = state.currentIndex
-            self.currentTrack = state.currentTrack
-            self.currentTime = state.currentTime
-            self.isBarPresented = true
-            self.isPlaying = false
-            
-            do {
-                let audioSession = AVAudioSession.sharedInstance()
-                try audioSession.setCategory(.playback, mode: .default)
-                try audioSession.setActive(true)
-            } catch {
-                print("🚫 Lỗi kích hoạt AVAudioSession khi restore:", error.localizedDescription)
-            }
-            
-            loadAudio(from: state.currentTrack.audio ?? "", shouldPlayImmediately: false)
-            seek(to: state.currentTime)
-            loadPopupArtwork()
+        guard let data = UserDefaults.standard.data(forKey: "PlayerState"),
+              let state = try? JSONDecoder().decode(PlayerState.self, from: data) else {
+            return
         }
+
+        if let audioPath = state.currentTrack.audio {
+            let url: URL
+            if audioPath.hasPrefix("/") {
+                url = URL(fileURLWithPath: audioPath)
+            } else if audioPath.hasPrefix("file://"), let fileURL = URL(string: audioPath) {
+                url = fileURL
+            } else {
+                url = URL(string: audioPath) ?? URL(fileURLWithPath: "")
+            }
+
+            if url.isFileURL && !FileManager.default.fileExists(atPath: url.path) {
+                print("⚠️ Bỏ qua restore: File local không tồn tại")
+                UserDefaults.standard.removeObject(forKey: "PlayerState")
+                return
+            }
+        }
+
+        self.currentQueue = state.currentQueue
+        self.currentIndex = state.currentIndex
+        self.currentTrack = state.currentTrack
+        self.currentTime = state.currentTime
+        self.isBarPresented = true
+        self.isPlaying = false
+
+        do {
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setCategory(.playback, mode: .default)
+            try audioSession.setActive(true)
+        } catch {
+            print("🚫 Lỗi kích hoạt AVAudioSession khi restore:", error.localizedDescription)
+        }
+
+        loadAudio(from: state.currentTrack.audio ?? "", shouldPlayImmediately: false)
+        seek(to: state.currentTime)
+        loadPopupArtwork()
     }
     
     func toggleRepeatMode() {
@@ -342,28 +361,32 @@ final class PlayerViewModel: ObservableObject {
     }
 
     func loadAudio(from urlString: String, shouldPlayImmediately: Bool) {
-        var playerItem: AVPlayerItem?
-        
-        if urlString.starts(with: "file://") {
-            if let localURL = URL(string: urlString) {
-                playerItem = AVPlayerItem(url: localURL)
-                print("📂 Playing local file:", localURL.lastPathComponent)
-            } else {
-                print("⚠️ Invalid local file URL:", urlString)
+        var localURL: URL?
+
+            // ✅ Xử lý các dạng đường dẫn khác nhau
+            if urlString.hasPrefix("/") { // Path cục bộ
+                localURL = URL(fileURLWithPath: urlString)
+            } else if urlString.hasPrefix("file://") {
+                localURL = URL(string: urlString)
+            } else if let remoteURL = URL(string: urlString) {
+                localURL = remoteURL
+            }
+
+            guard let url = localURL else {
+                print("🚫 Invalid URL:", urlString)
                 return
             }
-        } else if let remoteURL = URL(string: urlString) {
-            playerItem = AVPlayerItem(url: remoteURL)
-            print("🌐 Playing remote URL:", remoteURL)
-        } else {
-            print("🚫 Invalid URL:", urlString)
-            return
-        }
+
+            print("🎧 Loading audio:", url.path)
+            print("📂 File exists?", FileManager.default.fileExists(atPath: url.path))
+
+            guard FileManager.default.fileExists(atPath: url.path) else {
+                print("❌ File not found at:", url.path)
+                return
+            }
         
-        guard let playerItem else {
-            return
-        }
-        player = AVPlayer(playerItem: playerItem)
+        let playerItem = AVPlayerItem(url: url)
+            player = AVPlayer(playerItem: playerItem)
         
         NotificationCenter.default.publisher(for: AVPlayerItem.didPlayToEndTimeNotification, object: playerItem)
             .sink { [weak self] _ in
