@@ -86,7 +86,7 @@ struct UploadDetailView: View {
                 Text("Are you sure you want to delete ?")
             }
             
-            // Select All 
+            // Select All
             if isEditing {
                 HStack {
                     Button {
@@ -170,16 +170,11 @@ struct UploadDetailView: View {
     }
     
     private func playTrack(_ track: SavedTrack) {
-        var jamendo = track.toJamendoTrack()
+        let allTracks = playlist.tracks.map { fixTrackURL($0.toJamendoTrack()) }
         
-        // 🔍 Nếu là bài local (audio không bắt đầu bằng http)
-        if let audio = jamendo.audio, !audio.hasPrefix("http") {
-            let documentsURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            let localURL = documentsURL.appendingPathComponent("Uploads").appendingPathComponent(audio)
-            jamendo.audio = localURL.path
-        }
+        guard let startIndex = allTracks.firstIndex(where: { $0.id == track.jamendoID }) else { return }
         
-        playerVM.startPlayback(from: [jamendo], startingAt: 0)
+        playerVM.startPlayback(from: allTracks, startingAt: startIndex)
     }
     
     private func fixTrackURL(_ track: JamendoTrack) -> JamendoTrack {

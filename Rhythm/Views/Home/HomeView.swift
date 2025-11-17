@@ -22,9 +22,14 @@ struct HomeView: View {
             
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 25) {
-//                    titleView
                     if homeVM.isRefreshing {
-                        LoadingIndicator(animation: .text, color: .white, size: .medium)
+                        HStack {
+                            Spacer()
+                            LoadingIndicator(animation: .text, color: .white, size: .medium)
+                            Spacer()
+                        }
+                        .padding(.top, 10)
+                        .transition(.opacity)
                     }
                     
                     forYouSection
@@ -95,10 +100,6 @@ struct HomeView: View {
 //                }
 //            }
             .animation(.easeInOut(duration: 0.3), value: homeVM.isRefreshing)
-            
-//            if homeVM.isLoading {
-//                ProgressView().tint(.white)
-//            }
             
             if let errorMessage = homeVM.errorMessage {
                 errorView(errorMessage)
