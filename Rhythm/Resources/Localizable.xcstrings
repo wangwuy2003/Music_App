@@ -131,6 +131,9 @@
     "Retry" : {
 
     },
+    "Select All" : {
+
+    },
     "Settings" : {
 
     },
@@ -149,7 +152,7 @@
     "Sign in with Google" : {
 
     },
-    "Tap the Upload button to add your own songs" : {
+    "Tap + button to add your own songs" : {
 
     },
     "Tap to sign in" : {

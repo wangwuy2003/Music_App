@@ -38,7 +38,7 @@ struct UploadDetailView: View {
                     ContentUnavailableView(
                         "No uploaded songs yet",
                         systemImage: "tray",
-                        description: Text("Tap the Upload button to add your own songs")
+                        description: Text("Tap + button to add your own songs")
                     )
                 } else {
                     VStack(spacing: 15) {
@@ -85,6 +85,39 @@ struct UploadDetailView: View {
             } message: {
                 Text("Are you sure you want to delete ?")
             }
+            
+            // Select All 
+            if isEditing {
+                HStack {
+                    Button {
+                        if selectedTracks.count == playlist.tracks.count {
+                            selectedTracks.removeAll()
+                        } else {
+                            selectedTracks = Set(playlist.tracks.map { $0.jamendoID })
+                        }
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: selectedTracks.count == playlist.tracks.count ? "checkmark.circle.fill" : "checkmark.circle")
+                                .font(.system(size: 18, weight: .semibold))
+                            Text("Select All")
+                                .font(.system(size: 16, weight: .semibold))
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(Color.accentColor.opacity(0.8))
+                        .clipShape(Capsule())
+                        .shadow(radius: 3)
+                    }
+                    .padding(.leading, 20)
+                    .padding(.bottom, 20)
+
+                    Spacer()
+                }
+                .transition(.move(edge: .bottom).combined(with: .opacity))
+                .animation(.spring(), value: isEditing)
+            }
+
         }
         .enableSwipeBack()
         .navigationBarBackButtonHidden()
@@ -108,7 +141,7 @@ struct UploadDetailView: View {
                     }
                 }
                 .foregroundStyle(playlist.tracks.isEmpty ? .gray : .white)
-                .disabled(playlist.tracks.isEmpty)
+                .disabled(playlist.tracks.isEmpty && !isEditing)
             }
         }
     }

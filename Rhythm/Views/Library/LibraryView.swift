@@ -27,10 +27,6 @@ struct LibraryView: View {
                 titleView
                 buttonAddNewPlaylist
                 
-                Divider()
-                    .padding(.top, 10)
-                    .padding(.horizontal)
-                
                 if playlists.isEmpty && favourites.isEmpty {
                     emptyStateView
                 } else {
