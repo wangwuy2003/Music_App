@@ -136,6 +136,13 @@ struct SettingsView: View {
             }
             .listRowBackground(Color.clear)
         }
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Text(.localized("Settings"))
+                    .bold()
+                    .font(.largeTitle)
+            }
+        }
         .onAppear {
             viewModel.loadAuthProviders()
             viewModel.loadAuthUser()
@@ -146,7 +153,6 @@ struct SettingsView: View {
                 viewModel.loadAuthProviders()
             }
         }
-        .navigationTitle("Settings")
         .fullScreenCover(isPresented: $showSignInView) {
             NavigationStack {
                 AuthenticationView(showSignInView: $showSignInView)

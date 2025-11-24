@@ -113,10 +113,26 @@ struct HomeView: View {
         .toolbar(.visible)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                Text(.localized("Trending"))
-                    .font(.largeTitle)
-                    .bold()
+                HStack(spacing: 5) {
+                    Image("purple_music_ic")
+                        .font(.largeTitle)
+                    
+                    Text(.localized("Trending"))
+                        .font(.largeTitle)
+                        .bold()
+                }
             }
+            
+//            ToolbarItem(placement: .topBarTrailing) {
+//                Button {
+//                    router.showScreen(.push) { _ in
+//                        SearchView()
+//                            .navigationBarBackButtonHidden()
+//                    }
+//                } label: {
+//                    Image(systemName: "magnifyingglass")
+//                }
+//            }
         }
         //        .task {
         //            if homeVM.topAlbums.isEmpty && !homeVM.isLoading {
