@@ -169,7 +169,7 @@ extension LibraryViewModel {
         let uploadsDir = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("Uploads", isDirectory: true)
 
-        // ✅ Tạo thư mục Uploads nếu chưa có
+        // create folder if not exists
         if !fileManager.fileExists(atPath: uploadsDir.path) {
             do {
                 try fileManager.createDirectory(at: uploadsDir, withIntermediateDirectories: true)
@@ -182,13 +182,13 @@ extension LibraryViewModel {
 
         let destinationURL = uploadsDir.appendingPathComponent(url.lastPathComponent)
 
-        // 🚫 Nếu file đã tồn tại → bỏ qua (không copy, không thêm playlist)
+        // if file exist, skip
         if fileManager.fileExists(atPath: destinationURL.path) {
             print("⚠️ File already exists, skipping:", destinationURL.lastPathComponent)
             return
         }
 
-        // ✅ Copy file vào thư mục app sandbox
+        // copy file
         do {
             try fileManager.copyItem(at: url, to: destinationURL)
             print("✅ Copied file to:", destinationURL.path)
@@ -197,7 +197,7 @@ extension LibraryViewModel {
             return
         }
 
-        // ✅ Lấy thông tin file audio
+        // get info file audio
         let asset = AVURLAsset(url: destinationURL)
         let duration = CMTimeGetSeconds(asset.duration)
         if duration.isNaN {
@@ -218,13 +218,13 @@ extension LibraryViewModel {
 
         let uploadsPlaylist = ensureMyUploadsPlaylistExists()
 
-        // 🚫 Nếu track đã có trong playlist → bỏ qua
+        // if track in playlist, skip
         if uploadsPlaylist.tracks.contains(where: { $0.name == track.name }) {
             print("⚠️ Skipped duplicate track in playlist:", track.name)
             return
         }
 
-        // ✅ Thêm track mới vào playlist
+        // add track to playlist
         let savedTrack = SavedTrack(jamendoTrack: track, playlist: uploadsPlaylist)
         uploadsPlaylist.tracks.append(savedTrack)
         try? modelContext.save()
