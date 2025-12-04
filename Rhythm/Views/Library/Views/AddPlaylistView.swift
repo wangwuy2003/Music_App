@@ -35,7 +35,7 @@ struct AddPlaylistView: View {
                 
                 photoPickerSection
                 
-                TextField("Playlist Title", text: $name)
+                TextField(.localized("Playlist Title"), text: $name)
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.center)
                     .focused($isNameFocused)
@@ -53,7 +53,7 @@ struct AddPlaylistView: View {
             }
             .frame(maxHeight: .infinity, alignment: .top)
             .padding(.top, 40)
-            .navigationTitle("New Playlist")
+            .navigationTitle(.localized("New Playlist"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

@@ -11,6 +11,7 @@ import SDWebImageSwiftUI
 
 struct ArtistDetailView: View {
     @Environment(\.router) var router
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var playerVM: PlayerViewModel
     @StateObject private var vm = ArtistDetailViewModel()
     
@@ -19,7 +20,10 @@ struct ArtistDetailView: View {
     var body: some View {
         ZStack {
             LinearGradient(
-                gradient: Gradient(colors: [.purple.opacity(0.8), .black]),
+                gradient: Gradient(colors: [
+                    .purple.opacity(0.8),
+                    colorScheme == .dark ? .black : .white
+                ]),
                 startPoint: .top,
                 endPoint: .bottom
             )

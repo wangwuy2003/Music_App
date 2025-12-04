@@ -9,8 +9,8 @@ struct TabbarView: View {
     @ObservedObject private var themeManager = ThemeManager.shared
     
     init() {
-            TabbarView.configureTabBar(isDarkMode: ThemeManager.shared.isDarkMode)
-        }
+        TabbarView.configureTabBar(isDarkMode: ThemeManager.shared.isDarkMode)
+    }
         
     var body: some View {
         ZStack {

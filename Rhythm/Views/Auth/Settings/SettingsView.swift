@@ -26,7 +26,7 @@ struct SettingsView: View {
                     accountHeaderView
                     
                     VStack(spacing: 15) {
-                        settingsGroupTitle("APPEARANCE")
+                        settingsGroupTitle(.localized("Appearance"))
                         HStack {
                             HStack(spacing: 15) {
                                 ZStack {
@@ -37,7 +37,7 @@ struct SettingsView: View {
                                         .font(.system(size: 18, weight: .medium))
                                         .foregroundColor(.purple)
                                 }
-                                Text("Dark Mode")
+                                Text(.localized("Dark Mode"))
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(themeManager.textColor)
                             }
@@ -51,7 +51,7 @@ struct SettingsView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 16))
                         
 
-                        settingsGroupTitle("PREFERENCES") // Hoặc "Cài đặt chung"
+                        settingsGroupTitle(.localized("General"))
                         NavigationLink {
                             LanguageView()
                         } label: {
@@ -65,13 +65,12 @@ struct SettingsView: View {
                                         .foregroundColor(.blue)
                                 }
                                 
-                                Text(.localized("Language")) // Nhớ dùng .localized()
+                                Text(.localized("Language"))
                                     .font(.system(size: 16, weight: .medium))
                                     .foregroundColor(themeManager.textColor)
                                 
                                 Spacer()
                                 
-                                // Hiển thị ngôn ngữ hiện tại
                                 Text(Language(rawValue: LanguageManager.shared.selectedLanguage)?.displayName ?? "English")
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
@@ -85,18 +84,18 @@ struct SettingsView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 16))
                         }
                         
-                        settingsGroupTitle("APP INFO")
-                        SettingsRow(icon: "shield.fill", title: "Privacy Policy", color: .accentColor) {}
-                        SettingsRow(icon: "doc.text.fill", title: "Terms of Use", color: .accentColor) {}
+                        settingsGroupTitle(.localized("App Info"))
+                        SettingsRow(icon: "shield.fill", title: .localized("Privacy Policy"), color: .accentColor) {}
+                        SettingsRow(icon: "doc.text.fill", title: .localized("Terms of Use"), color: .accentColor) {}
                         
                         if viewModel.authUser != nil {
-                            settingsGroupTitle("ACCOUNT")
+                            settingsGroupTitle(.localized("Account"))
                             
-                            SettingsRow(icon: "rectangle.portrait.and.arrow.right", title: "Sign out", color: .orange) {
+                            SettingsRow(icon: "rectangle.portrait.and.arrow.right", title: .localized("Sign out"), color: .orange) {
                                 try? viewModel.signOut()
                             }
                             
-                            SettingsRow(icon: "trash.fill", title: "Delete Account", color: .red, isDestructive: true) {
+                            SettingsRow(icon: "trash.fill", title: .localized("Delete Account"), color: .red, isDestructive: true) {
                                 showDeleteAlert = true
                             }
                         }
@@ -116,7 +115,7 @@ struct SettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Text("Settings")
+                Text(.localized("Settings"))
                     .font(.headline)
             }
         }
@@ -132,8 +131,8 @@ struct SettingsView: View {
             }
         }
         .alert("Delete Account", isPresented: $showDeleteAlert) {
-            Button("Cancel", role: .cancel) { }
-            Button("Delete", role: .destructive) {
+            Button(.localized("Cancel"), role: .cancel) { }
+            Button(.localized("Delete"), role: .destructive) {
                 Task { await deleteAccount() }
             }
         } message: {
@@ -169,7 +168,6 @@ extension SettingsView {
                             )
                     }
                     
-//                    // Nút edit nhỏ (Optional)
 //                    if viewModel.authUser != nil {
 //                        Image(systemName: "pencil.circle.fill")
 //                            .foregroundStyle(.white, .blue)
@@ -181,19 +179,19 @@ extension SettingsView {
             
             VStack(spacing: 5) {
                 if let user = viewModel.authUser {
-                    Text(user.name ?? "User")
+                    Text(user.name ?? .localized("User"))
                         .font(.title2)
                         .fontWeight(.bold)
                     
-                    Text(user.email ?? "Anonymous User")
+                    Text(user.email ?? .localized("Anonymous User"))
                         .font(.subheadline)
                         .foregroundColor(.gray)
                 } else {
-                    Text("Guest User")
+                    Text(.localized("Guest User"))
                         .font(.title2)
                         .fontWeight(.bold)
                     
-                    Button("Sign in now") { showSignInView = true }
+                    Button(.localized("Sign in now")) { showSignInView = true }
                         .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(.accentColor)

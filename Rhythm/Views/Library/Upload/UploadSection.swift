@@ -22,7 +22,7 @@ struct UploadSection: View {
             }
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("My Uploads")
+                Text(.localized("My Uploads"))
                     .font(.headline)
                     .foregroundStyle(.primary)
                 Text("\(playlist.tracks.count) song\(playlist.tracks.count == 1 ? "" : "s")")

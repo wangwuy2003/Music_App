@@ -42,7 +42,7 @@ struct LanguageView: View {
                                     
                                     if languageManager.selectedLanguage == language.rawValue {
                                         Image(systemName: "checkmark.circle.fill")
-                                            .foregroundStyle(.blue)
+                                            .foregroundStyle(Color.accentColor)
                                             .font(.title3)
                                     } else {
                                         Image(systemName: "circle")
@@ -55,7 +55,7 @@ struct LanguageView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 16))
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 16)
-                                        .stroke(languageManager.selectedLanguage == language.rawValue ? Color.blue : Color.clear, lineWidth: 1)
+                                        .stroke(languageManager.selectedLanguage == language.rawValue ? Color.accentColor : Color.clear, lineWidth: 1.5)
                                 )
                             }
                         }
@@ -76,7 +76,6 @@ struct LanguageView: View {
                 }
             }
         }
-        // Force Redraw ID: Mẹo nhỏ để ép giao diện vẽ lại ngay khi đổi ngôn ngữ
         .id(languageManager.selectedLanguage)
     }
 }

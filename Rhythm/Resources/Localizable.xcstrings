@@ -157,6 +157,28 @@
         }
       }
     },
+    "Account" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tài khoản"
+          }
+        }
+      }
+    },
+    "Add a new playlist" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thêm danh sách phát mới"
+          }
+        }
+      }
+    },
     "Add to Playlist" : {
       "localizations" : {
         "vi" : {
@@ -185,6 +207,39 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tất cả"
+          }
+        }
+      }
+    },
+    "Anonymous User" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Người dùng ẩn danh"
+          }
+        }
+      }
+    },
+    "App Info" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thông tin ứng dụng"
+          }
+        }
+      }
+    },
+    "Appearance" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giao diện"
           }
         }
       }
@@ -220,6 +275,17 @@
         }
       }
     },
+    "By continuing, you agree to our Terms and Privacy Policy." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bằng cách tiếp tục, bạn đồng ý với Điều khoản và Chính sách Quyền riêng tư của chúng tôi."
+          }
+        }
+      }
+    },
     "Cancel" : {
       "localizations" : {
         "vi" : {
@@ -242,6 +308,7 @@
       }
     },
     "Continue as Guest" : {
+      "extractionState" : "stale",
       "localizations" : {
         "vi" : {
           "stringUnit" : {
@@ -252,6 +319,7 @@
       }
     },
     "Dark Mode" : {
+      "extractionState" : "manual",
       "localizations" : {
         "vi" : {
           "stringUnit" : {
@@ -371,7 +439,19 @@
         }
       }
     },
+    "General" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chung"
+          }
+        }
+      }
+    },
     "Guest User" : {
+      "extractionState" : "stale",
       "localizations" : {
         "vi" : {
           "stringUnit" : {
@@ -392,11 +472,47 @@
         }
       }
     },
+    "Import from Files" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhập từ Tệp"
+          }
+        }
+      }
+    },
+    "Import from Photos" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nhập từ Ảnh"
+          }
+        }
+      }
+    },
     "Key" : {
       "extractionState" : "manual"
     },
     "Key 1" : {
       "extractionState" : "manual"
+    },
+    "Key 2" : {
+      "extractionState" : "manual"
+    },
+    "Language" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ngôn ngữ"
+          }
+        }
+      }
     },
     "Library" : {
       "extractionState" : "manual",
@@ -442,6 +558,7 @@
       }
     },
     "New Playlist" : {
+      "extractionState" : "stale",
       "localizations" : {
         "vi" : {
           "stringUnit" : {
@@ -522,6 +639,7 @@
       }
     },
     "Playlist Title" : {
+      "extractionState" : "stale",
       "localizations" : {
         "vi" : {
           "stringUnit" : {
@@ -538,6 +656,17 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Danh sách phát"
+          }
+        }
+      }
+    },
+    "Privacy Policy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chính sách bảo mật"
           }
         }
       }
@@ -605,6 +734,17 @@
         }
       }
     },
+    "Select Language" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chọn ngôn ngữ"
+          }
+        }
+      }
+    },
     "Setting" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -617,6 +757,7 @@
       }
     },
     "Settings" : {
+      "extractionState" : "stale",
       "localizations" : {
         "vi" : {
           "stringUnit" : {
@@ -637,6 +778,7 @@
       }
     },
     "Sign in now" : {
+      "extractionState" : "stale",
       "localizations" : {
         "vi" : {
           "stringUnit" : {
@@ -647,6 +789,7 @@
       }
     },
     "Sign in to personalize your music experience" : {
+      "extractionState" : "stale",
       "localizations" : {
         "vi" : {
           "stringUnit" : {
@@ -657,6 +800,7 @@
       }
     },
     "Sign in with Email" : {
+      "extractionState" : "stale",
       "localizations" : {
         "vi" : {
           "stringUnit" : {
@@ -667,11 +811,23 @@
       }
     },
     "Sign in with Google" : {
+      "extractionState" : "stale",
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Đăng nhập bằng Google"
+          }
+        }
+      }
+    },
+    "Sign out" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Đăng xuất"
           }
         }
       }
@@ -686,12 +842,34 @@
         }
       }
     },
+    "Take Camera" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chụp ảnh"
+          }
+        }
+      }
+    },
     "Tap + button to add your own songs" : {
       "localizations" : {
         "vi" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Nhấn nút + để thêm bài hát của riêng bạn"
+          }
+        }
+      }
+    },
+    "Terms of Use" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Điều khoản sử dụng"
           }
         }
       }
@@ -755,7 +933,19 @@
         }
       }
     },
+    "User" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "vi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Người dùng"
+          }
+        }
+      }
+    },
     "Welcome to Rhythm" : {
+      "extractionState" : "stale",
       "localizations" : {
         "vi" : {
           "stringUnit" : {

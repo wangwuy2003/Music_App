@@ -70,7 +70,7 @@ extension LibraryView {
 extension LibraryView {
     private var titleView: some View {
         HStack {
-            Text(.localized("Playlist"))
+            Text(.localized("Library"))
                 .font(.largeTitle)
                 .bold()
             Spacer()

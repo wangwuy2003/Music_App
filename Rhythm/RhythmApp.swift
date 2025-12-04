@@ -44,6 +44,7 @@ struct RhythmApp: App {
             .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
             .background(themeManager.backgroundColor)
             .id(selectedLanguage)
+            .environment(\.locale, Locale(identifier: selectedLanguage))
         }
         .modelContainer(for: [Playlist.self, SavedTrack.self, FavouriteTrack.self])
         .onChange(of: scenePhase) { phase in
