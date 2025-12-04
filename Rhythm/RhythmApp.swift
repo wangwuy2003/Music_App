@@ -14,29 +14,36 @@ import FirebaseCore
 struct RhythmApp: App {
     @StateObject private var playerVM = PlayerViewModel()
     @StateObject private var homeVM = HomeViewModel()
+    @StateObject private var themeManager = ThemeManager.shared
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.modelContext) var modelContext
     @State private var showMainView = false
+    @AppStorage("selectedLanguage") var selectedLanguage: String = "en"
     
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     
     var body: some Scene {
         WindowGroup {
-            if showMainView {
-                TabbarView()
-                    .environmentObject(playerVM)
-                    .environmentObject(homeVM)
-                    .preferredColorScheme(.dark)
-                    .onAppear {
-                        playerVM.attachModelContext(modelContext)
-                        playerVM.restoreState()
-                    }
+            ZStack {
+                if showMainView {
+                    TabbarView()
+                        .environmentObject(playerVM)
+                        .environmentObject(homeVM)
+                        .environmentObject(themeManager)
+                        .onAppear {
+                            playerVM.attachModelContext(modelContext)
+                            playerVM.restoreState()
+                        }
 
-            } else {
-                SplashView(showMainView: $showMainView)
-                    .environmentObject(homeVM)
-                    .environmentObject(playerVM)
+                } else {
+                    SplashView(showMainView: $showMainView)
+                        .environmentObject(homeVM)
+                        .environmentObject(playerVM)
+                }
             }
+            .preferredColorScheme(themeManager.isDarkMode ? .dark : .light)
+            .background(themeManager.backgroundColor)
+            .id(selectedLanguage)
         }
         .modelContainer(for: [Playlist.self, SavedTrack.self, FavouriteTrack.self])
         .onChange(of: scenePhase) { phase in
@@ -44,6 +51,7 @@ struct RhythmApp: App {
                 playerVM.saveState()
             }
         }
+        
     }
 }
 

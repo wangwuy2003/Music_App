@@ -7,6 +7,7 @@
 import SwiftUI
 import GoogleSignIn
 import GoogleSignInSwift
+import MarqueeText
 
 struct AuthenticationView: View {
     @StateObject private var viewModel = AuthenticationViewModel()
@@ -32,30 +33,6 @@ struct AuthenticationView: View {
                 
 
                 Spacer()
-                
-                //  Anonymous Login
-                Button {
-                    Task {
-                        do {
-                            try await viewModel.signInAnonymous()
-                            showSignInView = false
-                        } catch {
-                            print(error)
-                        }
-                    }
-                } label: {
-                    HStack {
-                        Image(systemName: "person.fill.questionmark")
-                        Text("Continue as Guest")
-                    }
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .frame(height: 55)
-                    .frame(maxWidth: .infinity)
-                    .background(.orange.gradient)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .shadow(radius: 5)
-                }
                 
                 //  Sign in with Email
                 NavigationLink {
@@ -100,14 +77,39 @@ struct AuthenticationView: View {
                     .shadow(radius: 5)
                 }
                 
+                Button {
+                    Task {
+                        do {
+                            try await viewModel.signInAnonymous()
+                            showSignInView = false
+                        } catch {
+                            print(error)
+                        }
+                    }
+                } label: {
+                    Text("Continue as Guest")
+                        .underline(true, pattern: .solid, color: .secondary)
+                        .font(.caption)
+                        .foregroundStyle(.gray)
+                }
+                
                 Spacer()
                 
-                Text("By continuing, you agree to our Terms and Privacy Policy.")
-                    .lineLimit(2)
-                    .font(.footnote)
-                    .foregroundColor(.white.opacity(0.6))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
+                MarqueeText(
+                    text: "By continuing, you agree to our Terms and Privacy Policy.",
+                    font: .systemFont(ofSize: 13),
+                    leftFade: 16,
+                    rightFade: 16,
+                    startDelay: 5
+                )
+                .multilineTextAlignment(.center)
+                
+//                Text("By continuing, you agree to our Terms and Privacy Policy.")
+//                    .lineLimit(2)
+//                    .font(.footnote)
+//                    .foregroundColor(.white.opacity(0.6))
+//                    .multilineTextAlignment(.center)
+//                    .padding(.horizontal)
             }
             .padding(30)
         }

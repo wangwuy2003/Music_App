@@ -24,10 +24,10 @@ struct UploadSection: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("My Uploads")
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                 Text("\(playlist.tracks.count) song\(playlist.tracks.count == 1 ? "" : "s")")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.gray)
             }
 
             Spacer()

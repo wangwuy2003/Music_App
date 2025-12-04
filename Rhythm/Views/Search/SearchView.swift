@@ -16,11 +16,22 @@ enum SearchFilterType: String, CaseIterable, Identifiable {
     case artists = "Artists"
     case playlists = "Playlists"
     
+    var title: String {
+        switch self {
+        case .all:          return .localized("All")
+        case .tracks:       return .localized("Tracks")
+        case .albums:       return .localized("Albums")
+        case .artists:      return .localized("Artists")
+        case .playlists:    return .localized("Playlists")
+        }
+    }
+    
     var id: String { rawValue }
 }
 
 struct SearchView: View {
     @Environment(\.router) var router
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var playerVM: PlayerViewModel
     
     @StateObject private var searchVM = SearchViewModel()
@@ -60,8 +71,14 @@ extension SearchView {
     
     // MARK: Background
     private var backgroundGradient: some View {
-        LinearGradient(colors: [.hex291F2A, .hex0F0E13], startPoint: .top, endPoint: .bottom)
-            .ignoresSafeArea()
+        LinearGradient(
+            colors: colorScheme == .dark
+            ? [.hex291F2A, .hex0F0E13]
+            : [Color.white, Color(.systemGray6)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .ignoresSafeArea()
     }
     
     // MARK: Title
@@ -99,7 +116,7 @@ extension SearchView {
                             }
                         }
                     } label: {
-                        Text(filter.rawValue)
+                        Text(filter.title)
                             .font(.system(size: 16, weight: .medium))
                             .padding(.horizontal, 14)
                             .padding(.vertical, 8)
@@ -203,7 +220,7 @@ extension SearchView {
                 if (selectedFilter == .all || selectedFilter == .tracks),
                    !searchVM.tracks.isEmpty {
                     SearchSectionView(
-                        title: "🎵 Tracks",
+                        title: .localized("🎵 Tracks"),
                         items: searchVM.tracks.map {
                             SearchItem(id: $0.id,
                                        title: $0.name,

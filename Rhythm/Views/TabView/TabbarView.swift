@@ -6,25 +6,12 @@ struct TabbarView: View {
     @State private var selectedTab: TabEnum = .home
     @State private var showMiniPlayer: Bool = false
     @EnvironmentObject var playerVM: PlayerViewModel
-//    @StateObject private var playerVM = PlayerViewModel()
-    
-//    init() {
-//        UITabBar.appearance().backgroundColor = UIColor.black
-//        UITabBar.appearance().unselectedItemTintColor = UIColor.gray
-//    }
+    @ObservedObject private var themeManager = ThemeManager.shared
     
     init() {
-        let appearance = UITabBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor.black
+            TabbarView.configureTabBar(isDarkMode: ThemeManager.shared.isDarkMode)
+        }
         
-        // Màu icon
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
-        UITabBar.appearance().unselectedItemTintColor = UIColor.gray
-        UITabBar.appearance().tintColor = UIColor.accent
-    }
-    
     var body: some View {
         ZStack {
             TabView(selection: $selectedTab) {
@@ -40,6 +27,8 @@ struct TabbarView: View {
                     .tag(tab)
                 }
             }
+            .id(themeManager.isDarkMode)
+            
             .environmentObject(playerVM)
             .popup(isBarPresented: $playerVM.isBarPresented, isPopupOpen: $playerVM.isPopupOpen) {
                 PlayerView()
@@ -48,6 +37,41 @@ struct TabbarView: View {
             .popupBarShineEnabled(true)
             .popupBarProgressViewStyle(.bottom)
         }
+        .onChange(of: themeManager.isDarkMode) { _, newValue in
+            TabbarView.configureTabBar(isDarkMode: newValue)
+            
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                windowScene.windows.forEach { window in
+                    window.overrideUserInterfaceStyle = newValue ? .dark : .light
+                }
+            }
+        }
+    }
+    
+    static func configureTabBar(isDarkMode: Bool) {
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        
+        appearance.backgroundColor = isDarkMode ? .black : .white
+        
+        let itemAppearance = UITabBarItemAppearance()
+        
+        itemAppearance.normal.iconColor = .gray
+        itemAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.gray]
+        
+        let accentColor = UIColor(named: "AccentColor") ?? .systemBlue
+        itemAppearance.selected.iconColor = accentColor
+        itemAppearance.selected.titleTextAttributes = [.foregroundColor: accentColor]
+        
+        appearance.stackedLayoutAppearance = itemAppearance
+        appearance.inlineLayoutAppearance = itemAppearance
+        appearance.compactInlineLayoutAppearance = itemAppearance
+        
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+        
+        UITabBar.appearance().tintColor = accentColor
+        UITabBar.appearance().unselectedItemTintColor = .gray
     }
 }
 

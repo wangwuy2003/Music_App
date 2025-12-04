@@ -42,7 +42,7 @@ struct EditPlaylistView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(colors: [.gray.opacity(0.6), .black], startPoint: .top, endPoint: .bottom)
+            LinearGradient(colors: [Color.white, Color(.systemGray6)], startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
             
             VStack {
@@ -75,21 +75,24 @@ struct EditPlaylistView: View {
                 .scrollDismissesKeyboard(.immediately)
             }
         }
-        
         .navigationTitle("Edit playlist")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button { handleDismiss() } label: {
                     Image(systemName: "xmark")
-                        .foregroundStyle(.white)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.primary)
                 }
+                .buttonStyle(.plain)
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button { saveChanges() } label: {
                     Image(systemName: "checkmark")
-                        .foregroundColor(.white)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.primary)
                 }
+                .buttonStyle(.plain)
             }
             ToolbarItem(placement: .bottomBar) {
                 SpacerView()
@@ -164,7 +167,7 @@ extension EditPlaylistView {
             HStack {
                 Text("Tracks")
                     .font(.headline)
-                    .foregroundStyle(.white.opacity(0.9))
+                    .foregroundStyle(.primary.opacity(0.9))
                 Spacer()
             }
             .padding(.horizontal)

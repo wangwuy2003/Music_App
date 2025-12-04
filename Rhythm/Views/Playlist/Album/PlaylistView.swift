@@ -10,11 +10,12 @@ import SwiftfulRouting
 import SDWebImageSwiftUI
 
 struct PlaylistView: View {
+    @ObservedObject private var themeManager = ThemeManager.shared
     @Environment(\.dismiss) var dismiss
     @Environment(\.router) var router
     @EnvironmentObject var playerVM: PlayerViewModel 
     @StateObject private var playlistVM = PlaylistViewModel()
-    @State private var gradient = LinearGradient.randomDark()
+    @State private var gradient: LinearGradient = LinearGradient(colors: [], startPoint: .top, endPoint: .bottom)
     
     let album: JamendoAlbum
     
@@ -57,6 +58,12 @@ struct PlaylistView: View {
         .navigationBarBackButtonHidden()
         .navigationTitle(playlistVM.album?.name ?? "Album")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            updateGradient()
+        }
+        .onChange(of: themeManager.isDarkMode) { _, _ in
+            updateGradient()
+        }
         .task {
             await playlistVM.fetchTracks(forAlbum: album)
         }
@@ -66,8 +73,9 @@ struct PlaylistView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                 }
+                .buttonStyle(.plain)
 
             }
         }
@@ -76,6 +84,11 @@ struct PlaylistView: View {
     private func playShuffled() {
         let shuffledTracks = playlistVM.tracks.shuffled()
         playerVM.startPlayback(from: shuffledTracks, startingAt: 0)
+    }
+    
+    private func updateGradient() {
+        let endColor: Color = themeManager.isDarkMode ? .black : .white
+        self.gradient = LinearGradient.randomDark(endColor: endColor)
     }
 }
 
@@ -98,12 +111,12 @@ struct AlbumHeaderView: View {
             VStack(spacing: 4) {
                 Text(album.name)
                     .font(.title2.bold())
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                     .multilineTextAlignment(.center)
                 
                 Text(album.artistName)
                     .font(.headline)
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(.primary.opacity(0.8))
             }
             
             HStack(spacing: 25) {
@@ -132,7 +145,7 @@ struct AlbumHeaderView: View {
                             .fontWeight(.semibold)
                     }
                     .frame(width: 140, height: 45)
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.gray.opacity(0.3))
                     .foregroundStyle(.accent)
                     .clipShape(Capsule())
                 }

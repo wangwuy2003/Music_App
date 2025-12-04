@@ -38,12 +38,12 @@ struct PlaylistRow: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(playlist.name)
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                     .lineLimit(1)
                 
                 Text("\(playlist.tracks.count) song\(playlist.tracks.count == 1 ? "" : "s")")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.gray)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
             .background(.clear)

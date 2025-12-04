@@ -11,6 +11,7 @@ import SwiftfulRouting
 struct QueueView: View {
     @EnvironmentObject var playerVM: PlayerViewModel
     @Environment(\.dismiss) var dismiss
+    @ObservedObject private var themeManager = ThemeManager.shared
 
     var body: some View {
         RouterView { _ in
@@ -18,6 +19,7 @@ struct QueueView: View {
                 List {
                     ForEach(Array(playerVM.currentQueue.enumerated()), id: \.offset) { index, track in
                         TrackRowQueue(track: track)
+                            .listRowBackground(Color.clear)
                             .onTapGesture {
                                 playerVM.startPlayback(from: playerVM.currentQueue, startingAt: index)
                             }
@@ -25,7 +27,9 @@ struct QueueView: View {
                     .onMove(perform: moveItem)
                 }
                 .listStyle(.plain)
+                .scrollContentBackground(.hidden)
             }
+            .background(themeManager.backgroundColor)
             .navigationTitle(.localized("Now Playing Queue"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -34,8 +38,10 @@ struct QueueView: View {
                         dismiss()
                     } label: {
                         Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(themeManager.textColor)
                     }
-
+                    .buttonStyle(.plain)
                 }
             }
         }

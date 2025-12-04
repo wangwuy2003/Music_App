@@ -59,20 +59,20 @@ struct TrackRowView: View {
                 Text(track.name)
                     .font(.headline)
                     .lineLimit(1)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                 
                 Text(track.artistName ?? "Unknown")
                     .font(.subheadline)
                     .lineLimit(1)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.gray)
                 
                 if let reason = track.reason, !reason.isEmpty {
                     HStack(spacing: 4) {
                         Image(systemName: "sparkles")
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(.gray)
                         Text(reason)
                             .font(.caption2.italic())
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(.gray)
                             .lineLimit(2)
                     }
                 }

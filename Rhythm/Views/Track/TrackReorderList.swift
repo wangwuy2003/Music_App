@@ -45,11 +45,11 @@ struct TrackReorderList: View {
 
                     VStack(alignment: .leading) {
                         Text(track.name)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                             .lineLimit(1)
                         Text(track.artistName ?? "Unknown")
                             .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(.primary.opacity(0.6))
                             .lineLimit(1)
                     }
                 }

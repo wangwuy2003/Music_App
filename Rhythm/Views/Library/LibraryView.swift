@@ -10,6 +10,7 @@ import SwiftfulRouting
 import SwiftData
 
 struct LibraryView: View {
+    @Environment(\.colorScheme) var colorScheme
     @Environment(\.router) var router
     @Environment(\.modelContext) var modelContext
     @EnvironmentObject var libraryVM: LibraryViewModel
@@ -22,7 +23,7 @@ struct LibraryView: View {
     
     var body: some View {
         ZStack {
-            backgroundView
+            backgroundGradient
             
             VStack {
                 titleView
@@ -80,16 +81,18 @@ extension LibraryView {
                 }
             } label: {
                 Image(systemName: isGridView ? "list.bullet" : "square.grid.2x2")
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .font(.title2)
             }
         }
         .padding(.horizontal)
     }
     
-    private var backgroundView: some View {
+    private var backgroundGradient: some View {
         LinearGradient(
-            gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]),
+            colors: colorScheme == .dark
+            ? [.hex291F2A, .hex0F0E13]
+            : [Color.white, Color(.systemGray6)],
             startPoint: .top,
             endPoint: .bottom
         )
@@ -118,11 +121,13 @@ extension LibraryView {
                     )
                 
                 Text(.localized("Add a new playlist"))
-                    .foregroundStyle(.white)
                     .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(.primary)
             }
             .padding(.vertical, 10)
+            .contentShape(Rectangle())
         }
+        .buttonStyle(.plain)
     }
     
     // MARK: PlaylistListView

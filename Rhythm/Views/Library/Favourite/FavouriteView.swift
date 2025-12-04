@@ -11,6 +11,7 @@ import SwiftfulRouting
 import SDWebImageSwiftUI
 
 struct FavouritesView: View {
+    @Environment(\.colorScheme) var colorScheme
     @Environment(\.router) var router
     @EnvironmentObject var playerVM: PlayerViewModel
     @Query private var favourites: [FavouriteTrack]
@@ -18,13 +19,11 @@ struct FavouritesView: View {
     
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]),
-                           startPoint: .top, endPoint: .bottom)
-            .ignoresSafeArea()
+            backgroundGradient
             
             if favourites.isEmpty {
                 Text(.localized("No favourite songs yet."))
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.primary.opacity(0.7))
                     .padding()
             } else {
                 List {
@@ -68,8 +67,9 @@ struct FavouritesView: View {
                     router.dismissScreen()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                 }
+                .buttonStyle(.plain)
             }
         }
     }
@@ -93,6 +93,17 @@ struct FavouritesView: View {
         }
         try? modelContext.save()
     }
+    
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: colorScheme == .dark
+            ? [.hex291F2A, .hex0F0E13]
+            : [Color.white, Color(.systemGray6)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .ignoresSafeArea()
+    }
 }
 
 struct PlaylistHeaderFavouriteView: View {
@@ -109,21 +120,21 @@ struct PlaylistHeaderFavouriteView: View {
                         endPoint: .bottomTrailing
                     ))
                     .frame(width: 200, height: 200)
-                    .shadow(color: .black.opacity(0.4), radius: 10)
+                    .shadow(color: .primary.opacity(0.4), radius: 10)
                 Image(systemName: "heart.fill")
                     .font(.system(size: 50))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
             }
             
             HStack(spacing: 4) {
                 Text(.localized("Favourites Song"))
                     .font(.title2.bold())
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                     .multilineTextAlignment(.center)
                 
                 Image(systemName: "heart.fill")
                     .font(.system(size: 24))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
             }
             
             
@@ -153,7 +164,7 @@ struct PlaylistHeaderFavouriteView: View {
                             .fontWeight(.semibold)
                     }
                     .frame(width: 140, height: 45)
-                    .background(Color.white.opacity(0.1))
+                    .background(.gray.opacity(0.3))
                     .foregroundStyle(.accent)
                     .clipShape(Capsule())
                 }

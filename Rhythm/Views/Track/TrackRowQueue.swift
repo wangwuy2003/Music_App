@@ -12,6 +12,7 @@ import SwiftData
 import SwiftfulLoadingIndicators
 
 struct TrackRowQueue: View {
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var playerVM: PlayerViewModel
     @Query private var playlists: [Playlist]
     
@@ -47,12 +48,12 @@ struct TrackRowQueue: View {
                 Text(track.name)
                     .font(.headline)
                     .lineLimit(1)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(colorScheme == .dark ? .white : .black)
                 
-                Text("Unknown")
+                Text(track.artistName ?? .localized("Unknown"))
                     .font(.subheadline)
                     .lineLimit(1)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(colorScheme == .dark ? .gray : .black.opacity(0.7))
             }
             
             Spacer()

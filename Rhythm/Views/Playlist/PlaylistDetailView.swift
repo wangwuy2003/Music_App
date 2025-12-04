@@ -11,12 +11,13 @@ import SwiftData
 import SwiftfulRouting
 
 struct PlaylistDetailView: View {
+    @ObservedObject private var themeManager = ThemeManager.shared
     @Environment(\.router) var router
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) var modelContext
     @EnvironmentObject var playerVM: PlayerViewModel
     @EnvironmentObject var libraryVM: LibraryViewModel
-    @State private var gradient = LinearGradient.randomDark()
+    @State private var gradient: LinearGradient = LinearGradient(colors: [], startPoint: .top, endPoint: .bottom)
     var playlist: Playlist
     
     var orderedTracks: [SavedTrack] {
@@ -43,10 +44,10 @@ struct PlaylistDetailView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "music.note.list")
                         .font(.system(size: 60))
-                        .foregroundStyle(.white.opacity(0.5))
+                        .foregroundStyle(.primary.opacity(0.5))
                     
                     Text("This playlist has no tracks yet.")
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(.primary.opacity(0.7))
                         .font(.headline)
                 }
                 .multilineTextAlignment(.center)
@@ -89,6 +90,12 @@ struct PlaylistDetailView: View {
         .enableSwipeBack()
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
+        .onAppear {
+            updateGradient()
+        }
+        .onChange(of: themeManager.isDarkMode) { _, _ in
+            updateGradient()
+        }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
@@ -114,6 +121,12 @@ struct PlaylistDetailView: View {
             }
         }
     }
+    
+    
+    private func updateGradient() {
+        let endColor: Color = themeManager.isDarkMode ? .black : .white
+        self.gradient = LinearGradient.randomDark(endColor: endColor)
+    }
 }
 
 struct PlaylistLocalHeaderView: View {
@@ -132,8 +145,8 @@ struct PlaylistLocalHeaderView: View {
                     .scaledToFill()
                     .frame(width: 200, height: 200)
                     .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .shadow(color: .black.opacity(0.4), radius: 10)
-            } else {
+                    .shadow(color: .primary.opacity(0.4), radius: 10)
+            } else { 
                 Rectangle()
                     .fill(Color.gray.opacity(0.3))
                     .frame(width: 200, height: 200)
@@ -141,7 +154,7 @@ struct PlaylistLocalHeaderView: View {
                     .overlay(
                         Image(systemName: "music.note.list")
                             .font(.system(size: 40))
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(.primary.opacity(0.7))
                     )
                     .shadow(color: .black.opacity(0.4), radius: 10)
             }
@@ -149,7 +162,7 @@ struct PlaylistLocalHeaderView: View {
             // Playlist name
             Text(name)
                 .font(.title2.bold())
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
             
             // Play & Shuffle buttons
@@ -179,7 +192,7 @@ struct PlaylistLocalHeaderView: View {
                             .fontWeight(.semibold)
                     }
                     .frame(width: 120, height: 45)
-                    .background(Color.white.opacity(0.1))
+                    .background(.gray.opacity(0.3))
                     .foregroundStyle(.accent)
                     .clipShape(Capsule())
                 }
@@ -189,7 +202,7 @@ struct PlaylistLocalHeaderView: View {
             
             Text(description)
                 .font(.caption)
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
                 .multilineTextAlignment(.leading)
         }
         .padding()

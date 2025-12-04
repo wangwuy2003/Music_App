@@ -9,10 +9,11 @@ import SwiftfulRouting
 import SDWebImageSwiftUI
 
 struct PlaylistTracksView: View {
+    @ObservedObject private var themeManager = ThemeManager.shared
     @Environment(\.router) var router
     @EnvironmentObject var playerVM: PlayerViewModel
     @StateObject private var vm = PlaylistTracksViewModel()
-    @State private var gradient = LinearGradient.randomDark()
+    @State private var gradient: LinearGradient = LinearGradient(colors: [], startPoint: .top, endPoint: .bottom)
     let playlistId: String
     let playlistName: String
     var customTracks: [JamendoTrack]? = nil
@@ -24,7 +25,7 @@ struct PlaylistTracksView: View {
             
             if vm.isLoading {
                 ProgressView()
-                    .tint(.white)
+                    .tint(.primary)
             } else if let error = vm.errorMessage {
                 Text("⚠️ \(error)")
                     .foregroundStyle(.white)
@@ -66,14 +67,21 @@ struct PlaylistTracksView: View {
         .enableSwipeBack()
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden()
+        .onAppear {
+            updateGradient()
+        }
+        .onChange(of: themeManager.isDarkMode) { _, _ in
+            updateGradient()
+        }
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button {
                     router.dismissScreen()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                 }
+                .buttonStyle(.plain)
             }
         }
         .task {
@@ -92,6 +100,11 @@ struct PlaylistTracksView: View {
     private func playShuffled() {
         let shuffledTracks = vm.tracks.shuffled()
         playerVM.startPlayback(from: shuffledTracks, startingAt: 0)
+    }
+    
+    private func updateGradient() {
+        let endColor: Color = themeManager.isDarkMode ? .black : .white
+        self.gradient = LinearGradient.randomDark(endColor: endColor)
     }
 }
 
@@ -115,7 +128,7 @@ struct PlaylistHeaderView: View {
             
             Text(name)
                 .font(.title2.bold())
-                .foregroundStyle(.white)
+                .foregroundStyle(.primary)
                 .multilineTextAlignment(.center)
             
             HStack(spacing: 25) {
@@ -144,7 +157,7 @@ struct PlaylistHeaderView: View {
                             .fontWeight(.semibold)
                     }
                     .frame(width: 140, height: 45)
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.gray.opacity(0.3))
                     .foregroundStyle(.accent)
                     .clipShape(Capsule())
                 }

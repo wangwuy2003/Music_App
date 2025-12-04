@@ -24,18 +24,18 @@ struct FavouriteGridItem: View {
                 
                 Image(systemName: "heart.fill")
                     .font(.system(size: 40))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
             }
             
             VStack(alignment: .leading, spacing: 4) {
                 Text("Favourite Songs")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .lineLimit(1)
                 
                 Text("\(tracks.count) songs")
                     .font(.system(size: 14))
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(.primary.opacity(0.7))
             }
         }
         .frame(width: 160, alignment: .leading)

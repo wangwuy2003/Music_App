@@ -11,6 +11,7 @@ import SDWebImageSwiftUI
 import MarqueeText
 
 struct PlayerView: View {
+    @Environment(\.colorScheme) var colorScheme
     @Environment(\.modelContext) var modelContext
     @EnvironmentObject var playerVM: PlayerViewModel
     @Environment(\.popupBarPlacement) var popupBarPlacement
@@ -106,15 +107,16 @@ struct PlayerView: View {
                     playerVM.togglePlayback()
                 } label: {
                     Image(systemName: playerVM.isPlaying ? "pause.fill" : "play.fill")
-                        .foregroundStyle(.white)
                         .font(.title3)
+                        .foregroundStyle(colorScheme == .dark ? .white : .black)
                 }
                 
                 Button {
                     playerVM.playNext()
                 } label: {
                     Image(systemName: "forward.fill")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
+                        .foregroundStyle(colorScheme == .dark ? .white : .black)
                 }
             }
         }
@@ -138,9 +140,11 @@ extension PlayerView {
                             leftFade: 16,
                             rightFade: 16,
                             startDelay: 4)
+                .foregroundStyle(.white)
                 
                 Text(playerVM.subtitle)
-                    .font(.caption).foregroundColor(.secondary)
+                    .font(.caption)
+                    .foregroundStyle(colorScheme == .dark ? .secondary : Color.white)
             }
             
             Spacer()

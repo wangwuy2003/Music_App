@@ -14,10 +14,11 @@ struct HomeView: View {
     @Environment(\.router) var router
     @EnvironmentObject var homeVM: HomeViewModel
     @EnvironmentObject var playerVM: PlayerViewModel
+    @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
         ZStack {
-            LinearGradient(gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]), startPoint: .top, endPoint: .bottom)
+            backgroundGradient
                 .ignoresSafeArea()
             
             ScrollView(.vertical, showsIndicators: false) {
@@ -25,7 +26,7 @@ struct HomeView: View {
                     if homeVM.isRefreshing {
                         HStack {
                             Spacer()
-                            LoadingIndicator(animation: .text, color: .white, size: .medium)
+                            LoadingIndicator(animation: .text, color: .primary, size: .medium)
                             Spacer()
                         }
                         .padding(.top, 10)
@@ -36,7 +37,7 @@ struct HomeView: View {
                     
                     if !homeVM.topAlbums.isEmpty {
                         HorizontalSectionView(
-                            title: "Top Albums",
+                            title: .localized("Top Albums"),
                             items: homeVM.topAlbums
                         ) { album in
                             AlbumSquareView(album: album)
@@ -51,8 +52,8 @@ struct HomeView: View {
                     
                     if !homeVM.popularPlaylists.isEmpty {
                         HorizontalSectionViewSplit(
-                            title1: "🎵 Top Playlists",
-                            title2: "🔥 More to Explore",
+                            title1: .localized("🎵 Top Playlists"),
+                            title2: .localized("🔥 More to Explore"),
                             items: homeVM.popularPlaylists
                         ) { playlist in
                             PlaylistSquareView(playlist: playlist)
@@ -72,7 +73,7 @@ struct HomeView: View {
                     
                     if !homeVM.topTracks.isEmpty {
                         HorizontalSectionView(
-                            title: "Top Tracks",
+                            title: .localized("Top Tracks"),
                             items: homeVM.topTracks
                         ) { track in
                             TrackSquareView(track: track)
@@ -113,14 +114,9 @@ struct HomeView: View {
         .toolbar(.visible)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
-                HStack(spacing: 5) {
-                    Image("purple_music_ic")
-                        .font(.largeTitle)
-                    
-                    Text(.localized("Trending"))
-                        .font(.largeTitle)
-                        .bold()
-                }
+                Text(.localized("Trending"))
+                    .font(.largeTitle)
+                    .bold()
             }
             
 //            ToolbarItem(placement: .topBarTrailing) {
@@ -146,6 +142,16 @@ struct HomeView: View {
         //                homeVM.router = router
         //            }
         //        }
+    }
+    
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: colorScheme == .dark
+            ? [.hex291F2A, .hex0F0E13]
+            : [Color.white, Color(.systemGray6)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
     }
     
     private func errorView(_ message: String) -> some View {
@@ -231,7 +237,7 @@ extension HomeView {
                 Text("For You")
                     .font(.title2.bold())
                     .padding(.horizontal)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 15) {
@@ -240,7 +246,7 @@ extension HomeView {
                                 router.showScreen(.push) { _ in
                                     PlaylistTracksView(
                                         playlistId: mix.id,
-                                        playlistName: "Your Favourites",
+                                        playlistName: .localized("Your Favourites"),
                                         customTracks: mix.similarTracks
                                     )
                                     .environmentObject(playerVM)
@@ -255,13 +261,13 @@ extension HomeView {
                                     .cornerRadius(16)
                                     .overlay(alignment: .leading) {
                                         VStack(alignment: .leading) {
-                                            Text("Mix")
+                                            Text(.localized("Mix"))
                                                 .font(.title3)
                                                 .foregroundColor(.white)
                                                 .padding(.horizontal)
                                                 .padding(.top, 10)
                                             
-                                            Text("For You")
+                                            Text(.localized("For You"))
                                                 .font(.title3)
                                                 .bold()
                                                 .foregroundStyle(.white)
@@ -307,10 +313,10 @@ extension HomeView {
         
         if !mixes.isEmpty {
             VStack(alignment: .leading, spacing: 10) {
-                Text("🎧 Your Personalized Mixes")
+                Text(.localized("🎧 Your Personalized Mixes"))
                     .font(.title2.bold())
                     .padding(.horizontal)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 20) {
@@ -319,14 +325,13 @@ extension HomeView {
                                 router.showScreen(.push) { _ in
                                     PlaylistTracksView(
                                         playlistId: mix.id,
-                                        playlistName: "Mix based on \(mix.baseTrack.name)",
+                                        playlistName: .localized("Mix based on \(mix.baseTrack.name)"),
                                         customTracks: mix.similarTracks
                                     )
                                     .environmentObject(playerVM)
                                 }
                             } label: {
                                 VStack(alignment: .leading, spacing: 6) {
-                                    // Ảnh vuông của mix
                                     AsyncImage(url: URL(string: mix.baseTrack.image ?? mix.baseTrack.albumImage ?? "")) { phase in
                                         if let img = phase.image {
                                             img
@@ -339,21 +344,20 @@ extension HomeView {
                                             ZStack {
                                                 Color.gray.opacity(0.3)
                                                 Image(systemName: "music.note")
-                                                    .foregroundColor(.white.opacity(0.7))
+                                                    .foregroundColor(.primary.opacity(0.7))
                                             }
                                             .frame(width: 140, height: 140)
                                             .clipShape(RoundedRectangle(cornerRadius: 12))
                                         } else {
                                             ProgressView()
-                                                .tint(.white)
+                                                .tint(.primary)
                                                 .frame(width: 140, height: 140)
                                         }
                                     }
                                     
-                                    // Tên Mix
-                                    Text("Mix based on \(mix.baseTrack.name)")
+                                    Text(.localized("Mix based on \(mix.baseTrack.name)"))
                                         .font(.headline)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(.primary)
                                         .lineLimit(2)
                                         .frame(width: 140, alignment: .leading)
                                     
@@ -364,7 +368,7 @@ extension HomeView {
                                     
                                     Text(artists.isEmpty ? (mix.baseTrack.artistName ?? "Various Artists") : artists)
                                         .font(.caption2)
-                                        .foregroundColor(.white.opacity(0.6))
+                                        .foregroundColor(.primary.opacity(0.6))
                                         .lineLimit(1)
                                         .frame(width: 140, alignment: .leading)
                                 }
@@ -390,7 +394,6 @@ struct HorizontalSectionView<Item: Identifiable & Hashable, Content: View>: View
             Text(title)
                 .font(.title2.bold())
                 .padding(.horizontal)
-                .foregroundStyle(.white)
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 15) {
@@ -424,7 +427,6 @@ struct HorizontalSectionViewSplit<Item: Identifiable & Hashable, Content: View>:
                 Text(title1)
                     .font(.title3.bold())
                     .padding(.horizontal)
-                    .foregroundStyle(.white)
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 15) {
@@ -440,7 +442,6 @@ struct HorizontalSectionViewSplit<Item: Identifiable & Hashable, Content: View>:
                 Text(title2)
                     .font(.title3.bold())
                     .padding(.horizontal)
-                    .foregroundStyle(.white)
                 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 15) {

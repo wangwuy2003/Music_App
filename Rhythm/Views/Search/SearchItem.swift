@@ -30,7 +30,7 @@ struct SearchSectionView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
                 .font(.headline)
-                .foregroundColor(.white)
+                .foregroundColor(.primary)
             
             ForEach(items) { item in
                 HStack(spacing: 12) {
@@ -48,7 +48,7 @@ struct SearchSectionView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(item.title)
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
                         
                         if type == .album || type == .artist, !item.subtitle.isEmpty {
                             Text(item.subtitle)

@@ -12,6 +12,7 @@ import SwiftfulLoadingIndicators
 
 struct UploadDetailView: View {
     @Environment(\.modelContext) var modelContext
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var libraryVM: LibraryViewModel
     @EnvironmentObject var playerVM: PlayerViewModel
     @Environment(\.dismiss) var dismiss
@@ -27,11 +28,7 @@ struct UploadDetailView: View {
     
     var body: some View {
         ZStack(alignment: .bottomTrailing) {
-            LinearGradient(
-                gradient: Gradient(colors: [.hex291F2A, .hex0F0E13]),
-                startPoint: .top, endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            backgroundGradient
             
             VStack(spacing: 16) {
                 if playlist.tracks.isEmpty {
@@ -129,8 +126,9 @@ struct UploadDetailView: View {
                     dismiss()
                 } label: {
                     Image(systemName: "chevron.left")
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                 }
+                .buttonStyle(.plain)
             }
             
             ToolbarItem(placement: .topBarTrailing) {
@@ -140,13 +138,25 @@ struct UploadDetailView: View {
                         selectedTracks.removeAll()
                     }
                 }
-                .foregroundStyle(playlist.tracks.isEmpty ? .gray : .white)
+                .buttonStyle(.plain)
+                .foregroundStyle(playlist.tracks.isEmpty ? .gray : .primary)
                 .disabled(playlist.tracks.isEmpty && !isEditing)
             }
         }
     }
     
     // MARK: - Helper
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: colorScheme == .dark
+            ? [.hex291F2A, .hex0F0E13]
+            : [Color.white, Color(.systemGray6)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .ignoresSafeArea()
+    }
+    
     private func toggleSelection(for track: SavedTrack) {
         if selectedTracks.contains(track.jamendoID) {
             selectedTracks.remove(track.jamendoID)
@@ -215,12 +225,12 @@ extension UploadDetailView {
                     VStack(alignment: .leading, spacing: 5) {
                         Text(track.name)
                             .font(.headline)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(.primary)
                             .lineLimit(2)
                         if let duration = track.duration {
                             Text(formatTime(Double(duration)))
                                 .font(.caption)
-                                .foregroundStyle(.white.opacity(0.6))
+                                .foregroundStyle(.primary.opacity(0.6))
                         }
                     }
                     
@@ -236,7 +246,7 @@ extension UploadDetailView {
                         } label: {
                             Image(systemName: "ellipsis")
                                 .rotationEffect(.degrees(90))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(.primary)
                                 .padding(12)
                                 .contentShape(Rectangle())
                         }

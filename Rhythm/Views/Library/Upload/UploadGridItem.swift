@@ -40,12 +40,12 @@ struct UploadGridItem: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("My Uploads")
                     .font(.system(size: 16, weight: .semibold))
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
                     .lineLimit(1)
                 
                 Text("\(playlist.tracks.count)")
                     .font(.system(size: 14))
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(.primary.opacity(0.7))
             }
         }
         .frame(width: 160, alignment: .leading)

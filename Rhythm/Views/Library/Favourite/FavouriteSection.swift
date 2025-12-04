@@ -27,11 +27,11 @@ struct FavouriteSection: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(.localized("Favourite Songs"))
                     .font(.headline)
-                    .foregroundStyle(.white)
+                    .foregroundStyle(.primary)
                 
                 Text("\(tracks.count) song\(tracks.count == 1 ? "" : "s")")
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(.gray)
             }
             
             Spacer()
