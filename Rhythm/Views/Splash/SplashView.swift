@@ -36,19 +36,31 @@ struct SplashView: View {
     private func preloadData() async {
         homeVM.loadCache()
         
-        Task.detached {
-            await homeVM.fetchData()
-            await homeVM.fetchRecentMixes()
-            await MainActor.run {
-                homeVM.saveCache()
+        await withTaskGroup(of: Void.self) { group in
+            
+            group.addTask {
+                await homeVM.fetchData()
+                await homeVM.fetchRecentMixes()
+                await MainActor.run {
+                    homeVM.saveCache()
+                }
             }
+            
+            group.addTask {
+                try? await Task.sleep(nanoseconds: 5_000_000_000)
+            }
+            
+            _ = await group.next()
+            
+            group.cancelAll()
         }
-
-        withAnimation(.easeOut(duration: 1.5)) {
+        
+        withAnimation(.easeOut(duration: 1.0)) {
             isLoading = false
         }
         
-        try? await Task.sleep(nanoseconds: 1_500_000_000)
+        try? await Task.sleep(nanoseconds: 500_000_000)
+        
         withAnimation(.easeOut(duration: 0.5)) {
             showMainView = true
         }

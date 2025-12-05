@@ -568,6 +568,12 @@
         }
       }
     },
+    "No Data Available" : {
+
+    },
+    "No Internet Connection" : {
+
+    },
     "No tracks found for this artist." : {
       "localizations" : {
         "vi" : {
@@ -659,6 +665,9 @@
           }
         }
       }
+    },
+    "Please check your connection and try again." : {
+
     },
     "Privacy Policy" : {
       "extractionState" : "manual",
@@ -841,6 +850,9 @@
           }
         }
       }
+    },
+    "Something went wrong while loading data." : {
+
     },
     "Take Camera" : {
       "extractionState" : "manual",

@@ -15,80 +15,17 @@ struct HomeView: View {
     @EnvironmentObject var homeVM: HomeViewModel
     @EnvironmentObject var playerVM: PlayerViewModel
     @Environment(\.colorScheme) var colorScheme
+    @ObservedObject var networkMonitor = NetworkMonitor.shared
     
     var body: some View {
         ZStack {
             backgroundGradient
                 .ignoresSafeArea()
             
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 25) {
-                    if homeVM.isRefreshing {
-                        HStack {
-                            Spacer()
-                            LoadingIndicator(animation: .text, color: .primary, size: .medium)
-                            Spacer()
-                        }
-                        .padding(.top, 10)
-                        .transition(.opacity)
-                    }
-                    
-                    forYouSection
-                    
-                    if !homeVM.topAlbums.isEmpty {
-                        HorizontalSectionView(
-                            title: .localized("Top Albums"),
-                            items: homeVM.topAlbums
-                        ) { album in
-                            AlbumSquareView(album: album)
-                                .onTapGesture {
-                                    router.showScreen(.push) { _ in
-                                        PlaylistView(album: album)
-                                            .environmentObject(playerVM)
-                                    }
-                                }
-                        }
-                    }
-                    
-                    if !homeVM.popularPlaylists.isEmpty {
-                        HorizontalSectionViewSplit(
-                            title1: .localized("🎵 Top Playlists"),
-                            title2: .localized("🔥 More to Explore"),
-                            items: homeVM.popularPlaylists
-                        ) { playlist in
-                            PlaylistSquareView(playlist: playlist)
-                                .onTapGesture {
-                                    router.showScreen(.push) { _ in
-                                        PlaylistTracksView(
-                                            playlistId: playlist.id,
-                                            playlistName: playlist.name ?? "Playlist"
-                                        )
-                                        .environmentObject(playerVM)
-                                    }
-                                }
-                        }
-                    }
-                    
-                    mixesSection
-                    
-                    if !homeVM.topTracks.isEmpty {
-                        HorizontalSectionView(
-                            title: .localized("Top Tracks"),
-                            items: homeVM.topTracks
-                        ) { track in
-                            TrackSquareView(track: track)
-                                .onTapGesture {
-                                    playerVM.startPlayback(from: [track], startingAt: 0)
-                                }
-                        }
-                    }
-                    
-                    Spacer()
-                }
-                .padding(.top, 10)
-            }
-            .refreshable {
-                homeVM.refreshDataInBackground()
+            if homeVM.topAlbums.isEmpty && homeVM.popularPlaylists.isEmpty {
+                noInternetView
+            } else {
+                mainContentView
             }
 //            .overlay {
 //                if homeVM.isRefreshing {
@@ -100,15 +37,18 @@ struct HomeView: View {
 //                        .transition(.opacity)
 //                }
 //            }
-            .animation(.easeInOut(duration: 0.3), value: homeVM.isRefreshing)
             
-            if let errorMessage = homeVM.errorMessage {
-                errorView(errorMessage)
-            }
+//            if let errorMessage = homeVM.errorMessage {
+//                errorView(errorMessage)
+//            }
         }
         .task {
             if let uid = Auth.auth().currentUser?.uid {
                 await homeVM.fetchForYouMixes(for: uid)
+            }
+            
+            if homeVM.topAlbums.isEmpty {
+                await homeVM.fetchData()
             }
         }
         .toolbar(.visible)
@@ -118,30 +58,7 @@ struct HomeView: View {
                     .font(.largeTitle)
                     .bold()
             }
-            
-//            ToolbarItem(placement: .topBarTrailing) {
-//                Button {
-//                    router.showScreen(.push) { _ in
-//                        SearchView()
-//                            .navigationBarBackButtonHidden()
-//                    }
-//                } label: {
-//                    Image(systemName: "magnifyingglass")
-//                }
-//            }
         }
-        //        .task {
-        //            if homeVM.topAlbums.isEmpty && !homeVM.isLoading {
-        //                await homeVM.fetchData()
-        //                await homeVM.fetchSimilarMix()
-        //            }
-        //        }
-        //        .onAppear {
-        //            // Cập nhật router thực tế cho ViewModel
-        //            if homeVM.router == nil {
-        //                homeVM.router = router
-        //            }
-        //        }
     }
     
     private var backgroundGradient: some View {
@@ -196,35 +113,108 @@ struct HomeView: View {
     }
 }
 
+// MARK: Subviews
 extension HomeView {
-    private var genreRow: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(.localized("Music genres"))
-                    .font(.headline)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(.white)
-                Spacer()
-            }
-            .padding(.horizontal)
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 12) {
-                    ForEach(MusicGenres.allCases) { genre in
-                        Text(genre.name)
-                            .font(.callout)
-                            .bold()
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 10)
-                            .background(genre.gradient)
-                            .clipShape(.rect(cornerRadius: 10))
+    private var mainContentView: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 25) {
+                if homeVM.isRefreshing {
+                    HStack {
+                        Spacer()
+                        LoadingIndicator(animation: .text, color: .primary, size: .medium)
+                        Spacer()
+                    }
+                    .padding(.top, 10)
+                    .transition(.opacity)
+                }
+                
+                forYouSection
+                
+                if !homeVM.topAlbums.isEmpty {
+                    HorizontalSectionView(
+                        title: .localized("Top Albums"),
+                        items: homeVM.topAlbums
+                    ) { album in
+                        AlbumSquareView(album: album)
+                            .onTapGesture {
+                                router.showScreen(.push) { _ in
+                                    PlaylistView(album: album)
+                                        .environmentObject(playerVM)
+                                }
+                            }
                     }
                 }
-                .padding(.horizontal)
+                
+                if !homeVM.popularPlaylists.isEmpty {
+                    HorizontalSectionViewSplit(
+                        title1: .localized("🎵 Top Playlists"),
+                        title2: .localized("🔥 More to Explore"),
+                        items: homeVM.popularPlaylists
+                    ) { playlist in
+                        PlaylistSquareView(playlist: playlist)
+                            .onTapGesture {
+                                router.showScreen(.push) { _ in
+                                    PlaylistTracksView(
+                                        playlistId: playlist.id,
+                                        playlistName: playlist.name ?? "Playlist"
+                                    )
+                                    .environmentObject(playerVM)
+                                }
+                            }
+                    }
+                }
+                
+                mixesSection
+                
+                if !homeVM.topTracks.isEmpty {
+                    HorizontalSectionView(
+                        title: .localized("Top Tracks"),
+                        items: homeVM.topTracks
+                    ) { track in
+                        TrackSquareView(track: track)
+                            .onTapGesture {
+                                playerVM.startPlayback(from: [track], startingAt: 0)
+                            }
+                    }
+                }
+                
+                Spacer()
             }
+            .padding(.top, 10)
         }
-        .frame(maxWidth: .infinity)
+        .refreshable {
+            homeVM.refreshDataInBackground()
+        }
+    }
+    
+    // MARK: - No Internet / Error View
+    private var noInternetView: some View {
+        ContentUnavailableView {
+            Label(
+                networkMonitor.isConnected ? "No Data Available" : "No Internet Connection",
+                systemImage: networkMonitor.isConnected ? "music.note.list" : "wifi.slash"
+            )
+        } description: {
+            Text(networkMonitor.isConnected
+                 ? "Something went wrong while loading data."
+                 : "Please check your connection and try again.")
+        } actions: {
+            Button(action: {
+                Task {
+                    await homeVM.fetchData()
+                }
+            }) {
+                Text("Retry")
+                    .fontWeight(.semibold)
+                    .padding(.horizontal, 25)
+                    .padding(.vertical, 12)
+                    .background(Color.accentColor)
+                    .foregroundColor(.white)
+                    .clipShape(Capsule())
+            }
+            .disabled(homeVM.isLoading)
+            .opacity(homeVM.isLoading ? 0.5 : 1)
+        }
     }
     
     // MARK: For You section
